@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainflamme</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">🔥 Brainflamme</h1>
+
+        <div id="login-screen" class="screen">
+            <h2>Bienvenue !</h2>
+            <p style="color: #94a3b8; margin-bottom: 20px;">Prêt à enflammer tes neurones ?</p>
+            <input type="text" id="username-input" placeholder="Ton pseudo..." maxlength="12">
+            <br>
+            <button id="loginBtn" class="play pulse-btn">Créer mon profil</button>
+        </div>
+
+        <div id="home-screen" class="screen" style="display:none;">
+            <div class="home-streak-container">
+                <p id="welcome-user" class="special-welcome"></p>
+                
+                <div class="xp-section-permanent">
+                    <p id="player-level" class="xp-title"></p>
+                    <div class="xp-bar-bg">
+                        <div id="xp-bar-fill"></div>
+                    </div>
+                    <p id="xp-text" class="xp-details" style="color: #94a3b8; font-size: 14px; margin-top: 5px;"></p>
+                </div>
+
+                <div class="main-flame">🔥 <span id="streak-number">0</span></div>
+            </div>
+            
+            <button id="startBtn" class="play pulse-btn">JOUER</button>
+            <br>
+            <button onclick="logout()" class="logout-link-simple" style="background:none; border:none; color:#94a3b8; text-decoration:underline; cursor:pointer; margin-top:20px;">Changer de compte</button>
+        </div>
+
+        <div id="modeSelection" class="screen" style="display:none;">
+            <h2 style="font-size: 40px; margin-bottom: 30px;">Choisis ton défi</h2>
+            <div class="mode-btn-container">
+                <button id="dailyMode" class="mode-btn">📅 Mode Quotidien</button>
+                <button id="chronoMode" class="mode-btn">⚡ Mode Chrono</button>
+            </div>
+            <br>
+            <button onclick="show('home-screen')" class="play logout-link pulse-btn">RETOUR</button>
+        </div>
+
+        <div id="quiz" class="screen" style="display:none;">
+            <div id="timerContainer">
+                <div id="timerBar"></div>
+                <div id="timerText">30</div>
+            </div>
+            <h2 id="question" class="question-text" style="margin-top: 20px;">Chargement...</h2>
+            <div id="answers" class="answers-grid"></div>
+            <div id="explanation-container"></div>
+            <button id="nextBtn" class="next-button" style="display:none; margin-top: 30px; padding: 15px 30px; background:#f97316; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);">Suivant ➔</button>
+        </div>
+
+        <div id="score" class="screen" style="display:none;"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
