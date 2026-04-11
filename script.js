@@ -103,41 +103,36 @@ const questionsData = [
 
 const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torche 🔦", "Brasier 🔥", "Maître 👑"];
 
-// --- MODIFICATION : LES STATS SONT MAINTENANT UN OBJET VIDE AU DÉPART ---
 let stats = { xp: 0, level: 1, streak: 0 };
 let current = 0, score = 0, timerInterval, timeLeft, currentQuestions = [], selectedMode = "";
+let dailyTimerInterval; // Chrono pour le bouton de l'accueil
 
-// Vérification au chargement
 const savedUser = localStorage.getItem("brainflamme_user");
 if (savedUser) { 
-    loadUserStats(savedUser); // Charger les stats du joueur
+    loadUserStats(savedUser); 
     updateHome(); 
     show("home-screen"); 
 }
 
-// Bouton Créer mon profil
 document.getElementById("loginBtn").onclick = () => {
     let v = document.getElementById("username-input").value.trim();
     if (v.length > 2) { 
         localStorage.setItem("brainflamme_user", v); 
-        loadUserStats(v); // Charger les stats spécifiques à ce nom
+        loadUserStats(v); 
         updateHome(); 
         show("home-screen"); 
     }
 };
 
-// --- NOUVELLE FONCTION : CHARGER LES STATS D'UN JOUEUR PRÉCIS ---
 function loadUserStats(username) {
     const allData = JSON.parse(localStorage.getItem("brainflamme_all_players")) || {};
     if (allData[username]) {
         stats = allData[username];
     } else {
-        // Nouveau joueur : stats à zéro
         stats = { xp: 0, level: 1, streak: 0 };
     }
 }
 
-// --- NOUVELLE FONCTION : SAUVEGARDER LES STATS DU JOUEUR ACTUEL ---
 function saveUserStats() {
     const username = localStorage.getItem("brainflamme_user");
     if (!username) return;
@@ -146,7 +141,11 @@ function saveUserStats() {
     localStorage.setItem("brainflamme_all_players", JSON.stringify(allData));
 }
 
-document.getElementById("startBtn").onclick = () => show("modeSelection");
+document.getElementById("startBtn").onclick = () => {
+    show("modeSelection");
+    checkDailyStatus(); // Vérifie si le mode quotidien est dispo
+};
+
 document.getElementById("dailyMode").onclick = () => startQuiz("Quotidien");
 document.getElementById("chronoMode").onclick = () => startQuiz("Chrono");
 
@@ -164,6 +163,45 @@ function updateHome() {
     document.getElementById("player-level").textContent = "Niveau " + stats.level + " - " + titles[titleIndex];
     document.getElementById("xp-bar-fill").style.width = (stats.xp / xpNext * 100) + "%";
     document.getElementById("streak-number").textContent = stats.streak;
+}
+
+// --- NOUVELLE FONCTION : GESTION DU BLOCAGE QUOTIDIEN ---
+function checkDailyStatus() {
+    const user = localStorage.getItem("brainflamme_user");
+    const lastDate = localStorage.getItem("daily_done_" + user);
+    const today = new Date().toLocaleDateString();
+    const btn = document.getElementById("dailyMode");
+
+    clearInterval(dailyTimerInterval);
+
+    if (lastDate === today) {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        
+        // Démarrer le chrono de 24h (jusqu'à minuit)
+        dailyTimerInterval = setInterval(() => {
+            const now = new Date();
+            const midnight = new Date();
+            midnight.setHours(24, 0, 0, 0);
+            const diff = midnight - now;
+
+            if (diff <= 0) {
+                clearInterval(dailyTimerInterval);
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.innerText = "Mode Quotidien 📅";
+            } else {
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const m = Math.floor((diff / (1000 * 60)) % 60);
+                const s = Math.floor((diff / 1000) % 60);
+                btn.innerText = `Reviens dans ${h}h ${m}m ${s}s`;
+            }
+        }, 1000);
+    } else {
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.innerText = "Mode Quotidien 📅";
+    }
 }
 
 function startQuiz(mode) {
@@ -228,10 +266,16 @@ function endQuiz() {
     clearInterval(timerInterval);
     const gain = score * 20;
     stats.xp += gain;
-    if (selectedMode === "Quotidien" && score === 5) { stats.streak++; launchConfetti(); }
+
+    // --- ENREGISTREMENT DU MODE QUOTIDIEN ---
+    if (selectedMode === "Quotidien") {
+        const user = localStorage.getItem("brainflamme_user");
+        localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
+        if (score === 5) { stats.streak++; launchConfetti(); }
+    }
+
     while (stats.xp >= stats.level * 100) { stats.xp -= (stats.level * 100); stats.level++; }
     
-    // SAUVEGARDE DES STATS LIÉES AU NOM
     saveUserStats();
     
     show("score");
@@ -255,7 +299,6 @@ function endQuiz() {
 function logout() {
     localStorage.removeItem("brainflamme_user");
     document.getElementById("username-input").value = "";
-    // On remet les stats locales par défaut avant de changer d'écran
     stats = { xp: 0, level: 1, streak: 0 };
     show("login-screen");
 }
