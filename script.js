@@ -1,3 +1,18 @@
+// --- CONFIGURATION FIREBASE ---
+const firebaseConfig = {
+    apiKey: "AIzaSyCzYz9-C-qnA8ZKd_E7aCBWOa9cCH_w24Y",
+    authDomain: "brainflamme.firebaseapp.com",
+    databaseURL: "https://brainflamme-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "brainflamme",
+    storageBucket: "brainflamme.firebasestorage.app",
+    messagingSenderId: "200853989780",
+    appId: "1:200853989780:web:94b21502105f8ae860c781"
+};
+
+// Initialisation Firebase (Version Compat)
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
 const questionsData = [
     { question: "Quelle est la capitale de l'Australie ?", answers: ["Sydney", "Melbourne", "Canberra", "Perth"], correct: 2, info: "C'est Canberra qui a été choisie en 1908 comme compromis pour mettre fin à la rivalité entre Sydney et Melbourne." },
     { question: "Quel est l'organe le plus lourd du corps ?", answers: ["Cerveau", "Foie", "Coeur", "Poumons"], correct: 1, info: "Le foie est l'organe interne le plus massif, pesant environ 1,5 kg. Il assure plus de 500 fonctions vitales." },
@@ -106,45 +121,59 @@ const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torc
 
 let stats = { xp: 0, level: 1, streak: 0 };
 let current = 0, score = 0, timerInterval, timeLeft, currentQuestions = [], selectedMode = "";
-let dailyTimerInterval; // Chrono pour le bouton de l'accueil
+let dailyTimerInterval;
 
-const savedUser = localStorage.getItem("brainflamme_user");
-if (savedUser) { 
-    loadUserStats(savedUser); 
-    updateHome(); 
-    show("home-screen"); 
-}
+// --- INITIALISATION AU CHARGEMENT ---
+window.onload = () => {
+    const savedUser = localStorage.getItem("brainflamme_user");
+    if (savedUser) { 
+        loadUserStatsFromCloud(savedUser); // On charge depuis Firebase
+    }
+};
 
 document.getElementById("loginBtn").onclick = () => {
     let v = document.getElementById("username-input").value.trim();
     if (v.length > 2) { 
         localStorage.setItem("brainflamme_user", v); 
-        loadUserStats(v); 
-        updateHome(); 
-        show("home-screen"); 
+        loadUserStatsFromCloud(v); // Cherche si l'utilisateur existe déjà sur le cloud
     }
 };
 
-function loadUserStats(username) {
-    const allData = JSON.parse(localStorage.getItem("brainflamme_all_players")) || {};
-    if (allData[username]) {
-        stats = allData[username];
-    } else {
-        stats = { xp: 0, level: 1, streak: 0 };
-    }
-}
+// --- FONCTIONS CLOUD (FIREBASE) ---
 
 function saveUserStats() {
     const username = localStorage.getItem("brainflamme_user");
     if (!username) return;
+    
+    // Sauvegarde locale
     const allData = JSON.parse(localStorage.getItem("brainflamme_all_players")) || {};
     allData[username] = stats;
     localStorage.setItem("brainflamme_all_players", JSON.stringify(allData));
+    
+    // SAUVEGARDE CLOUD ☁️
+    database.ref('joueurs/' + username).set(stats);
 }
+
+function loadUserStatsFromCloud(username) {
+    database.ref('joueurs/' + username).once('value').then((snapshot) => {
+        const cloudData = snapshot.val();
+        if (cloudData) {
+            stats = cloudData; // On récupère les données du serveur
+        } else {
+            // Si l'utilisateur n'existe pas sur le cloud, on regarde en local ou on crée à zéro
+            const allData = JSON.parse(localStorage.getItem("brainflamme_all_players")) || {};
+            stats = allData[username] || { xp: 0, level: 1, streak: 0 };
+        }
+        updateHome(); 
+        show("home-screen");
+    });
+}
+
+// --- LOGIQUE DU JEU (RESTE INCHANGÉE) ---
 
 document.getElementById("startBtn").onclick = () => {
     show("modeSelection");
-    checkDailyStatus(); // Vérifie si le mode quotidien est dispo
+    checkDailyStatus();
 };
 
 document.getElementById("dailyMode").onclick = () => startQuiz("Quotidien");
@@ -166,7 +195,6 @@ function updateHome() {
     document.getElementById("streak-number").textContent = stats.streak;
 }
 
-// --- NOUVELLE FONCTION : GESTION DU BLOCAGE QUOTIDIEN ---
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
     const lastDate = localStorage.getItem("daily_done_" + user);
@@ -179,7 +207,6 @@ function checkDailyStatus() {
         btn.disabled = true;
         btn.style.opacity = "0.5";
         
-        // Démarrer le chrono de 24h (jusqu'à minuit)
         dailyTimerInterval = setInterval(() => {
             const now = new Date();
             const midnight = new Date();
@@ -268,7 +295,6 @@ function endQuiz() {
     const gain = score * 20;
     stats.xp += gain;
 
-    // --- ENREGISTREMENT DU MODE QUOTIDIEN ---
     if (selectedMode === "Quotidien") {
         const user = localStorage.getItem("brainflamme_user");
         localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
@@ -277,7 +303,7 @@ function endQuiz() {
 
     while (stats.xp >= stats.level * 100) { stats.xp -= (stats.level * 100); stats.level++; }
     
-    saveUserStats();
+    saveUserStats(); // Enregistre localement ET sur le cloud
     
     show("score");
     const scoreScreen = document.getElementById("score");
@@ -290,7 +316,7 @@ function endQuiz() {
             if(zone) zone.classList.add("xp-inhale");
             setTimeout(() => { 
                 if(zone) zone.style.display = "none"; 
-                let comment = (selectedMode === "Quotidien") ? "BRAVO ! ✨" : (score >= 20 ? "LÉGENDAIRE ⚡" : (score >= 12 ? "PAS MAL ! 🔥" : (score >= 6 ? "BIEN JOUÉ 👏" : "ESSAIE ENCORE 🐢")));
+                let comment = (selectedMode === "Quotidien") ? "BRAVO ! ✨" : (score >= 20 ? "LÉGENDAIRE ⚡" : (score >= 12 ? "PAS MAL ! 🔥" : (score >= 6 ? "BIEN JOUÉ 👏" : "ESSAIE ENCORE TURTLE 🐢")));
                 document.getElementById("final-stats-area").innerHTML = `<div class="final-message"><h3 style="font-size:50px; color:#f97316; margin-bottom:10px;">${comment}</h3><p style="font-size:22px; font-weight:bold; margin-bottom:30px;">${score} réponses justes sur ${selectedMode === "Quotidien" ? 5 : current}</p><button class="play pulse-btn" onclick="show('home-screen'); updateHome();">RETOUR</button></div>`;
             }, 700);
         }, 1500);
