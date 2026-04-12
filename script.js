@@ -298,7 +298,8 @@ function endQuiz() {
     if (selectedMode === "Quotidien") {
         const user = localStorage.getItem("brainflamme_user");
         localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
-        if (score === 5) { stats.streak++; launchConfetti(); }
+      stats.streak++; 
+launchConfetti();
     }
 
     while (stats.xp >= stats.level * 100) { stats.xp -= (stats.level * 100); stats.level++; }
