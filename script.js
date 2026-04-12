@@ -158,9 +158,30 @@ function loadUserStatsFromCloud(username) {
     database.ref('joueurs/' + username).once('value').then((snapshot) => {
         const cloudData = snapshot.val();
         if (cloudData) {
-            stats = cloudData; // On récupère les données du serveur
+            stats = cloudData;
+            
+            // --- LOGIQUE DE RUPTURE DE FLAMME ---
+            const lastDateStr = localStorage.getItem("daily_done_" + username);
+            if (lastDateStr) {
+                const lastDate = new Date(lastDateStr);
+                const today = new Date();
+                
+                // On met les deux dates à minuit pour comparer juste les jours
+                lastDate.setHours(0,0,0,0);
+                today.setHours(0,0,0,0);
+                
+                const diffTime = today - lastDate;
+                const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                
+                // Si plus de 1 jour d'écart (ex: on est lundi, dernier jeu samedi)
+                if (diffDays > 1) {
+                    stats.streak = 0;
+                    saveUserStats(); 
+                }
+            }
+            // ------------------------------------
+            
         } else {
-            // Si l'utilisateur n'existe pas sur le cloud, on regarde en local ou on crée à zéro
             const allData = JSON.parse(localStorage.getItem("brainflamme_all_players")) || {};
             stats = allData[username] || { xp: 0, level: 1, streak: 0 };
         }
