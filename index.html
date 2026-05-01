@@ -3,19 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>BrainFlamme - Le meilleur quiz de culture générale</title>
-    <meta name="description" content="Testez vos connaissances avec BrainFlamme, le jeu de quiz fun et gratuit ! Devenez un expert en culture générale.">
-    <meta name="keywords" content="quiz, culture générale, jeu, BrainFlamme, questions, réponses">
-   
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="icon.png">
-    <link rel="apple-touch-icon" href="icon.png">
 </head> 
 <body>
     <div class="container">
         <h1 id="title">🔥 Brainflamme</h1>
 
+       <!-- ÉCRAN CONNEXION -->
         <div id="login-screen" class="screen">
             <h2>Bienvenue !</h2>
             <p style="color: #94a3b8; margin-bottom: 20px;">Prêt à enflammer tes neurones ?</p>
@@ -24,26 +20,65 @@
             <button id="loginBtn" class="play pulse-btn">Créer mon profil</button>
         </div>
 
+        <!-- ÉCRAN ACCUEIL -->
         <div id="home-screen" class="screen" style="display:none;">
             <div class="home-streak-container">
                 <p id="welcome-user" class="special-welcome"></p>
-                
                 <div class="xp-section-permanent">
                     <p id="player-level" class="xp-title"></p>
                     <div class="xp-bar-bg">
                         <div id="xp-bar-fill"></div>
                     </div>
-                    <p id="xp-text" class="xp-details" style="color: #94a3b8; font-size: 14px; margin-top: 5px;"></p>
                 </div>
-
                 <div class="main-flame">🔥 <span id="streak-number">0</span></div>
             </div>
-            
             <button id="startBtn" class="play pulse-btn">JOUER</button>
             <br>
             <button onclick="logout()" class="logout-link-simple" style="background:none; border:none; color:#94a3b8; text-decoration:underline; cursor:pointer; margin-top:20px;">Changer de compte</button>
         </div> 
 
+        <!-- ÉCRAN BOUTIQUE -->
+        <div id="shop-screen" class="screen" style="display:none;">
+            <h1 style="color: #f97316; text-align: center; margin-top: 20px;">Boutique des Flammes 🛒</h1>
+            
+            <!-- LE COMPTEUR VIOLET -->
+            <div class="xp-balance-card">
+                <span class="xp-label">TES POINTS</span>
+                <div class="xp-amount-container">
+                    <span class="xp-icon">✨</span>
+                    <span id="shop-xp">0</span>
+                </div>
+            </div>
+
+            <div class="shop-grid">
+                <div class="shop-card bronze">
+                    <div class="tier-icon">🥉</div>
+                    <h3>Pack Bronze</h3>
+                    <p>+1 Bouclier</p>
+                    <button class="buy-btn" onclick="buyItem('bronze', 200)">200 XP</button>
+                </div>
+                <div class="shop-card silver">
+                    <div class="tier-icon">🥈</div>
+                    <h3>Pack Argent</h3>
+                    <p>+3 Boucliers</p>
+                    <button class="buy-btn" onclick="buyItem('silver', 500)">500 XP</button>
+                </div>
+                <div class="shop-card emerald">
+                    <div class="tier-icon">💎</div>
+                    <h3>Pack Émeraude</h3>
+                    <p>Avatar exclusif</p>
+                    <button class="buy-btn" onclick="buyItem('emerald', 1000)">1000 XP</button>
+                </div>
+                <div class="shop-card gold">
+                    <div class="tier-icon">🥇</div>
+                    <h3>Pack Or</h3>
+                    <p>Le Graal du Quiz</p>
+                    <button class="buy-btn" onclick="buyItem('gold', 2500)">2500 XP</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SÉLECTION MODE -->
         <div id="modeSelection" class="screen" style="display:none;">
             <h2 style="font-size: 40px; margin-bottom: 30px;">Choisis ton défi</h2>
             <div class="mode-btn-container">
@@ -54,6 +89,7 @@
             <button onclick="show('home-screen')" class="play pulse-btn">RETOUR</button>
         </div>
 
+        <!-- ÉCRAN DU QUIZ -->
         <div id="quiz" class="screen" style="display:none;">
             <div id="timerContainer">
                 <div id="timerBar"></div>
@@ -62,15 +98,54 @@
             <h2 id="question" class="question-text" style="margin-top: 20px;">Chargement...</h2>
             <div id="answers" class="answers-grid"></div>
             <div id="explanation-container"></div>
-            <button id="nextBtn" class="next-button" style="display:none; margin-top: 30px; padding: 15px 30px; background:#f97316; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);">Suivant ➔</button>
         </div>
 
-        <div id="score" class="screen" style="display:none;"></div>
+        <!-- ÉCRAN DU SCORE -->
+        <div id="score" class="screen" style="display:none;">
+            <!-- Rempli par le JS -->
+        </div>
+      <!-- ÉCRAN CLASSEMENT (BIENTÔT) -->
+<div id="leaderboard-screen" class="screen" style="display:none;">
+    <h1 style="color: #f97316; text-align: center; margin-top: 40px;">Classement Mondial 🏆</h1>
+    
+    <div style="text-align: center; padding: 40px 20px;">
+        <div style="font-size: 60px; margin-bottom: 20px;">🚧</div>
+        <h2 style="color: white; margin-bottom: 15px;">Bientôt disponible...</h2>
+        <p style="color: #94a3b8; line-height: 1.6; font-size: 18px;">
+            Nous préparons l'arène ! <br>
+            Il faut encore un peu plus de joueurs pour que la compétition soit lancée.
+        </p>
+        
+       <div style="margin-top: 30px; padding: 40px; background: #1e293b; border-radius: 30px; border: 2px dashed #334155;">
+            <p style="color: #f97316; font-weight: bold;">Ton rang actuel : En attente...</p>
+        </div>
+        
+        <button onclick="show('home-screen')" class="play" style="margin-top: 30px;">RETOUR</button>
     </div>
+</div>
 
+    </div> <!-- FIN DU CONTAINER -->
+
+    <!-- NAVIGATION BASSE -->
+    <nav id="main-nav" class="bottom-nav" style="display:none;">
+        <div class="nav-item" onclick="show('home-screen'); updateHome();">
+            <span>🏠</span>
+            <p>Accueil</p>
+        </div>
+        <div class="nav-item" onclick="show('shop-screen')">
+            <span>🛒</span>
+            <p>Boutique</p>
+        </div>
+        <div class="nav-item" onclick="show('leaderboard-screen')">
+            <span>🏆</span>
+            <p>Classement</p>
+        </div>
+    </nav>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
     <script src="script.js"></script>
 </body>
 </html>
