@@ -68,3 +68,223 @@ input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #3341
     transition: all 0.3s ease;
     min-height: 80px;
 }
+/* Bloc qui encadre le score final */
+.final-score-box {
+    background: #1e293b;
+    border: 3px solid #f97316;
+    border-radius: 20px;
+    padding: 25px;
+    margin: 20px auto;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+}
+
+/* Texte spécifique pour le récapitulatif */
+.recap-text {
+    font-size: 22px;
+    font-weight: bold;
+    color: #f8fafc;
+    margin: 10px 0;
+}
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background: #1e293b;
+    border-top: 2px solid #334155;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+}
+
+.nav-item {
+    text-align: center;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.nav-item:hover {
+    color: #f97316;
+}
+
+.nav-item span {
+    font-size: 24px;
+}
+
+.nav-item p {
+    font-size: 12px;
+    margin: 0;
+    font-weight: bold;
+}
+
+/* Important : ajouter une marge en bas de tes écrans pour ne pas que la barre cache le contenu */
+.screen {
+    padding-bottom: 80px;
+}
+/* Barre de navigation fixe */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 75px;
+    background: #0f172a; /* Bleu très foncé */
+    border-top: 2px solid #334155; /* Le petit trait de séparation */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+}
+
+.nav-item {
+    text-align: center;
+    color: #94a3b8;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.2s;
+}
+
+.nav-item span {
+    font-size: 24px;
+    display: block;
+}
+
+.nav-item p {
+    font-size: 11px;
+    margin: 5px 0 0 0;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.nav-item:active {
+    transform: scale(0.9);
+    color: #f97316;
+}
+
+/* On ajoute de la marge en bas de TOUS les écrans pour ne pas que la barre cache le bouton jouer */
+.screen {
+    padding-bottom: 100px !important;
+}
+.shop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Deux colonnes côte à côte */
+    gap: 15px;
+    padding: 10px;
+}
+
+.shop-card {
+    background: #1e293b;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: transform 0.2s;
+}
+
+.shop-card:active {
+    transform: scale(0.95);
+}
+
+.tier-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.shop-card h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+}
+
+.shop-card p {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+
+/* Couleurs des bordures par rareté */
+.bronze { border-color: #cd7f32; }
+.silver { border-color: #c0c0c0; }
+.gold { border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+.emerald { border-color: #50c878; box-shadow: 0 0 15px rgba(80, 200, 120, 0.3); }
+
+.buy-btn {
+    background: #334155;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+}
+
+.emerald .buy-btn { background: #50c878; color: #064e3b; }
+.xp-balance-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid #a855f7; /* Violet vibrant */
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px auto 30px auto;
+    max-width: 300px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+#shop-xp {
+    color: #a855f7; /* Texte violet */
+    font-size: 45px;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+.xp-label {
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.xp-amount-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.xp-icon {
+    font-size: 30px;
+}
+/* Couleurs spécifiques pour les boutons d'achat */
+.bronze .buy-btn { 
+    background-color: #cd7f32; 
+    color: white; 
+}
+
+.silver .buy-btn { 
+    background-color: #c0c0c0; 
+    color: #1e293b; 
+}
+
+.emerald .buy-btn { 
+    background-color: #50c878; 
+    color: #064e3b; 
+}
+
+.gold .buy-btn { 
+    background-color: #ffd700; 
+    color: #1e293b; 
+    box-shadow: 0 0 10px rgba(255, 214, 0, 0.4);
+}
+
+/* Effet au survol pour tous les boutons de la boutique */
+.buy-btn:hover {
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+    transition: 0.2s;
+}
