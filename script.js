@@ -1,7 +1,6 @@
 // --- CONFIGURATION FIREBASE ---
 const firebaseConfig = {
     apiKey: "AIzaSyCzYz9-C-qnA8ZKd_E7aCBWOa9cCH_w24Y",
-    authDomain: "brainflamme.firebaseapp.com",
     databaseURL: "https://brainflamme-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "brainflamme",
     storageBucket: "brainflamme.firebasestorage.app",
@@ -119,27 +118,36 @@ const questionsData = [
 
 const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torche 🔦", "Brasier 🔥", "Maître 👑"];
 
-let stats = { xp: 0, level: 1, streak: 0 };
+let stats = { xp: 0, level: 1, streak: 0, shields: 0 }; // Ajoute shields: 0 ici
 let current = 0, score = 0, timerInterval, timeLeft, currentQuestions = [], selectedMode = "";
 let dailyTimerInterval;
+let quizHistory = []; // AJOUT ICI : mémorise les réponses du joueur
 
 // --- INITIALISATION AU CHARGEMENT ---
 window.onload = () => {
     const savedUser = localStorage.getItem("brainflamme_user");
     if (savedUser) { 
-        loadUserStatsFromCloud(savedUser); // On charge depuis Firebase
+        loadUserStatsFromCloud(savedUser); 
+    } else {
+        show("login-screen");
     }
 };
 
-document.getElementById("loginBtn").onclick = () => {
-    let v = document.getElementById("username-input").value.trim();
-    if (v.length > 2) { 
-        localStorage.setItem("brainflamme_user", v); 
-        loadUserStatsFromCloud(v); // Cherche si l'utilisateur existe déjà sur le cloud
-    }
-};
-
-// --- FONCTIONS CLOUD (FIREBASE) ---
+// --- GESTION DU BOUTON CRÉER MON PROFIL (VERSION NETTOYÉE) ---
+const loginBtn = document.getElementById("loginBtn");
+if (loginBtn) {
+    loginBtn.onclick = () => {
+        const input = document.getElementById("username-input");
+        const username = input ? input.value.trim() : "";
+        
+        if (username) {
+            localStorage.setItem("brainflamme_user", username);
+            loadUserStatsFromCloud(username); 
+        } else {
+            alert("Choisis un pseudo pour commencer ! 🔥");
+        }
+    };
+}
 
 function saveUserStats() {
     const username = localStorage.getItem("brainflamme_user");
@@ -157,34 +165,43 @@ function saveUserStats() {
 function loadUserStatsFromCloud(username) {
     database.ref('joueurs/' + username).once('value').then((snapshot) => {
         const cloudData = snapshot.val();
+        
         if (cloudData) {
             stats = cloudData;
             
+            // Sécurité : s'assurer que shields existe si le compte est vieux
+            if (stats.shields === undefined) stats.shields = 0;
+
             // --- LOGIQUE DE RUPTURE DE FLAMME ---
             const lastDateStr = localStorage.getItem("daily_done_" + username);
             if (lastDateStr) {
                 const lastDate = new Date(lastDateStr);
                 const today = new Date();
                 
-                // On met les deux dates à minuit pour comparer juste les jours
                 lastDate.setHours(0,0,0,0);
                 today.setHours(0,0,0,0);
                 
                 const diffTime = today - lastDate;
                 const diffDays = diffTime / (1000 * 60 * 60 * 24);
                 
-                // Si plus de 1 jour d'écart (ex: on est lundi, dernier jeu samedi)
                 if (diffDays > 1) {
-                    stats.streak = 0;
+                    if (stats.shields > 0) {
+                        stats.shields--; 
+                        alert("🛡️ Ton bouclier a été utilisé ! Ta flamme est sauvée.");
+                    } else {
+                        stats.streak = 0; 
+                        alert("🔥 Ta flamme s'est éteinte car tu n'as pas joué hier.");
+                    }
                     saveUserStats(); 
                 }
             }
-            // ------------------------------------
-            
         } else {
+            // --- NOUVEAU JOUEUR OU LOCAL ---
             const allData = JSON.parse(localStorage.getItem("brainflamme_all_players")) || {};
-            stats = allData[username] || { xp: 0, level: 1, streak: 0 };
+            // TRÈS IMPORTANT : Ajoute shields: 0 ici aussi
+            stats = allData[username] || { xp: 0, level: 1, streak: 0, shields: 0 };
         }
+        
         updateHome(); 
         show("home-screen");
     });
@@ -204,6 +221,20 @@ function show(id) {
     document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
     const target = document.getElementById(id);
     if(target) target.style.display = "block";
+
+    const nav = document.getElementById("main-nav");
+    if (!nav) return;
+
+    // Si on est sur l'écran de login, on cache TOUJOURS la nav
+    if (id === "login-screen" || id === "quiz") {
+        nav.style.display = "none";
+    } else {
+        // On affiche la nav uniquement si un utilisateur est enregistré
+        const user = localStorage.getItem("brainflamme_user");
+        if (user) {
+            nav.style.display = "flex";
+        }
+    }
 }
 
 function updateHome() {
@@ -254,8 +285,14 @@ function checkDailyStatus() {
 }
 
 function startQuiz(mode) {
-    selectedMode = mode; current = 0; score = 0;
+    quizHistory = []; // Vide l'historique
+    selectedMode = mode; 
+    current = 0; 
+    score = 0;
+    
+    // Mélange des questions
     currentQuestions = [...questionsData].sort(() => Math.random() - 0.5);
+    
     if (mode === "Quotidien") {
         currentQuestions = currentQuestions.slice(0, 5);
         document.getElementById("timerContainer").style.display = "none";
@@ -289,60 +326,148 @@ function updateTimerUI() {
 
 function showQuestion() {
     if (current >= currentQuestions.length) return endQuiz();
-    document.getElementById("nextBtn").style.display = "none";
-    document.getElementById("explanation-container").innerHTML = ""; 
+    
+    const expl = document.getElementById("explanation-container");
+    if(expl) expl.innerHTML = ""; 
+
     const q = currentQuestions[current];
     document.getElementById("question").textContent = q.question;
-    const area = document.getElementById("answers"); area.innerHTML = "";
-    q.answers.forEach((a, i) => {
-        const b = document.createElement("button");
-        b.className = "answer"; b.textContent = a;
-        b.onclick = () => {
-            document.querySelectorAll(".answer").forEach(btn => btn.disabled = true);
-            if (i === q.correct) { b.classList.add("correct"); score++; }
-            else { b.classList.add("wrong"); document.querySelectorAll(".answer")[q.correct].classList.add("correct"); }
-            if (selectedMode === "Quotidien") {
-                document.getElementById("explanation-container").innerHTML = `<div style="background:#1e293b; border:2px solid #f97316; padding:15px; border-radius:15px; margin-top:20px; text-align:left;"><h4 style="color:#f97316; margin-bottom:5px;">💡 Le sais-tu ?</h4><p>${q.info}</p></div>`;
-                document.getElementById("nextBtn").style.display = "inline-block";
-                document.getElementById("nextBtn").onclick = () => { current++; showQuestion(); };
-            } else { setTimeout(() => { current++; showQuestion(); }, 600); }
-        };
-        area.appendChild(b);
+    
+    const area = document.getElementById("answers"); 
+    area.innerHTML = "";
+
+    let mappedAnswers = q.answers.map((text, index) => {
+        return { text: text, isCorrect: index === q.correct };
     });
-}
+
+    mappedAnswers.sort(() => Math.random() - 0.5);
+
+    mappedAnswers.forEach((answerObj) => {
+        const b = document.createElement("button");
+        b.className = "answer"; 
+        b.textContent = answerObj.text;
+        
+        b.onclick = () => {
+            const allBtns = document.querySelectorAll(".answer");
+            allBtns.forEach(btn => btn.disabled = true);
+            // --- DEBUT BLOC ENREGISTREMENT RECAP ---
+            quizHistory.push({
+                question: q.question,
+                userAns: answerObj.text,
+                correctAns: q.answers[q.correct],
+                isCorrect: answerObj.isCorrect
+            });
+            // --- FIN BLOC ENREGISTREMENT RECAP ---
+            if (answerObj.isCorrect) { 
+                b.classList.add("correct"); 
+                score++; 
+            } else { 
+                b.classList.add("wrong");
+                allBtns.forEach(btn => {
+                    const originalCorrectText = q.answers[q.correct];
+                    if (btn.textContent === originalCorrectText) btn.classList.add("correct");
+                });
+            }
+            
+            if (selectedMode === "Chrono") {
+                setTimeout(() => {
+                    current++;
+                    showQuestion();
+                }, 1200);
+            } else {
+                if(expl) {
+                    expl.innerHTML = `
+                        <div style="background:#1e293b; border:2px solid #f97316; padding:15px; border-radius:15px; margin-top:20px; text-align:left;">
+                            <h4 style="color:#f97316; margin-bottom:5px;">💡 Le sais-tu ?</h4>
+                            <p style="margin-bottom:15px;">${q.info}</p>
+                            <div style="text-align:center;">
+                                <button id="nextBtnInside" class="play" style="padding:10px 30px; font-size:18px; margin-top:0;">SUIVANT</button>
+                            </div>
+                        </div>`;
+                    
+                    document.getElementById("nextBtnInside").onclick = () => { 
+                        current++; 
+                        showQuestion(); 
+                    };
+                }
+            }
+        }; // Fermeture du b.onclick
+        area.appendChild(b);
+    }); // Fermeture du forEach
+} // Fermeture de showQuestion
 
 function endQuiz() {
+    // 1. STOP IMMEDIAT des chronos pour bloquer tout double appel
     clearInterval(timerInterval);
-    const gain = score * 20;
-    stats.xp += gain;
+    clearInterval(dailyTimerInterval);
 
-    if (selectedMode === "Quotidien") {
-        const user = localStorage.getItem("brainflamme_user");
-        localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
-      stats.streak++; 
-launchConfetti();
-    }
-
-    while (stats.xp >= stats.level * 100) { stats.xp -= (stats.level * 100); stats.level++; }
-    
-    saveUserStats(); // Enregistre localement ET sur le cloud
-    
+    // 2. Affichage de l'écran score
     show("score");
     const scoreScreen = document.getElementById("score");
-    scoreScreen.innerHTML = `<h2 style="font-size:40px; margin-bottom:10px;">Résultat</h2><div id="final-xp-zone" class="xp-section-permanent"><p style="font-size:20px; font-weight:bold;">Niveau ${stats.level}</p><div class="xp-bar-bg" style="margin:10px auto;"><div id="anim-fill"></div></div><p style="font-size:24px; color:#22c55e; margin-top:10px; font-weight:bold;">+${gain} XP</p></div><div id="final-stats-area"></div>`;
+    if (!scoreScreen) return;
+
+    // 3. Calcul XP et Niveau
+    let gain = score * 10;
+    stats.xp += gain;
+    while(stats.xp >= stats.level * 100) {
+        stats.xp -= stats.level * 100;
+        stats.level++;
+    }
+  if (selectedMode === "Quotidien") {
+    const user = localStorage.getItem("brainflamme_user");
+    localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
+    checkDailyStatus(); // Met à jour le bouton immédiatement
+}
+    saveUserStats();
+
+   // 4. Préparation des infos
+    // Si c'est le mode Quotidien, on sait que c'est 5. 
+    // Si c'est le Chrono, on prend 'current' (le compteur de questions actuel)
+    let nbQuestionsPosees = (selectedMode === "Quotidien") ? 5 : current;
+
+    // Petit ajustement : si le chrono s'arrête pile au moment où une question apparaît 
+    // mais qu'on n'y répond pas, on s'assure que le total est logique
+    if (selectedMode === "Chrono" && score > nbQuestionsPosees) {
+        nbQuestionsPosees = score; 
+    }
+
+    let comment = (score >= (nbQuestionsPosees * 0.8)) ? "INCROYABLE ! 🔥" : (score >= (nbQuestionsPosees * 0.5) ? "BIEN JOUÉ ! 👏" : "ESSAIE ENCORE ! 🐢")
+
+    // 5. Injection directe (On arrête les animations complexes qui font bugger)
+    scoreScreen.innerHTML = `
+        <h2 style="font-size:40px; margin-bottom:10px;">Résultat</h2>
+        <div class="final-score-box" style="background:#1e293b; padding:25px; border-radius:20px; border:2px solid #f97316; max-width:400px; margin:auto;">
+            <p style="font-size:20px; font-weight:bold;">Niveau ${stats.level}</p>
+            <div style="width:100%; height:15px; background:#334155; border-radius:10px; margin:15px 0; overflow:hidden;">
+                <div id="anim-fill" style="width:0%; height:100%; background:#f97316; transition: width 1s ease-out;"></div>
+            </div>
+            <p style="font-size:24px; color:#22c55e; font-weight:bold;">+${gain} XP</p>
+            
+            <hr style="border:0; border-top:1px solid #334155; margin:20px 0;">
+            
+            <h3 style="font-size:35px; color:#f97316; margin-bottom:5px;">${comment}</h3>
+            <p style="font-size:20px;">${score} / ${nbQuestionsPosees} correctes</p>
+            
+            <div style="margin-top:20px;">
+                <button class="mode-btn" style="width:100%; margin-bottom:10px; background:#334155; border:1px solid #f97316;" onclick="showRecap()">VOIR LE RÉCAPITULATIF 📋</button>
+                <button class="play pulse-btn" style="width:100%; padding:15px;" onclick="show('home-screen'); updateHome();">RETOUR</button>
+            </div>
+        </div>
+    `;
+
+    // 6. Animation de la barre (simple et robuste)
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
-        if(bar) bar.style.width = (stats.xp / (stats.level * 100) * 100) + "%";
-        setTimeout(() => {
-            const zone = document.getElementById("final-xp-zone");
-            if(zone) zone.classList.add("xp-inhale");
-            setTimeout(() => { 
-                if(zone) zone.style.display = "none"; 
-                let comment = (selectedMode === "Quotidien") ? "BRAVO ! ✨" : (score >= 20 ? "LÉGENDAIRE ⚡" : (score >= 12 ? "PAS MAL ! 🔥" : (score >= 6 ? "BIEN JOUÉ 👏" : "ESSAIE ENCORE TURTLE 🐢")));
-                document.getElementById("final-stats-area").innerHTML = `<div class="final-message"><h3 style="font-size:50px; color:#f97316; margin-bottom:10px;">${comment}</h3><p style="font-size:22px; font-weight:bold; margin-bottom:30px;">${score} réponses justes sur ${selectedMode === "Quotidien" ? 5 : current}</p><button class="play pulse-btn" onclick="show('home-screen'); updateHome();">RETOUR</button></div>`;
-            }, 700);
-        }, 1500);
+        if(bar) {
+            const pct = (stats.xp / (stats.level * 100) * 100);
+            bar.style.width = pct + "%";
+        }
     }, 100);
+
+    // Dans ta fonction endQuiz, remplace la partie confetti par :
+if (score === 5 && selectedMode === "Quotidien") { // Changé currentMode par selectedMode
+    lancerConfettis();
+}
 }
 
 function logout() {
@@ -352,19 +477,136 @@ function logout() {
     show("login-screen");
 }
 
-function launchConfetti() {
-    const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#f97316", "#ffffff"];
-    for (let i = 0; i < 80; i++) {
-        const c = document.createElement("div");
-        c.className = "confetti";
-        c.style.left = Math.random() * 100 + "vw";
-        c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        const size = Math.random() * 8 + 5 + "px";
-        c.style.width = size;
-        c.style.height = size;
-        c.style.animationDuration = (Math.random() * 2 + 2) + "s";
-        c.style.animationDelay = (Math.random() * 1.5) + "s";
-        document.body.appendChild(c);
-        setTimeout(() => c.remove(), 5000);
+function lancerConfettis() {
+    var duration = 3 * 1000;
+    var end = Date.now() + duration;
+
+    (function frame() {
+        confetti({
+            particleCount: 5, // Plus de particules par "tir"
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            // On ne définit pas de couleurs précises pour laisser le mode multicolore par défaut
+            // ou on en met une grande liste :
+            colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#f97316']
+        });
+        confetti({
+            particleCount: 5,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#f97316']
+        });
+
+        if (Date.now() < end) {
+            requestAnimationFrame(frame);
+        }
+    }());
+}
+
+function showStep(stepId) {
+    // Cache toutes les étapes de l'inscription
+    document.querySelectorAll('.auth-step').forEach(step => step.classList.remove('active'));
+    // Affiche l'étape demandée
+    const target = document.getElementById(stepId);
+    if(target) target.classList.add('active');
+}
+function showRecap() {
+    let recapHTML = `
+        <div id="recap-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.98); z-index:9999; overflow-y:auto; padding:20px; font-family:sans-serif;">
+            <div style="max-width:500px; margin:40px auto;">
+                <h2 style="color:#f97316; text-align:center; font-size:32px; margin-bottom:30px;">Tes neurones en action 🧠</h2>
+    `;
+
+    quizHistory.forEach((item, index) => {
+        const color = item.isCorrect ? '#22c55e' : '#ef4444';
+        const icon = item.isCorrect ? '✅' : '❌';
+        
+        recapHTML += `
+            <div style="background:#1e293b; padding:15px; border-radius:15px; margin-bottom:15px; border-left:6px solid ${color};">
+                <p style="font-weight:bold; color:white; margin:0 0 8px 0; font-size:16px;">${index + 1}. ${item.question}</p>
+                <p style="color:${color}; font-weight:bold; margin:0; font-size:15px;">
+                    ${icon} Ta réponse : ${item.userAns}
+                </p>
+                ${!item.isCorrect ? `<p style="color:#94a3b8; font-size:14px; margin-top:8px;">La réponse était : <span style="color:#22c55e">${item.correctAns}</span></p>` : ''}
+            </div>
+        `;
+    });
+
+    recapHTML += `
+                <button class="play" onclick="document.getElementById('recap-modal').remove()" style="width:100%; margin-top:30px; padding:15px; font-weight:bold; cursor:pointer; background:#f97316; color:white; border:none; border-radius:10px;">FERMER LE RÉCAP</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', recapHTML);
+}
+function buyItem(name, price) {
+    if (stats.xp >= price) {
+        stats.xp -= price;
+        
+        // On donne les boucliers selon le pack
+        if (name === 'bronze') stats.shields += 1;
+        if (name === 'silver') stats.shields += 3;
+        // On pourrait ajouter des cadeaux pour Or et Émeraude plus tard
+        
+        saveUserStats(); // Sauvegarde Cloud
+        updateHome();    // Met à jour l'accueil
+        
+        // Met à jour l'affichage de la boutique
+        const shopXp = document.getElementById("shop-xp");
+        if(shopXp) shopXp.textContent = stats.xp;
+        
+        alert(`Achat réussi ! Tu as ${stats.shields} bouclier(s) en réserve. 🛡️`);
+    } else {
+        alert("XP insuffisant pour cet article ! ❌");
+    }
+}
+function checkDailyStatus() {
+    const user = localStorage.getItem("brainflamme_user");
+    const lastDate = localStorage.getItem("daily_done_" + user);
+    const today = new Date().toLocaleDateString();
+    const btn = document.getElementById("dailyMode");
+
+    if (!btn) return;
+
+    // On efface l'ancien intervalle s'il existe pour éviter les bugs de vitesse
+    clearInterval(dailyTimerInterval);
+
+    if (lastDate === today) {
+        // LE BOUTON EST GRISÉ
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+
+        // LANCEMENT DU COMPTE À REBOURS
+        dailyTimerInterval = setInterval(() => {
+            const now = new Date();
+            const midnight = new Date();
+            midnight.setHours(24, 0, 0, 0); // Définit minuit pile (00:00)
+
+            const diff = midnight - now;
+
+            if (diff <= 0) {
+                // C'EST MINUIT ! On débloque.
+                clearInterval(dailyTimerInterval);
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
+                btn.innerText = "Mode Quotidien 📅";
+            } else {
+                // AFFICHAGE DU TEMPS RESTANT
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const m = Math.floor((diff / (1000 * 60)) % 60);
+                const s = Math.floor((diff / 1000) % 60);
+                btn.innerText = `Disponible dans ${h}h ${m}m ${s}s`;
+            }
+        }, 1000);
+    } else {
+        // LE BOUTON EST DISPONIBLE
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+        btn.innerText = "Mode Quotidien 📅";
     }
 }
