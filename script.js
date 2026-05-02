@@ -162,7 +162,7 @@ const questionsData = [
     { question: "Quel est l'ingrédient principal du houmous ?", answers: ["Pois chiche", "Lentilles", "Fèves", "Haricots blancs"], correct: 0, info: "Le mot 'houmous' signifie simplement 'pois chiche' en arabe." },
     { question: "Quelle est la capitale de la Corée du Sud ?", answers: ["Séoul", "Busan", "Pyongyang", "Tokyo"], correct: 0, info: "Son nom signifie littéralement 'la capitale' en coréen." },
     { question: "Quel est le point culminant de l'Afrique ?", answers: ["Kilimandjaro", "Mont Kenya", "Mont Toubkal", "Everest"], correct: 0, info: "Situé en Tanzanie, c'est une montagne isolée (volcan éteint) et non une chaîne de montagnes." },
-    { question: "Qui a créé le personnage de Sherlock Holmes ?", answers: ["Arthur Conan Doyle", "Agatha Christie", "Edgar Allan Poe", "Maurice Leblanc"], correct: 0, info: "Conan Doyle était médecin et s'est inspiré d'un de ses professeurs pour le sens de la déduction de Holmes." }
+    { question: "Qui a créé le personnage de Sherlock Holmes ?", answers: ["Arthur Conan Doyle", "Agatha Christie", "Edgar Allan Poe", "Maurice Leblanc"], correct: 0, info: "Conan Doyle était médecin et s'est inspiré d'un de ses professeurs pour le sens de la déduction de Holmes." },
     { question: "Quelle est la température moyenne sur Terre?", answers: ["10°C", "15°C", "20°C", "30°C"], correct: 1, info: "Sans l'effet de serre naturel, la température moyenne de la Terre serait d'environ -18°C. C'est cet effet de serre qui permet à la vie d'exister !"}
 ];
 
