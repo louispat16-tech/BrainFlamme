@@ -37,46 +37,77 @@
             <button onclick="logout()" class="logout-link-simple" style="background:none; border:none; color:#94a3b8; text-decoration:underline; cursor:pointer; margin-top:20px;">Changer de compte</button>
         </div> 
 
-        <!-- ÉCRAN BOUTIQUE -->
-        <div id="shop-screen" class="screen" style="display:none;">
-            <h1 style="color: #f97316; text-align: center; margin-top: 20px;">Boutique des Flammes 🛒</h1>
-            
-            <!-- LE COMPTEUR VIOLET -->
-            <div class="xp-balance-card">
-                <span class="xp-label">TES POINTS</span>
-                <div class="xp-amount-container">
-                    <span class="xp-icon">✨</span>
-                    <span id="shop-xp">0</span>
-                </div>
-            </div>
-
-            <div class="shop-grid">
-                <div class="shop-card bronze">
-                    <div class="tier-icon">🥉</div>
-                    <h3>Pack Bronze</h3>
-                    <p>+1 Bouclier</p>
-                    <button class="buy-btn" onclick="buyItem('bronze', 200)">200 XP</button>
-                </div>
-                <div class="shop-card silver">
-                    <div class="tier-icon">🥈</div>
-                    <h3>Pack Argent</h3>
-                    <p>+3 Boucliers</p>
-                    <button class="buy-btn" onclick="buyItem('silver', 500)">500 XP</button>
-                </div>
-                <div class="shop-card emerald">
-                    <div class="tier-icon">💎</div>
-                    <h3>Pack Émeraude</h3>
-                    <p>Avatar exclusif</p>
-                    <button class="buy-btn" onclick="buyItem('emerald', 1000)">1000 XP</button>
-                </div>
-                <div class="shop-card gold">
-                    <div class="tier-icon">🥇</div>
-                    <h3>Pack Or</h3>
-                    <p>Le Graal du Quiz</p>
-                    <button class="buy-btn" onclick="buyItem('gold', 2500)">2500 XP</button>
-                </div>
-            </div>
+       <!-- ÉCRAN BOUTIQUE -->
+<div id="shop-screen" class="screen" style="display:none;">
+    <h1 style="color: #f97316; text-align: center; margin-top: 20px;">Boutique des Flammes 🛒</h1>
+    
+    <!-- LE COMPTEUR VIOLET (Utilise stats.xp qui est ton Or) -->
+    <div class="xp-balance-card">
+        <span class="xp-label">TON POINTS</span>
+        <div class="xp-amount-container">
+            <span class="xp-icon">🪙</span>
+            <span id="shop-xp">0</span>
         </div>
+    </div>
+
+    <div class="shop-grid">
+    <!-- TIERS BRONZE -->
+    <div class="shop-card bronze">
+        <div class="tier-icon">⌛</div>
+        <h3>Sablier</h3>
+        <p>+5s au prochain Chrono</p>
+        <button class="buy-btn" onclick="buyItem('chrono_bonus', 150)">150 🪙</button>
+    </div>
+
+    <div class="shop-card bronze">
+        <div class="tier-icon">🎲</div>
+        <h3>Dé Chanceux</h3>
+        <p>Une question bonus offerte</p>
+        <button class="buy-btn" onclick="buyItem('bonus_question', 200)">200 🪙</button>
+    </div>
+
+    <!-- TIERS ARGENT -->
+    <div class="shop-card silver">
+        <div class="tier-icon">🛡️</div>
+        <h3>Bouclier</h3>
+        <p>Protège ta flamme</p>
+        <button class="buy-btn" onclick="buyItem('shield', 500)">500 🪙</button>
+    </div>
+
+    <div class="shop-card silver">
+        <div class="tier-icon">💜</div>
+        <h3>Élixir Violet</h3>
+        <p>Double l'XP du prochain quiz</p>
+        <button class="buy-btn" onclick="buyItem('xp_boost', 450)">450 🪙</button>
+    </div>
+
+    <!-- TIERS ÉMERAUDE -->
+    <div class="shop-card emerald">
+        <div class="tier-icon">✨</div>
+        <h3>Émeraude</h3>
+        <p>Couleur de Rang</p>
+        <button class="buy-btn" onclick="buyItem('rank_color', 750)">750 🪙</button>
+    </div>
+
+    <!-- TIERS OR -->
+    <div class="shop-card gold">
+        <div class="tier-icon">👑</div>
+        <h3>Or Royal</h3>
+        <p>Couleur de Pseudo</p>
+        <button class="buy-btn" onclick="buyItem('name_color', 1000)">1000 🪙</button>
+    </div>
+
+    <div class="shop-card gold">
+        <div class="tier-icon">💎</div>
+        <h3>Aura Céleste</h3>
+        <p>Effet brillant (Pseudo)</p>
+        <button class="buy-btn" onclick="buyItem('aura_effect', 1000)">1000 🪙</button>
+    </div>
+</div>
+
+    <!-- BOUTON RETOUR -->
+    <button onclick="show('home-screen')" class="play" style="margin-top:20px; width:100%;">RETOUR</button>
+</div>
 
         <!-- SÉLECTION MODE -->
         <div id="modeSelection" class="screen" style="display:none;">
