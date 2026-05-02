@@ -162,7 +162,7 @@ const questionsData = [
     { q: "Quel est l'ingrédient principal du houmous ?", a: ["Pois chiche", "Lentilles", "Fèves", "Haricots blancs"], r: 0 },
     { q: "Quelle est la capitale de la Corée du Sud ?", a: ["Séoul", "Busan", "Pyongyang", "Tokyo"], r: 0 },
     { q: "Quel est le point culminant de l'Afrique ?", a: ["Kilimandjaro", "Mont Kenya", "Mont Toubkal", "Everest"], r: 0 },
-    { q: "Qui a créé le personnage de Sherlock Holmes ?", a: ["Arthur Conan Doyle", "Agatha Christie", "Edgar Allan Poe", "Maurice Leblanc"], r: 0 }
+    { q: "Qui a créé le personnage de Sherlock Holmes ?", a: ["Arthur Conan Doyle", "Agatha Christie", "Edgar Allan Poe", "Maurice Leblanc"], r: 0 },
     { question: "Quelle est la température moyenne sur Terre?", answers: ["10°C", "15°C", "20°C", "30°C"], correct: 1, info: "Sans l'effet de serre naturel, la température moyenne de la Terre serait d'environ -18°C. C'est cet effet de serre qui permet à la vie d'exister !"}
 ];
 
