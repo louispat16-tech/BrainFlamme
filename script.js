@@ -113,18 +113,79 @@ const questionsData = [
     { question: "Comment s'appellele plus grand poisson du monde ?", answers: ["Grand requin", "Requin baleine", "Espadon", "Thon"], correct: 1, info: "Le requin-baleine peut mesurer plus de 12 mètres." },
     { question: "Quel est la capitale de la Suisse ?", answers: ["Zurich", "Genève", "Berne", "Bâle"], correct: 2, info: "Berne est la ville fédérale de la Suisse." },
     { question: "Quel est la planète la plus proche du Soleil ?", answers: ["Vénus", "Mars", "Jupiter", "Mercure"], correct: 3, info: "Mercure est la planète la plus proche du Soleil." },
+    { q: "Quelle est la capitale de l'Australie ?", a: ["Canberra", "Sydney", "Melbourne", "Perth"], r: 0 },
+    { q: "Qui a peint 'La Jeune Fille à la perle' ?", a: ["Vermeer", "Rembrandt", "Da Vinci", "Van Gogh"], r: 0 },
+    { q: "Quel est l'élément chimique le plus abondant dans l'univers ?", a: ["Hydrogène", "Oxygène", "Hélium", "Carbone"], r: 0 },
+    { q: "En quelle année a eu lieu la chute du mur de Berlin ?", a: ["1989", "1991", "1987", "1985"], r: 0 },
+    { q: "Quel pays a remporté la Coupe du Monde de football en 2010 ?", a: ["Espagne", "Pays-Bas", "Allemagne", "Brésil"], r: 0 },
+    { q: "Quel est le plus grand océan du monde ?", a: ["Océan Pacifique", "Océan Atlantique", "Océan Indien", "Océan Arctique"], r: 0 },
+    { q: "Combien d'os possède un adulte humain ?", a: ["206", "180", "215", "250"], r: 0 },
+    { q: "Qui est l'auteur de '1984' ?", a: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "Albert Camus"], r: 0 },
+    { q: "Quelle planète est surnommée la 'Planète Rouge' ?", a: ["Mars", "Vénus", "Jupiter", "Saturne"], r: 0 },
+    { q: "Quelle est la monnaie du Japon ?", a: ["Yen", "Won", "Yuan", "Ringgit"], r: 0 },
+    { q: "Qui a découvert la pénicilline ?", a: ["Alexander Fleming", "Louis Pasteur", "Marie Curie", "Albert Einstein"], r: 0 },
+    { q: "Quel est le fleuve le plus long du monde ?", a: ["L'Amazone", "Le Nil", "Le Mississippi", "Le Yangtsé"], r: 0 },
+    { q: "Dans quel pays se trouve la ville de Tombouctou ?", a: ["Mali", "Sénégal", "Niger", "Algérie"], r: 0 },
+    { q: "Quel est le symbole chimique de l'Or ?", a: ["Au", "Ag", "Fe", "Or"], r: 0 },
+    { q: "Quel est le film le plus récompensé aux Oscars (11 statuettes) ?", a: ["Titanic", "Avatar", "Le Parrain", "La Liste de Schindler"], r: 0 },
+    { q: "Qui a écrit 'Les Misérables' ?", a: ["Victor Hugo", "Émile Zola", "Balzac", "Flaubert"], r: 0 },
+    { q: "Quelle est la capitale du Canada ?", a: ["Ottawa", "Toronto", "Montréal", "Vancouver"], r: 0 },
+    { q: "En quelle année l'homme a-t-il marché sur la Lune pour la première fois ?", a: ["1969", "1965", "1972", "1961"], r: 0 },
+    { q: "Quel est l'organe le plus lourd du corps humain ?", a: ["Le foie", "Le cerveau", "Le cœur", "Les poumons"], r: 0 },
+    { q: "Quel gaz les plantes absorbent-elles pour la photosynthèse ?", a: ["Dioxyde de carbone", "Oxygène", "Azote", "Méthane"], r: 0 },
+    { q: "Quelle est la langue la plus parlée au monde (langue maternelle) ?", a: ["Mandarin", "Anglais", "Espagnol", "Hindi"], r: 0 },
+    { q: "Qui était le dieu grec du commerce ?", a: ["Hermès", "Apollon", "Arès", "Poséidon"], r: 0 },
+    { q: "Quelle ville est surnommée 'La Grosse Pomme' ?", a: ["New York", "Los Angeles", "Chicago", "Miami"], r: 0 },
+    { q: "Quel est le plus grand désert du monde ?", a: ["Antarctique", "Sahara", "Gobi", "Désert d'Arabie"], r: 0 },
+    { q: "Quelle est la vitesse de la lumière (environ) ?", a: ["300 000 km/s", "150 000 km/s", "1 000 000 km/s", "30 000 km/s"], r: 0 },
+    { q: "Qui a sculpté le 'Penseur' ?", a: ["Auguste Rodin", "Michel-Ange", "Bernini", "Donatello"], r: 0 },
+    { q: "Dans quelle ville se trouve le siège de l'ONU ?", a: ["New York", "Genève", "Paris", "Bruxelles"], r: 0 },
+    { q: "Quel animal est le plus rapide au monde ?", a: ["Faucon pèlerin", "Guépard", "Espadon", "Autruche"], r: 0 },
+    { q: "Quel est l'indice de pH d'une solution neutre ?", a: ["7", "0", "14", "5"], r: 0 },
+    { q: "Quelle est la capitale de la Turquie ?", a: ["Ankara", "Istanbul", "Izmir", "Antalya"], r: 0 },
+    { q: "Qui a peint 'Guernica' ?", a: ["Pablo Picasso", "Salvador Dalí", "Joan Miró", "Frida Kahlo"], r: 0 },
+    { q: "Quel est le plus petit pays du monde ?", a: ["Vatican", "Monaco", "Nauru", "Saint-Marin"], r: 0 },
+    { q: "En quel siècle a vécu Jeanne d'Arc ?", a: ["15ème", "13ème", "17ème", "14ème"], r: 0 },
+    { q: "Quel pays possède le plus de pyramides ?", a: ["Soudan", "Égypte", "Mexique", "Pérou"], r: 0 },
+    { q: "Quel est le métal le plus utilisé au monde ?", a: ["Fer", "Aluminium", "Cuivre", "Plomb"], r: 0 },
+    { q: "Quelle est la distance Terre-Soleil (environ) ?", a: ["150 millions km", "50 millions km", "300 millions km", "10 millions km"], r: 0 },
+    { q: "Qui a inventé le téléphone ?", a: ["Alexander Graham Bell", "Thomas Edison", "Nikola Tesla", "Guglielmo Marconi"], r: 0 },
+    { q: "Quel est l'oiseau qui ne peut pas voler ?", a: ["L'Autruche", "L'Aigle", "Le Moineau", "Le Corbeau"], r: 0 },
+    { q: "Quelle est la capitale de l'Islande ?", a: ["Reykjavik", "Oslo", "Helsinki", "Copenhague"], r: 0 },
+    { q: "Qui a écrit 'Le Petit Prince' ?", a: ["Antoine de Saint-Exupéry", "Jean Giono", "Marcel Pagnol", "Colette"], r: 0 },
+    { q: "Quel est le plus grand mammifère terrestre ?", a: ["Éléphant d'Afrique", "Rhinocéros", "Girafe", "Hippopotame"], r: 0 },
+    { q: "Quel pays a offert la Statue de la Liberté aux États-Unis ?", a: ["France", "Royaume-Uni", "Allemagne", "Italie"], r: 0 },
+    { q: "Quelle est la capitale du Portugal ?", a: ["Lisbonne", "Porto", "Madrid", "Barcelone"], r: 0 },
+    { q: "Qui est le dieu romain de la guerre ?", a: ["Mars", "Jupiter", "Neptune", "Vulcain"], r: 0 },
+    { q: "Dans quelle galaxie se trouve la Terre ?", a: ["La Voie Lactée", "Andromède", "Sombrero", "Messier 87"], r: 0 },
+    { q: "Quel est le compositeur de 'La 5ème Symphonie' ?", a: ["Beethoven", "Mozart", "Bach", "Chopin"], r: 0 },
+    { q: "Quel est l'ingrédient principal du houmous ?", a: ["Pois chiche", "Lentilles", "Fèves", "Haricots blancs"], r: 0 },
+    { q: "Quelle est la capitale de la Corée du Sud ?", a: ["Séoul", "Busan", "Pyongyang", "Tokyo"], r: 0 },
+    { q: "Quel est le point culminant de l'Afrique ?", a: ["Kilimandjaro", "Mont Kenya", "Mont Toubkal", "Everest"], r: 0 },
+    { q: "Qui a créé le personnage de Sherlock Holmes ?", a: ["Arthur Conan Doyle", "Agatha Christie", "Edgar Allan Poe", "Maurice Leblanc"], r: 0 }
     { question: "Quelle est la température moyenne sur Terre?", answers: ["10°C", "15°C", "20°C", "30°C"], correct: 1, info: "Sans l'effet de serre naturel, la température moyenne de la Terre serait d'environ -18°C. C'est cet effet de serre qui permet à la vie d'exister !"}
 ];
 
-const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torche 🔦", "Brasier 🔥", "Maître 👑"];
+const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torche 🔦", "Brasier 🔥", "Or 🏆", "Diamant 💎"]; // Ajout Or et Diamant
 
-let stats = { xp: 0, level: 1, streak: 0, shields: 0 }; // Ajoute shields: 0 ici
+// Ajoute ces nouvelles variables dans tes stats de base
+let stats = {
+    xp: 0, // C'est ton OR
+    progression: 0,
+    level: 1,
+    shields: 0,
+    chronoBonus: 0,    // Pour le bonus de temps
+    nameColor: null,   // Pour la couleur du pseudo
+    rankColor: null    // Pour la couleur du titre
+};
 let current = 0, score = 0, timerInterval, timeLeft, currentQuestions = [], selectedMode = "";
 let dailyTimerInterval;
 let quizHistory = []; // AJOUT ICI : mémorise les réponses du joueur
 
 // --- INITIALISATION AU CHARGEMENT ---
 window.onload = () => {
+    setupLogin(); // On prépare le bouton quoi qu'il arrive
+    
     const savedUser = localStorage.getItem("brainflamme_user");
     if (savedUser) { 
         loadUserStatsFromCloud(savedUser); 
@@ -133,20 +194,36 @@ window.onload = () => {
     }
 };
 
-// --- GESTION DU BOUTON CRÉER MON PROFIL (VERSION NETTOYÉE) ---
-const loginBtn = document.getElementById("loginBtn");
-if (loginBtn) {
-    loginBtn.onclick = () => {
-        const input = document.getElementById("username-input");
-        const username = input ? input.value.trim() : "";
-        
-        if (username) {
-            localStorage.setItem("brainflamme_user", username);
-            loadUserStatsFromCloud(username); 
-        } else {
-            alert("Choisis un pseudo pour commencer ! 🔥");
-        }
-    };
+function setupLogin() {
+    const loginBtn = document.getElementById("loginBtn");
+    const input = document.getElementById("username-input");
+
+    if (loginBtn && input) {
+        loginBtn.onclick = () => {
+            const username = input.value.trim();
+            if (username) {
+                localStorage.setItem("brainflamme_user", username);
+                
+                // On initialise TOUTES les stats, y compris les nouvelles
+                stats = { 
+                    xp: 0, 
+                    progression: 0, 
+                    level: 1, 
+                    streak: 0, 
+                    shields: 0, 
+                    chronoBonus: 0,   // Ajouté
+                    nameColor: null,   // Ajouté
+                    rankColor: null,   // Ajouté
+                    hasAura: false 
+                };
+                
+                saveUserStats();
+                loadUserStatsFromCloud(username); 
+            } else {
+                alert("Choisis un pseudo pour commencer ! 🔥");
+            }
+        };
+    }
 }
 
 function saveUserStats() {
@@ -165,12 +242,13 @@ function saveUserStats() {
 function loadUserStatsFromCloud(username) {
     database.ref('joueurs/' + username).once('value').then((snapshot) => {
         const cloudData = snapshot.val();
-        
-        if (cloudData) {
-            stats = cloudData;
-            
-            // Sécurité : s'assurer que shields existe si le compte est vieux
-            if (stats.shields === undefined) stats.shields = 0;
+       
+     if (cloudData) {
+    stats = cloudData;
+    // Sécurités pour les anciennes versions du jeu
+    if (stats.shields === undefined) stats.shields = 0;
+    if (stats.progression === undefined) stats.progression = stats.xp;
+    if (stats.hasAura === undefined) stats.hasAura = false;
 
             // --- LOGIQUE DE RUPTURE DE FLAMME ---
             const lastDateStr = localStorage.getItem("daily_done_" + username);
@@ -218,33 +296,40 @@ document.getElementById("dailyMode").onclick = () => startQuiz("Quotidien");
 document.getElementById("chronoMode").onclick = () => startQuiz("Chrono");
 
 function show(id) {
+    // 1. On cache tous les écrans
     document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
+    
+    // 2. On affiche l'écran demandé
     const target = document.getElementById(id);
-    if(target) target.style.display = "block";
+    if (target) {
+        target.style.display = "block";
+    }
 
+    // 3. Mise à jour spécifique à la boutique
+    if (id === "shop-screen") { 
+        updateShopDisplay();
+    }
+
+    // 4. Gestion de la barre de navigation (nav)
     const nav = document.getElementById("main-nav");
-    if (!nav) return;
-
-    // Si on est sur l'écran de login, on cache TOUJOURS la nav
-    if (id === "login-screen" || id === "quiz") {
-        nav.style.display = "none";
-    } else {
-        // On affiche la nav uniquement si un utilisateur est enregistré
-        const user = localStorage.getItem("brainflamme_user");
-        if (user) {
-            nav.style.display = "flex";
+    if (nav) {
+        // Si on est sur l'écran de login ou en plein quiz, on cache la nav
+        if (id === "login-screen" || id === "quiz") {
+            nav.style.display = "none";
+        } else {
+            // On affiche la nav uniquement si l'utilisateur est connecté
+            const user = localStorage.getItem("brainflamme_user");
+            if (user) {
+                nav.style.display = "flex";
+            } else {
+                nav.style.display = "none";
+            }
         }
     }
 }
 
-function updateHome() {
-    const xpNext = stats.level * 100;
-    const titleIndex = Math.min(Math.floor(stats.level / 10), 5);
-    const user = localStorage.getItem("brainflamme_user");
-    document.getElementById("welcome-user").textContent = "Salut, " + user;
-    document.getElementById("player-level").textContent = "Niveau " + stats.level + " - " + titles[titleIndex];
-    document.getElementById("xp-bar-fill").style.width = (stats.xp / xpNext * 100) + "%";
-    document.getElementById("streak-number").textContent = stats.streak;
+if (stats.hasAura) {
+    document.getElementById("welcome-user").style.textShadow = "0 0 15px #22d3ee";
 }
 
 function checkDailyStatus() {
@@ -285,12 +370,11 @@ function checkDailyStatus() {
 }
 
 function startQuiz(mode) {
-    quizHistory = []; // Vide l'historique
+    quizHistory = []; 
     selectedMode = mode; 
     current = 0; 
     score = 0;
     
-    // Mélange des questions
     currentQuestions = [...questionsData].sort(() => Math.random() - 0.5);
     
     if (mode === "Quotidien") {
@@ -298,7 +382,13 @@ function startQuiz(mode) {
         document.getElementById("timerContainer").style.display = "none";
     } else {
         document.getElementById("timerContainer").style.display = "block";
-        timeLeft = 30; 
+        
+        // --- AJOUT DU BONUS CHRONO ---
+        // On commence à 30s + le bonus acheté (ex: 5s), puis on remet le bonus à 0
+        timeLeft = 30 + (stats.chronoBonus || 0); 
+        stats.chronoBonus = 0; 
+        saveUserStats(); // On sauvegarde pour valider l'utilisation du bonus
+        
         updateTimerUI();
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
@@ -406,32 +496,50 @@ function endQuiz() {
     const scoreScreen = document.getElementById("score");
     if (!scoreScreen) return;
 
-    // 3. Calcul XP et Niveau
+  // 3. Calcul XP et Niveau
     let gain = score * 10;
-    stats.xp += gain;
-    while(stats.xp >= stats.level * 100) {
-        stats.xp -= stats.level * 100;
+  if (stats.hasXpBoost) {
+    gain = gain * 2;
+    stats.hasXpBoost = false; // On consomme le boost après utilisation
+}
+    stats.xp += gain;             // Argent pour acheter
+    stats.progression += gain;    // Expérience pour monter de niveau
+
+    // Le niveau monte selon la progression totale, il ne redescendra jamais
+    while(stats.progression >= stats.level * 100) {
         stats.level++;
     }
+    // Le niveau monte selon la progression totale
+    while(stats.progression >= stats.level * 100) {
+        stats.level++;
+        // On ne soustrait rien à progression !
+    }
+  
   if (selectedMode === "Quotidien") {
     const user = localStorage.getItem("brainflamme_user");
     localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
     checkDailyStatus(); // Met à jour le bouton immédiatement
 }
     saveUserStats();
+    
+    // AJOUTE CETTE LIGNE ICI :
+    updateShopDisplay();
 
    // 4. Préparation des infos
     // Si c'est le mode Quotidien, on sait que c'est 5. 
     // Si c'est le Chrono, on prend 'current' (le compteur de questions actuel)
     let nbQuestionsPosees = (selectedMode === "Quotidien") ? 5 : current;
+    
+    // Sécurité : évite la division par zéro si aucune question n'a été répondue
+    if (nbQuestionsPosees === 0) nbQuestionsPosees = 1; 
+
+    let comment = (score >= (nbQuestionsPosees * 0.8)) ? "INCROYABLE ! 🔥" : (score >= (nbQuestionsPosees * 0.5) ? "BIEN JOUÉ ! 👏" : "ESSAIE ENCORE ! 🐢");
 
     // Petit ajustement : si le chrono s'arrête pile au moment où une question apparaît 
     // mais qu'on n'y répond pas, on s'assure que le total est logique
     if (selectedMode === "Chrono" && score > nbQuestionsPosees) {
         nbQuestionsPosees = score; 
     }
-
-    let comment = (score >= (nbQuestionsPosees * 0.8)) ? "INCROYABLE ! 🔥" : (score >= (nbQuestionsPosees * 0.5) ? "BIEN JOUÉ ! 👏" : "ESSAIE ENCORE ! 🐢")
 
     // 5. Injection directe (On arrête les animations complexes qui font bugger)
     scoreScreen.innerHTML = `
@@ -455,12 +563,13 @@ function endQuiz() {
         </div>
     `;
 
-    // 6. Animation de la barre (simple et robuste)
+   // 6. Animation de la barre (Basée sur la progression, pas sur l'argent)
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
         if(bar) {
-            const pct = (stats.xp / (stats.level * 100) * 100);
-            bar.style.width = pct + "%";
+            // On calcule le pourcentage de progression dans le niveau actuel
+            const currentLevelXP = stats.progression % 100; 
+            bar.style.width = currentLevelXP + "%";
         }
     }, 100);
 
@@ -545,21 +654,45 @@ function buyItem(name, price) {
     if (stats.xp >= price) {
         stats.xp -= price;
         
-        // On donne les boucliers selon le pack
-        if (name === 'bronze') stats.shields += 1;
-        if (name === 'silver') stats.shields += 3;
-        // On pourrait ajouter des cadeaux pour Or et Émeraude plus tard
+        if (name === 'chrono_bonus') {
+            stats.chronoBonus += 5;
+            alert("⏳ Sablier activé ! +5s au prochain Chrono.");
+        } 
+        else if (name === 'shield') {
+            stats.shields += 1;
+            alert("🛡️ Bouclier d'argent obtenu !");
+        } 
+        else if (name === 'name_color') {
+            stats.nameColor = prompt("Entre une couleur (ex: gold, cyan, #ff00ea) :");
+            alert("🎨 Pseudo mis à jour !");
+        } 
+        else if (name === 'rank_color') {
+            stats.rankColor = prompt("Entre une couleur pour ton titre (ex: lime, red) :");
+            alert("✨ Rang mis à jour !");
+        }
+        // --- NOUVEAUX OBJETS ---
+        else if (name === 'xp_boost') {
+            stats.hasXpBoost = true; 
+            alert("💜 Élixir Violet activé ! Ton prochain quiz rapportera double XP.");
+        }
+        else if (name === 'streak_bonus') {
+            stats.streak += 5;
+            alert("🏮 Relique de Feu utilisée ! +5 Flammes.");
+        }
+        else if (name === 'aura_effect') {
+            stats.hasAura = true;
+            alert("💎 Aura Céleste débloquée ! (Pense à l'ajouter dans ton CSS)");
+        }
+        else if (name === 'bonus_question') {
+            stats.bonusQuestion = (stats.bonusQuestion || 0) + 1;
+            alert("🎲 Dé Chanceux ! Tu as une question joker d'avance.");
+        }
         
-        saveUserStats(); // Sauvegarde Cloud
-        updateHome();    // Met à jour l'accueil
-        
-        // Met à jour l'affichage de la boutique
-        const shopXp = document.getElementById("shop-xp");
-        if(shopXp) shopXp.textContent = stats.xp;
-        
-        alert(`Achat réussi ! Tu as ${stats.shields} bouclier(s) en réserve. 🛡️`);
+        saveUserStats();
+        updateShopDisplay();
+        updateHome();
     } else {
-        alert("XP insuffisant pour cet article ! ❌");
+        alert("Tu n'as pas assez de points ! 🪙");
     }
 }
 function checkDailyStatus() {
@@ -608,5 +741,53 @@ function checkDailyStatus() {
         btn.style.opacity = "1";
         btn.style.cursor = "pointer";
         btn.innerText = "Mode Quotidien 📅";
+    }
+}
+function updateShopDisplay() {
+    const shopXp = document.getElementById("shop-xp");
+    if (shopXp) {
+        // Affiche l'or possédé (stats.xp)
+        shopXp.textContent = stats.xp; 
+    }
+}
+function updateHome() {
+    // Calcul du titre (0 à 6 pour inclure Diamant)
+    const titleIndex = Math.min(Math.floor(stats.level / 10), 6);
+    const user = localStorage.getItem("brainflamme_user");
+    
+    // Mise à jour des textes
+    const welcomeElem = document.getElementById("welcome-user");
+    const rankElem = document.getElementById("player-level");
+    const streakElem = document.getElementById("streak-number");
+    const xpBar = document.getElementById("xp-bar-fill");
+
+    if (welcomeElem) welcomeElem.textContent = "Salut, " + user;
+    if (rankElem) rankElem.textContent = "Niveau " + stats.level + " - " + titles[titleIndex];
+    if (streakElem) streakElem.textContent = stats.streak;
+
+    // Barre d'XP (progression dans le niveau actuel)
+    if (xpBar) {
+        const currentLevelProgression = stats.progression % 100; 
+        xpBar.style.width = currentLevelProgression + "%";
+    }
+
+    // --- APPLICATION DES EFFETS DE LA BOUTIQUE ---
+
+    // 1. Couleur du Pseudo
+    if (stats.nameColor && welcomeElem) {
+        welcomeElem.style.color = stats.nameColor;
+    }
+
+    // 2. Couleur du Rang (Titre)
+    if (stats.rankColor && rankElem) {
+        rankElem.style.color = stats.rankColor;
+    }
+
+    // 3. L'AURA (Effet brillant autour du pseudo)
+    if (stats.hasAura && welcomeElem) {
+        welcomeElem.style.textShadow = "0 0 15px #22d3ee, 0 0 5px #22d3ee";
+        welcomeElem.style.fontWeight = "bold";
+    } else if (welcomeElem) {
+        welcomeElem.style.textShadow = "none"; // Reset si pas d'aura
     }
 }
