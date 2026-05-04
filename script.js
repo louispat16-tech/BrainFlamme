@@ -776,10 +776,17 @@ function updateHome() {
 
     // --- APPLICATION DES EFFETS DE LA BOUTIQUE ---
 
-    // 1. Couleur du Pseudo
-    if (stats.nameColor && welcomeElem) {
+  // 1. Couleur du Pseudo
+if (welcomeElem) {
+    // ON RÉINITIALISE D'ABORD (sinon l'ancienne couleur peut rester)
+    welcomeElem.style.color = ""; 
+    
+    if (stats.nameColor) {
         welcomeElem.style.color = stats.nameColor;
+    } else {
+        welcomeElem.style.color = "white"; // Couleur par défaut si rien n'est acheté
     }
+}
 
     // 2. Couleur du Rang (Titre)
     if (stats.rankColor && rankElem) {
