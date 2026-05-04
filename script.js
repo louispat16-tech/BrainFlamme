@@ -762,12 +762,11 @@ function updateShopDisplay() {
         shopXp.textContent = stats.xp; 
     }
 }
+
 function updateHome() {
-    // Calcul du titre (0 à 6 pour inclure Diamant)
     const titleIndex = Math.min(Math.floor(stats.level / 10), 6);
     const user = localStorage.getItem("brainflamme_user");
     
-    // Mise à jour des textes
     const welcomeElem = document.getElementById("welcome-user");
     const rankElem = document.getElementById("player-level");
     const streakElem = document.getElementById("streak-number");
@@ -777,7 +776,6 @@ function updateHome() {
     if (rankElem) rankElem.textContent = "Niveau " + stats.level + " - " + titles[titleIndex];
     if (streakElem) streakElem.textContent = stats.streak;
 
-    // Barre d'XP (progression dans le niveau actuel)
     if (xpBar) {
         const currentLevelProgression = stats.progression % 100; 
         xpBar.style.width = currentLevelProgression + "%";
@@ -785,27 +783,29 @@ function updateHome() {
 
     // --- APPLICATION DES EFFETS DE LA BOUTIQUE ---
 
-// 1. Couleur du Pseudo
     if (welcomeElem) {
-        console.log("Couleur actuelle dans les stats :", stats.nameColor); // Regarde dans F12
-        
         if (stats.nameColor && stats.nameColor !== "") {
-            welcomeElem.style.setProperty('color', stats.nameColor, 'important');
+            // SI COULEUR ACHETÉE : on retire le dégradé et on force la couleur
+            welcomeElem.classList.remove("default-style");
+            welcomeElem.style.webkitTextFillColor = stats.nameColor; 
+            welcomeElem.style.color = stats.nameColor;
         } else {
-            welcomeElem.style.color = "white";
+            // SINON : on remet le look dégradé orange/jaune
+            welcomeElem.classList.add("default-style");
+        }
+
+        // L'AURA
+        if (stats.hasAura) {
+            welcomeElem.style.textShadow = "0 0 15px #22d3ee, 0 0 5px #22d3ee";
+            welcomeElem.style.fontWeight = "bold";
+        } else {
+            welcomeElem.style.textShadow = "none";
         }
     }
 
-    // 2. Couleur du Rang (Titre)
-    if (stats.rankColor && rankElem) {
-        rankElem.style.color = stats.rankColor;
-    }
-
-    // 3. L'AURA (Effet brillant autour du pseudo)
-    if (stats.hasAura && welcomeElem) {
-        welcomeElem.style.textShadow = "0 0 15px #22d3ee, 0 0 5px #22d3ee";
-        welcomeElem.style.fontWeight = "bold";
-    } else if (welcomeElem) {
-        welcomeElem.style.textShadow = "none"; // Reset si pas d'aura
+    // Couleur du Rang (Correction du bug "tous les comptes")
+    if (rankElem) {
+        // On remet la couleur par défaut (jaune) avant d'appliquer la spéciale
+        rankElem.style.color = stats.rankColor ? stats.rankColor : "#fbbf24";
     }
 }
