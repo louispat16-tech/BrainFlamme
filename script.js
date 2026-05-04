@@ -694,7 +694,7 @@ function buyItem(name, price) {
             stats.hasAura = true;
             alert("💎 Aura Céleste débloquée ! (Pense à l'ajouter dans ton CSS)");
         }
-        else if (name === 'bonus_question') {
+        else if (name === 'bonusQuestion') {
             stats.bonusQuestion = (stats.bonusQuestion || 0) + 1;
             alert("🎲 Dé Chanceux ! Tu as une question joker d'avance.");
         }
