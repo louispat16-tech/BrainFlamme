@@ -706,6 +706,7 @@ function buyItem(name, price) {
         alert("Tu n'as pas assez de points ! 🪙");
     }
 }
+
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
     const lastDate = localStorage.getItem("daily_done_" + user);
