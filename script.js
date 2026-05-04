@@ -204,21 +204,24 @@ function setupLogin() {
             if (username) {
                 localStorage.setItem("brainflamme_user", username);
                 
-                // On initialise TOUTES les stats, y compris les nouvelles
-                stats = { 
-                    xp: 0, 
-                    progression: 0, 
-                    level: 1, 
-                    streak: 0, 
-                    shields: 0, 
-                    chronoBonus: 0,   // Ajouté
-                    nameColor: null,   // Ajouté
-                    rankColor: null,   // Ajouté
-                    hasAura: false 
-                };
-                
-                saveUserStats();
-                loadUserStatsFromCloud(username); 
+                // 1. On vérifie d'abord si ce joueur existe déjà sur le Cloud
+                database.ref('joueurs/' + username).once('value').then((snapshot) => {
+                    if (snapshot.exists()) {
+                        // S'il existe, on récupère ses vraies stats
+                        stats = snapshot.val();
+                        console.log("Compte récupéré !");
+                    } else {
+                        // S'il est vraiment nouveau, on initialise à zéro
+                        stats = { 
+                            xp: 0, progression: 0, level: 1, streak: 0, 
+                            shields: 0, chronoBonus: 0, nameColor: null, 
+                            rankColor: null, hasAura: false 
+                        };
+                        saveUserStats(); // On crée l'entrée sur le cloud
+                    }
+                    updateHome(); 
+                    show("home-screen");
+                });
             } else {
                 alert("Choisis un pseudo pour commencer ! 🔥");
             }
@@ -228,15 +231,15 @@ function setupLogin() {
 
 function saveUserStats() {
     const username = localStorage.getItem("brainflamme_user");
-    if (!username) return;
+    if (!username || !stats) return; // Sécurité si stats est vide
     
-    // Sauvegarde locale
-    const allData = JSON.parse(localStorage.getItem("brainflamme_all_players")) || {};
-    allData[username] = stats;
-    localStorage.setItem("brainflamme_all_players", JSON.stringify(allData));
-    
-    // SAUVEGARDE CLOUD ☁️
-    database.ref('joueurs/' + username).set(stats);
+    // Sauvegarde Cloud (Le point crucial)
+    database.ref('joueurs/' + username).set(stats)
+        .then(() => console.log("🔥 Stats synchronisées sur Firebase !"))
+        .catch(err => console.error("Erreur Firebase :", err));
+        
+    // Sauvegarde locale de secours
+    localStorage.setItem("brainflamme_stats_" + username, JSON.stringify(stats));
 }
 
 function loadUserStatsFromCloud(username) {
