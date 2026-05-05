@@ -498,61 +498,69 @@ function showQuestion() {
 } // Fermeture de showQuestion
 
 function endQuiz() {
-    // 1. STOP IMMEDIAT des chronos pour bloquer tout double appel
+    // 1. STOP chronos
     clearInterval(timerInterval);
     clearInterval(dailyTimerInterval);
 
-    // 2. Affichage de l'écran score
+    // 2. Calcul XP et Niveau
+    let gain = score * 10;
+    if (stats.hasXpBoost) {
+        gain = gain * 2;
+        stats.hasXpBoost = false; 
+    }
+    stats.xp += gain;
+    stats.progression += gain;
+
+    while(stats.progression >= stats.level * 100) {
+        stats.level++;
+    }
+
+    // --- NOUVEAU : GESTION DE LA FLAMME 🔥 ---
+    if (selectedMode === "Quotidien") {
+        const user = localStorage.getItem("brainflamme_user");
+        localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
+        
+        // On augmente la flamme et on enregistre la date pour le bouclier
+        stats.streak = (stats.streak || 0) + 1;
+        stats.lastPlayDate = new Date().toDateString(); 
+        
+        checkDailyStatus();
+    }
+
+    // --- NOUVEAU : VÉRIFICATION DU DÉ CHANCEUX (QUESTION BONUS) 🎲 ---
+    if (stats.bonusQuestion > 0) {
+        saveUserStats(); // On sauvegarde avant de lancer le bonus
+        
+        // On propose la question bonus. Si l'utilisateur accepte, 
+        // la fonction s'arrête ici et 'proposerQuestionBonus' prend le relais.
+        setTimeout(() => {
+            if (confirm("🎲 DÉ CHANCEUX : Veux-tu utiliser un dé pour une QUESTION BONUS et gagner +20 XP ?")) {
+                lancerQuestionBonus();
+            } else {
+                continuerAffichageScore(gain); // Si non, on affiche le score normalement
+            }
+        }, 500);
+        return; // Important : on stoppe endQuiz ici
+    }
+
+    // Si pas de dé, on continue normalement
+    continuerAffichageScore(gain);
+}
+
+// On crée une petite fonction pour finir l'affichage proprement
+function continuerAffichageScore(gain) {
     show("score");
     const scoreScreen = document.getElementById("score");
     if (!scoreScreen) return;
 
-  // 3. Calcul XP et Niveau
-    let gain = score * 10;
-  if (stats.hasXpBoost) {
-    gain = gain * 2;
-    stats.hasXpBoost = false; // On consomme le boost après utilisation
-}
-    stats.xp += gain;             // Argent pour acheter
-    stats.progression += gain;    // Expérience pour monter de niveau
-
-    // Le niveau monte selon la progression totale, il ne redescendra jamais
-    while(stats.progression >= stats.level * 100) {
-        stats.level++;
-    }
-    // Le niveau monte selon la progression totale
-    while(stats.progression >= stats.level * 100) {
-        stats.level++;
-        // On ne soustrait rien à progression !
-    }
-  
-  if (selectedMode === "Quotidien") {
-    const user = localStorage.getItem("brainflamme_user");
-    localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
-    checkDailyStatus(); // Met à jour le bouton immédiatement
-}
     saveUserStats();
-    
-    // AJOUTE CETTE LIGNE ICI :
     updateShopDisplay();
 
-   // 4. Préparation des infos
-    // Si c'est le mode Quotidien, on sait que c'est 5. 
-    // Si c'est le Chrono, on prend 'current' (le compteur de questions actuel)
     let nbQuestionsPosees = (selectedMode === "Quotidien") ? 5 : current;
-    
-    // Sécurité : évite la division par zéro si aucune question n'a été répondue
     if (nbQuestionsPosees === 0) nbQuestionsPosees = 1; 
 
     let comment = (score >= (nbQuestionsPosees * 0.8)) ? "INCROYABLE ! 🔥" : (score >= (nbQuestionsPosees * 0.5) ? "BIEN JOUÉ ! 👏" : "ESSAIE ENCORE ! 🐢");
 
-    // Petit ajustement : si le chrono s'arrête pile au moment où une question apparaît 
-    // mais qu'on n'y répond pas, on s'assure que le total est logique
-    if (selectedMode === "Chrono" && score > nbQuestionsPosees) {
-        nbQuestionsPosees = score; 
-    }
-
-    // 5. Injection directe (On arrête les animations complexes qui font bugger)
     scoreScreen.innerHTML = `
         <h2 style="font-size:40px; margin-bottom:10px;">Résultat</h2>
         <div class="final-score-box" style="background:#1e293b; padding:25px; border-radius:20px; border:2px solid #f97316; max-width:400px; margin:auto;">
@@ -561,12 +569,9 @@ function endQuiz() {
                 <div id="anim-fill" style="width:0%; height:100%; background:#f97316; transition: width 1s ease-out;"></div>
             </div>
             <p style="font-size:24px; color:#22c55e; font-weight:bold;">+${gain} XP</p>
-            
             <hr style="border:0; border-top:1px solid #334155; margin:20px 0;">
-            
             <h3 style="font-size:35px; color:#f97316; margin-bottom:5px;">${comment}</h3>
             <p style="font-size:20px;">${score} / ${nbQuestionsPosees} correctes</p>
-            
             <div style="margin-top:20px;">
                 <button class="mode-btn" style="width:100%; margin-bottom:10px; background:#334155; border:1px solid #f97316;" onclick="showRecap()">VOIR LE RÉCAPITULATIF 📋</button>
                 <button class="play pulse-btn" style="width:100%; padding:15px;" onclick="show('home-screen'); updateHome();">RETOUR</button>
@@ -574,20 +579,17 @@ function endQuiz() {
         </div>
     `;
 
-   // 6. Animation de la barre (Basée sur la progression, pas sur l'argent)
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
         if(bar) {
-            // On calcule le pourcentage de progression dans le niveau actuel
             const currentLevelXP = stats.progression % 100; 
             bar.style.width = currentLevelXP + "%";
         }
     }, 100);
 
-    // Dans ta fonction endQuiz, remplace la partie confetti par :
-if (score === 5 && selectedMode === "Quotidien") { // Changé currentMode par selectedMode
-    lancerConfettis();
-}
+    if (score === 5 && selectedMode === "Quotidien") {
+        lancerConfettis();
+    }
 }
 
 function logout() {
