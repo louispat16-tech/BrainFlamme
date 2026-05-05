@@ -809,3 +809,33 @@ function updateHome() {
         rankElem.style.color = stats.rankColor ? stats.rankColor : "#fbbf24";
     }
 }
+
+function proposerQuestionBonus() {
+    const veutJouer = confirm("🎲 Tu possèdes un Dé Chanceux ! Veux-tu l'utiliser pour une QUESTION BONUS et gagner plus d'XP ?");
+    
+    if (veutJouer) {
+        stats.bonusQuestion--; // On consomme le dé
+        lancerQuestionBonus();
+    } else {
+        saveUserStats();
+        updateHome();
+    }
+}
+
+function lancerQuestionBonus() {
+    // 1. On prépare une question au hasard
+    const bonusQ = questionsData[Math.floor(Math.random() * questionsData.length)];
+    currentQuestions = [bonusQ]; 
+    current = 0;
+
+    // 2. On change le look du quiz pour le mode "Bonus"
+    const quizScreen = document.getElementById("quiz");
+    quizScreen.classList.add("bonus-mode-active"); // On ajoute une classe spéciale
+    
+    // 3. On affiche la question
+    showQuestion();
+    
+    // Optionnel : un petit message visuel
+    const qText = document.getElementById("question-text");
+    qText.innerHTML = "✨ QUESTION BONUS ✨<br>" + qText.innerText;
+}
