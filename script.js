@@ -133,13 +133,17 @@ const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torc
 
 // Ajoute ces nouvelles variables dans tes stats de base
 let stats = {
-    xp: 0, // C'est ton OR
+    xp: 0,
     progression: 0,
     level: 1,
+    streak: 0,
     shields: 0,
-    chronoBonus: 0,    // Pour le bonus de temps
-    nameColor: null,   // Pour la couleur du pseudo
-    rankColor: null    // Pour la couleur du titre
+    chronoBonus: 0,
+    bonusQuestion: 0, // Corrige l'incohérence du nom
+    nameColor: null,
+    rankColor: null,
+    hasAura: false,
+    hasXpBoost: false
 };
 let current = 0, score = 0, timerInterval, timeLeft, currentQuestions = [], selectedMode = "";
 let dailyTimerInterval;
@@ -272,30 +276,26 @@ function show(id) {
     }
 
     // 3. Mise à jour spécifique à la boutique
-    if (id === "shop-screen") { 
+    if (id === "shop-screen" && typeof updateShopDisplay === "function") { 
         updateShopDisplay();
     }
 
-    // 4. Gestion de la barre de navigation (nav)
+    // 4. Gestion de l'aura visuelle du joueur
+    const welcomeUser = document.getElementById("welcome-user");
+    if (welcomeUser) {
+        welcomeUser.style.textShadow = stats.hasAura ? "0 0 15px #22d3ee" : "none";
+    }
+
+    // 5. Gestion de la barre de navigation (nav)
     const nav = document.getElementById("main-nav");
     if (nav) {
-        // Si on est sur l'écran de login ou en plein quiz, on cache la nav
         if (id === "login-screen" || id === "quiz") {
             nav.style.display = "none";
         } else {
-            // On affiche la nav uniquement si l'utilisateur est connecté
             const user = localStorage.getItem("brainflamme_user");
-            if (user) {
-                nav.style.display = "flex";
-            } else {
-                nav.style.display = "none";
-            }
+            nav.style.display = user ? "flex" : "none";
         }
     }
-}
-
-if (stats.hasAura) {
-    document.getElementById("welcome-user").style.textShadow = "0 0 15px #22d3ee";
 }
 
 function checkDailyStatus() {
@@ -474,39 +474,22 @@ function endQuiz() {
     stats.xp += gain;
     stats.progression += gain;
 
-    while(stats.progression >= stats.level * 100) {
+    while (stats.progression >= stats.level * 100) {
         stats.level++;
     }
 
-    // --- NOUVEAU : GESTION DE LA FLAMME 🔥 ---
+    // 3. Gestion de la Flamme Quotidienne
     if (selectedMode === "Quotidien") {
         const user = localStorage.getItem("brainflamme_user");
         localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
         
-        // On augmente la flamme et on enregistre la date pour le bouclier
         stats.streak = (stats.streak || 0) + 1;
         stats.lastPlayDate = new Date().toDateString(); 
         
         checkDailyStatus();
     }
 
-    // --- NOUVEAU : VÉRIFICATION DU DÉ CHANCEUX (QUESTION BONUS) 🎲 ---
-    if (stats.bonusQuestion > 0) {
-        saveUserStats(); // On sauvegarde avant de lancer le bonus
-        
-        // On propose la question bonus. Si l'utilisateur accepte, 
-        // la fonction s'arrête ici et 'proposerQuestionBonus' prend le relais.
-        setTimeout(() => {
-            if (confirm("🎲 DÉ CHANCEUX : Veux-tu utiliser un dé pour une QUESTION BONUS et gagner +20 XP ?")) {
-                lancerQuestionBonus();
-            } else {
-                continuerAffichageScore(gain); // Si non, on affiche le score normalement
-            }
-        }, 500);
-        return; // Important : on stoppe endQuiz ici
-    }
-
-    // Si pas de dé, on continue normalement
+    // 4. On passe le relais à l'affichage du score
     continuerAffichageScore(gain);
 }
 
