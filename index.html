@@ -11,7 +11,6 @@
     <div class="container">
         <h1 id="title">🔥 Brainflamme</h1>
 
-       <!-- ÉCRAN CONNEXION -->
         <div id="login-screen" class="screen">
             <h2>Bienvenue !</h2>
             <p style="color: #94a3b8; margin-bottom: 20px;">Prêt à enflammer tes neurones ?</p>
@@ -20,7 +19,6 @@
             <button id="loginBtn" class="play pulse-btn">Créer mon profil</button>
         </div>
 
-        <!-- ÉCRAN ACCUEIL -->
         <div id="home-screen" class="screen" style="display:none;">
             <div class="home-streak-container">
                 <p id="welcome-user" class="special-welcome"></p>
@@ -37,79 +35,69 @@
             <button onclick="logout()" class="logout-link-simple" style="background:none; border:none; color:#94a3b8; text-decoration:underline; cursor:pointer; margin-top:20px;">Changer de compte</button>
         </div> 
 
-       <!-- ÉCRAN BOUTIQUE -->
-<div id="shop-screen" class="screen" style="display:none;">
-    <h1 style="color: #f97316; text-align: center; margin-top: 20px;">Boutique des Flammes 🛒</h1>
-    
-    <!-- LE COMPTEUR VIOLET (Utilise stats.xp qui est ton Or) -->
-    <div class="xp-balance-card">
-        <span class="xp-label">TES XP</span>
-        <div class="xp-amount-container">
-            <span class="xp-icon">🪙</span>
-            <span id="shop-xp">0</span>
+        <div id="shop-screen" class="screen" style="display:none;">
+            <h1 style="color: #f97316; text-align: center; margin-top: 20px;">Boutique des Flammes 🛒</h1>
+            
+            <div class="xp-balance-card">
+                <span class="xp-label">TES XP</span>
+                <div class="xp-amount-container">
+                    <span class="xp-icon">🪙</span>
+                    <span id="shop-xp">0</span>
+                </div>
+            </div>
+
+            <div class="shop-grid">
+                <div class="shop-card bronze">
+                    <div class="tier-icon">⌛</div>
+                    <h3>Sablier</h3>
+                    <p>+5s au prochain Chrono</p>
+                    <button class="buy-btn" onclick="buyItem('chrono_bonus', 150)">150 🪙</button>
+                </div>
+
+                <div class="shop-card bronze">
+                    <div class="tier-icon">🎲</div>
+                    <h3>Dé Chanceux</h3>
+                    <p>Une question bonus offerte</p>
+                    <button class="buy-btn" onclick="buyItem('bonus_question', 200)">200 🪙</button>
+                </div>
+
+                <div class="shop-card silver">
+                    <div class="tier-icon">🛡️</div>
+                    <h3>Bouclier</h3>
+                    <p>Protège ta flamme</p>
+                    <button class="buy-btn" onclick="buyItem('shield', 500)">500 🪙</button>
+                </div>
+
+                <div class="shop-card silver">
+                    <div class="tier-icon">💜</div>
+                    <h3>Élixir Violet</h3>
+                    <p>Double l'XP du prochain quiz</p>
+                    <button class="buy-btn" onclick="buyItem('xp_boost', 450)">450 🪙</button>
+                </div>
+
+                <div class="shop-card emerald">
+                    <div class="tier-icon">✨</div>
+                    <h3>Émeraude</h3>
+                    <p>Couleur de Rang</p>
+                    <button class="buy-btn" onclick="buyItem('rank_color', 750)">750 🪙</button>
+                </div>
+
+                <div class="shop-card gold">
+                    <div class="tier-icon">👑</div>
+                    <h3>Or Royal</h3>
+                    <p>Couleur de Pseudo</p>
+                    <button class="buy-btn" onclick="buyItem('name_color', 1000)">1000 🪙</button>
+                </div>
+
+                <div class="shop-card gold">
+                    <div class="tier-icon">💎</div>
+                    <h3>Aura Céleste</h3>
+                    <p>Effet brillant (Pseudo)</p>
+                    <button class="buy-btn" onclick="buyItem('aura_effect', 1000)">1000 🪙</button>
+                </div>
+            </div> <button onclick="show('home-screen')" class="play" style="margin-top:20px; width:100%;">RETOUR</button>
         </div>
-    </div>
 
-    <div class="shop-grid">
-    <!-- TIERS BRONZE -->
-    <div class="shop-card bronze">
-        <div class="tier-icon">⌛</div>
-        <h3>Sablier</h3>
-        <p>+5s au prochain Chrono</p>
-        <button class="buy-btn" onclick="buyItem('chrono_bonus', 150)">150 🪙</button>
-    </div>
-
-    <div class="shop-card bronze">
-        <div class="tier-icon">🎲</div>
-        <h3>Dé Chanceux</h3>
-        <p>Une question bonus offerte</p>
-        <button class="buy-btn" onclick="buyItem('bonus_question', 200)">200 🪙</button>
-    </div>
-
-    <!-- TIERS ARGENT -->
-    <div class="shop-card silver">
-        <div class="tier-icon">🛡️</div>
-        <h3>Bouclier</h3>
-        <p>Protège ta flamme</p>
-        <button class="buy-btn" onclick="buyItem('shield', 500)">500 🪙</button>
-    </div>
-
-    <div class="shop-card silver">
-        <div class="tier-icon">💜</div>
-        <h3>Élixir Violet</h3>
-        <p>Double l'XP du prochain quiz</p>
-        <button class="buy-btn" onclick="buyItem('xp_boost', 450)">450 🪙</button>
-    </div>
-
-    <!-- TIERS ÉMERAUDE -->
-    <div class="shop-card emerald">
-        <div class="tier-icon">✨</div>
-        <h3>Émeraude</h3>
-        <p>Couleur de Rang</p>
-        <button class="buy-btn" onclick="buyItem('rank_color', 750)">750 🪙</button>
-    </div>
-
-    <!-- TIERS OR -->
-    <div class="shop-card gold">
-        <div class="tier-icon">👑</div>
-        <h3>Or Royal</h3>
-        <p>Couleur de Pseudo</p>
-        <button class="buy-btn" onclick="buyItem('name_color', 1000)">1000 🪙</button>
-    </div>
-
-    <div class="shop-card gold">
-        <div class="tier-icon">💎</div>
-        <h3>Aura Céleste</h3>
-        <p>Effet brillant (Pseudo)</p>
-        <button class="buy-btn" onclick="buyItem('aura_effect', 1000)">1000 🪙</button>
-    </div>
-</div>
-
-    <!-- BOUTON RETOUR -->
-    <button onclick="show('home-screen')" class="play" style="margin-top:20px; width:100%;">RETOUR</button>
-</div>
-
-        <!-- SÉLECTION MODE -->
         <div id="modeSelection" class="screen" style="display:none;">
             <h2 style="font-size: 40px; margin-bottom: 30px;">Choisis ton défi</h2>
             <div class="mode-btn-container">
@@ -120,7 +108,6 @@
             <button onclick="show('home-screen')" class="play pulse-btn">RETOUR</button>
         </div>
 
-        <!-- ÉCRAN DU QUIZ -->
         <div id="quiz" class="screen" style="display:none;">
             <div id="timerContainer">
                 <div id="timerBar"></div>
@@ -131,39 +118,34 @@
             <div id="explanation-container"></div>
         </div>
 
-        <!-- ÉCRAN DU SCORE -->
         <div id="score" class="screen" style="display:none;">
-            <!-- Rempli par le JS -->
-        </div>
-      <!-- ÉCRAN CLASSEMENT (BIENTÔT) -->
-<div id="leaderboard-screen" class="screen" style="display:none;">
-    <h1 style="color: #f97316; text-align: center; margin-top: 40px;">Classement Mondial 🏆</h1>
-    
-    <div style="text-align: center; padding: 40px 20px;">
-        <div style="font-size: 60px; margin-bottom: 20px;">🚧</div>
-        <h2 style="color: white; margin-bottom: 15px;">Bientôt disponible...</h2>
-        <p style="color: #94a3b8; line-height: 1.6; font-size: 18px;">
-            Nous préparons l'arène ! <br>
-            Il faut encore un peu plus de joueurs pour que la compétition soit lancée.
-        </p>
-        
-       <div style="margin-top: 30px; padding: 40px; background: #1e293b; border-radius: 30px; border: 2px dashed #334155;">
-            <p style="color: #f97316; font-weight: bold;">Ton rang actuel : En attente...</p>
-        </div>
-        
-        <button onclick="show('home-screen')" class="play" style="margin-top: 30px;">RETOUR</button>
-    </div>
-</div>
+            </div>
 
-    </div> <!-- FIN DU CONTAINER -->
+        <div id="leaderboard-screen" class="screen" style="display:none;">
+            <h1 style="color: #f97316; text-align: center; margin-top: 40px;">Classement Mondial 🏆</h1>
+            
+            <div style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 60px; margin-bottom: 20px;">🚧</div>
+                <h2 style="color: white; margin-bottom: 15px;">Bientôt disponible...</h2>
+                <p style="color: #94a3b8; line-height: 1.6; font-size: 18px;">
+                    Nous préparons l'arène ! <br>
+                    Il faut encore un peu plus de joueurs pour que la compétition soit lancée.
+                </p>
+                
+                <div style="margin-top: 30px; padding: 40px; background: #1e293b; border-radius: 30px; border: 2px dashed #334155;">
+                    <p style="color: #f97316; font-weight: bold;">Ton rang actuel : En attente...</p>
+                </div>
+                
+                <button onclick="show('home-screen')" class="play" style="margin-top: 30px;">RETOUR</button>
+            </div>
+        </div>
 
-    <!-- NAVIGATION BASSE -->
-    <nav id="main-nav" class="bottom-nav" style="display:none;">
+    </div> <nav id="main-nav" class="bottom-nav" style="display:none;">
         <div class="nav-item" onclick="show('home-screen'); updateHome();">
             <span>🏠</span>
             <p>Accueil</p>
         </div>
-        <div class="nav-item" onclick="show('shop-screen')">
+        <div class="nav-item" onclick="show('shop-screen'); updateShopDisplay();">
             <span>🛒</span>
             <p>Boutique</p>
         </div>
@@ -173,14 +155,11 @@
         </div>
     </nav>
 
-    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
-    <!-- FIREBASE (Ordre STRICT : App, puis Database) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     
-    <!-- TON CODE (Toujours en dernier) -->
     <script src="script.js"></script>
 </body>
 </html>
