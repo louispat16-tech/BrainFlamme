@@ -171,24 +171,29 @@ function setupLogin() {
             if (username) {
                 localStorage.setItem("brainflamme_user", username);
                 
-                // 1. On vérifie d'abord si ce joueur existe déjà sur le Cloud
-                database.ref('joueurs/' + username).once('value').then((snapshot) => {
-                    if (snapshot.exists()) {
-                        // S'il existe, on récupère ses vraies stats
-                        stats = snapshot.val();
-                        console.log("Compte récupéré !");
-                    } else {
-                        // S'il est vraiment nouveau, on initialise à zéro
-                        stats = { 
-                            xp: 0, progression: 0, level: 1, streak: 0, 
-                            shields: 0, chronoBonus: 0, nameColor: null, 
-                            rankColor: null, hasAura: false 
-                        };
-                        saveUserStats(); // On crée l'entrée sur le cloud
-                    }
-                    updateHome(); 
-                    show("home-screen");
-                });
+                // Vérification sécurisée de Firebase
+                if (typeof database !== "undefined" && database) {
+                    database.ref('joueurs/' + username).once('value').then((snapshot) => {
+                        if (snapshot.exists()) {
+                            stats = snapshot.val();
+                        } else {
+                            stats = { 
+                                xp: 0, progression: 0, level: 1, streak: 0, 
+                                shields: 0, chronoBonus: 0, bonusQuestion: 0, nameColor: null, 
+                                rankColor: null, hasAura: false, hasXpBoost: false
+                            };
+                            saveUserStats();
+                        }
+                        updateHome(); 
+                        show("home-screen");
+                    }).catch(err => {
+                        console.error("Erreur Firebase fallback local:", err);
+                        chargerStatsLocales(username);
+                    });
+                } else {
+                    // Fallback local si Firebase n'est pas encore prêt
+                    chargerStatsLocales(username);
+                }
             } else {
                 alert("Choisis un pseudo pour commencer ! 🔥");
             }
@@ -196,6 +201,21 @@ function setupLogin() {
     }
 }
 
+// Petite fonction de secours locale pour garantir le passage à l'écran d'accueil
+function chargerStatsLocales(username) {
+    const saved = localStorage.getItem("brainflamme_stats_" + username);
+    if (saved) {
+        stats = JSON.parse(saved);
+    } else {
+        stats = { 
+            xp: 0, progression: 0, level: 1, streak: 0, 
+            shields: 0, chronoBonus: 0, bonusQuestion: 0, nameColor: null, 
+            rankColor: null, hasAura: false, hasXpBoost: false
+        };
+    }
+    updateHome();
+    show("home-screen");
+}
 function saveUserStats() {
     const username = localStorage.getItem("brainflamme_user");
     if (!username || !stats) return; // Sécurité si stats est vide
