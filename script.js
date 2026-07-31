@@ -720,14 +720,27 @@ function updateHome() {
     const streakElem = document.getElementById("streak-number");
     const xpBar = document.getElementById("xp-bar-fill");
 
-    if (welcomeElem) welcomeElem.textContent = "Salut, " + user;
-    if (rankElem) rankElem.textContent = "Niveau " + stats.level + " - " + titles[titleIndex];
+    if (welcomeElem) {
+        welcomeElem.textContent = "Salut, " + user;
+        // Applique la couleur de pseudo si achetée
+        if (stats.nameColor) welcomeElem.style.color = stats.nameColor;
+        // Applique l'aura céleste si achetée
+        if (stats.hasAura) welcomeElem.style.textShadow = "0 0 15px #22d3ee";
+    }
+
+    if (rankElem) {
+        rankElem.textContent = "Niveau " + stats.level + " - " + titles[titleIndex];
+        // Applique la couleur de rang si achetée
+        if (stats.rankColor) rankElem.style.color = stats.rankColor;
+    }
+
     if (streakElem) streakElem.textContent = stats.streak;
 
     if (xpBar) {
         const currentLevelProgression = stats.progression % 100; 
         xpBar.style.width = currentLevelProgression + "%";
     }
+}
 
     // --- APPLICATION DES EFFETS DE LA BOUTIQUE ---
 
