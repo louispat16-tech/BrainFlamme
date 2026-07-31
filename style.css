@@ -1,67 +1,126 @@
-body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; text-align: center; margin: 0; overflow-x: hidden; }
-.container { padding: 40px 20px; max-width: 800px; margin: 0 auto; }
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: #0f172a; 
+    color: white; 
+    text-align: center; 
+    margin: 0; 
+    overflow-x: hidden; 
+}
 
-#title { font-size: 50px; color: #f97316; margin-bottom: 40px; animation: titleGlow 1.5s ease-in-out infinite alternate; }
-@keyframes titleGlow { from { text-shadow: 0 0 10px #f97316; } to { text-shadow: 0 0 30px #ff4500; } }
+.container { 
+    padding: 40px 20px; 
+    max-width: 800px; 
+    margin: 0 auto; 
+}
 
-.home-streak-container { background: #1e293b; padding: 30px; border-radius: 25px; border: 2px solid #334155; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+#title { 
+    font-size: 50px; 
+    color: #f97316; 
+    margin-bottom: 40px; 
+    animation: titleGlow 1.5s ease-in-out infinite alternate; 
+}
+
+@keyframes titleGlow { 
+    from { text-shadow: 0 0 10px #f97316; } 
+    to { text-shadow: 0 0 30px #ff4500; } 
+}
+
+.home-streak-container { 
+    background: #1e293b; 
+    padding: 30px; 
+    border-radius: 25px; 
+    border: 2px solid #334155; 
+    margin-bottom: 25px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+}
+
+/* PSEUDO : On retire la transparence forcée */
 .special-welcome { 
     font-size: 24px; 
     font-weight: 800; 
     margin: 0 0 15px 0; 
-    background: linear-gradient(to right, #f97316, #fbbf24); /* <--- ICI */
-    -webkit-background-clip: text;                          /* <--- ET ICI */
-    -webkit-text-fill-color: transparent;                   /* <--- LE COUPABLE */
 }
-.xp-section-permanent { margin: 20px auto; width: 100%; max-width: 450px; }
-.xp-title { font-size: 26px; font-weight: bold; color: #fbbf24; margin-bottom: 10px; }
-.xp-bar-bg { width: 100%; height: 16px; background: #0f172a; border-radius: 10px; border: 1px solid #334155; overflow: hidden; }
-#xp-bar-fill, #anim-fill { height: 100%; background: linear-gradient(90deg, #f97316, #fbbf24); width: 0%; transition: width 0.8s ease; }
 
-.main-flame { font-size: 70px; font-weight: bold; margin-top: 20px; animation: titleGlow 1.5s ease-in-out infinite alternate; }
+/* Classe pour le dégradé orange par défaut (activée par JS si pas de couleur achetée) */
+.default-style {
+    background: linear-gradient(to right, #f97316, #fbbf24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.xp-section-permanent { 
+    margin: 20px auto; 
+    width: 100%; 
+    max-width: 450px; 
+}
+
+.xp-title { 
+    font-size: 26px; 
+    font-weight: bold; 
+    color: #fbbf24; 
+    margin-bottom: 10px; 
+}
+
+.xp-bar-bg { 
+    width: 100%; 
+    height: 16px; 
+    background: #0f172a; 
+    border-radius: 10px; 
+    border: 1px solid #334155; 
+    overflow: hidden; 
+}
+
+#xp-bar-fill, #anim-fill { 
+    height: 100%; 
+    background: linear-gradient(90deg, #f97316, #fbbf24); 
+    width: 0%; 
+    transition: width 0.8s ease; 
+}
+
+.main-flame { 
+    font-size: 70px; 
+    font-weight: bold; 
+    margin-top: 20px; 
+    animation: titleGlow 1.5s ease-in-out infinite alternate; 
+}
+
 #streak-number { color: #f97316; }
 
-.play { padding: 25px 80px; background: #f97316; color: white; border-radius: 15px; font-weight: bold; border: none; font-size: 30px; cursor: pointer; margin-top: 20px; display: inline-block; }
+.play { 
+    padding: 25px 80px; 
+    background: #f97316; 
+    color: white; 
+    border-radius: 15px; 
+    font-weight: bold; 
+    border: none; 
+    font-size: 30px; 
+    cursor: pointer; 
+    margin-top: 20px; 
+    display: inline-block; 
+}
+
 .pulse-btn { animation: pulseBtn 2s infinite; }
 @keyframes pulseBtn { 0%, 100% { transform: scale(1); } 70% { transform: scale(1.05); } }
 
-.mode-btn { width: 100%; padding: 25px; background: #1e293b; color: white; border: 3px solid #f97316; border-radius: 20px; font-size: 22px; cursor: pointer; margin-bottom: 15px; font-weight: bold; transition: 0.3s; }
-.mode-btn:hover { background: #f97316; transform: translateY(-3px); }
-
-.answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 25px 0; }
-.answer { background: #1e293b; color: white; padding: 18px; border: 2px solid #334155; border-radius: 12px; font-size: 17px; cursor: pointer; transition: background 0.8s, border 0.8s; }
-.correct { background: #166534 !important; border-color: #22c55e !important; }
-.wrong { background: #7f1d1d !important; border-color: #ef4444 !important; }
-
-#timerContainer { width: 100%; height: 35px; background: #1e293b; border-radius: 20px; overflow: hidden; position: relative; margin-top: 20px; border: 2px solid #334155; }
-#timerBar { height: 100%; width: 100%; transition: width 0.1s linear; }
-#timerText { position: absolute; width: 100%; height: 100%; top: 0; left: 0; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); z-index: 10; }
-
-input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #334155; background: #1e293b; color: white; font-size: 18px; width: 80%; max-width: 250px; outline: none; }
-
-.xp-inhale { animation: inhale 0.7s ease-in-out forwards; }
-@keyframes inhale { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); } 100% { transform: scale(0); opacity: 0; } }
-.final-message { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
-@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-
-/* --- STYLE DES CONFETTIS --- */
-.confetti { 
-    position: fixed; 
-    top: -20px; 
-    width: 10px; 
-    height: 10px; 
-    border-radius: 2px; 
-    z-index: 9999; 
-    pointer-events: none;
-    animation: fall 3s linear forwards; 
+.mode-btn { 
+    width: 100%; 
+    padding: 25px; 
+    background: #1e293b; 
+    color: white; 
+    border: 3px solid #f97316; 
+    border-radius: 20px; 
+    font-size: 22px; 
+    cursor: pointer; 
+    margin-bottom: 15px; 
+    font-weight: bold; 
+    transition: 0.3s; 
 }
 
-@keyframes fall { 
-    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } 
+.mode-btn:hover { 
+    background: #f97316; 
+    transform: translateY(-3px); 
 }
 
-/* --- MODIFICATIONS POUR LE CHRONO DU MODE QUOTIDIEN --- */
 .mode-btn:disabled {
     background: #0f172a !important;
     border-color: #334155 !important;
@@ -75,7 +134,73 @@ input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #3341
     transition: all 0.3s ease;
     min-height: 80px;
 }
-/* Bloc qui encadre le score final */
+
+.answers-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 12px; 
+    margin: 25px 0; 
+}
+
+.answer { 
+    background: #1e293b; 
+    color: white; 
+    padding: 18px; 
+    border: 2px solid #334155; 
+    border-radius: 12px; 
+    font-size: 17px; 
+    cursor: pointer; 
+    transition: background 0.8s, border 0.8s; 
+}
+
+.correct { background: #166534 !important; border-color: #22c55e !important; }
+.wrong { background: #7f1d1d !important; border-color: #ef4444 !important; }
+
+#timerContainer { 
+    width: 100%; 
+    height: 35px; 
+    background: #1e293b; 
+    border-radius: 20px; 
+    overflow: hidden; 
+    position: relative; 
+    margin-top: 20px; 
+    border: 2px solid #334155; 
+}
+
+#timerBar { height: 100%; width: 100%; transition: width 0.1s linear; }
+
+#timerText { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    top: 0; 
+    left: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    font-size: 18px; 
+    font-weight: bold; 
+    color: white; 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8); 
+    z-index: 10; 
+}
+
+input[type="text"] { 
+    padding: 15px; 
+    border-radius: 12px; 
+    border: 2px solid #334155; 
+    background: #1e293b; 
+    color: white; 
+    font-size: 18px; 
+    width: 80%; 
+    max-width: 250px; 
+    outline: none; 
+}
+
+.screen {
+    padding-bottom: 100px !important;
+}
+
 .final-score-box {
     background: #1e293b;
     border: 3px solid #f97316;
@@ -86,61 +211,22 @@ input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #3341
     box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
 }
 
-/* Texte spécifique pour le récapitulatif */
 .recap-text {
     font-size: 22px;
     font-weight: bold;
     color: #f8fafc;
     margin: 10px 0;
 }
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 70px;
-    background: #1e293b;
-    border-top: 2px solid #334155;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 1000;
-}
 
-.nav-item {
-    text-align: center;
-    color: #94a3b8;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.nav-item:hover {
-    color: #f97316;
-}
-
-.nav-item span {
-    font-size: 24px;
-}
-
-.nav-item p {
-    font-size: 12px;
-    margin: 0;
-    font-weight: bold;
-}
-
-/* Important : ajouter une marge en bas de tes écrans pour ne pas que la barre cache le contenu */
-.screen {
-    padding-bottom: 80px;
-}
-/* Barre de navigation fixe */
+/* NAVIGATION BASSE (Version finale nettoyée) */
 .bottom-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 75px;
-    background: #0f172a; /* Bleu très foncé */
-    border-top: 2px solid #334155; /* Le petit trait de séparation */
+    background: #0f172a;
+    border-top: 2px solid #334155;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -154,6 +240,8 @@ input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #3341
     flex: 1;
     transition: all 0.2s;
 }
+
+.nav-item:hover { color: #f97316; }
 
 .nav-item span {
     font-size: 24px;
@@ -172,13 +260,10 @@ input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #3341
     color: #f97316;
 }
 
-/* On ajoute de la marge en bas de TOUS les écrans pour ne pas que la barre cache le bouton jouer */
-.screen {
-    padding-bottom: 100px !important;
-}
+/* BOUTIQUE */
 .shop-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Deux colonnes côte à côte */
+    grid-template-columns: 1fr 1fr;
     gap: 15px;
     padding: 10px;
 }
@@ -192,27 +277,14 @@ input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #3341
     transition: transform 0.2s;
 }
 
-.shop-card:active {
-    transform: scale(0.95);
-}
+.shop-card:active { transform: scale(0.95); }
 
-.tier-icon {
-    font-size: 40px;
-    margin-bottom: 10px;
-}
+.tier-icon { font-size: 40px; margin-bottom: 10px; }
 
-.shop-card h3 {
-    margin: 0 0 5px 0;
-    font-size: 16px;
-}
+.shop-card h3 { margin: 0 0 5px 0; font-size: 16px; }
 
-.shop-card p {
-    color: #94a3b8;
-    font-size: 12px;
-    margin-bottom: 15px;
-}
+.shop-card p { color: #94a3b8; font-size: 12px; margin-bottom: 15px; }
 
-/* Couleurs des bordures par rareté */
 .bronze { border-color: #cd7f32; }
 .silver { border-color: #c0c0c0; }
 .gold { border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
@@ -229,10 +301,20 @@ input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #3341
     cursor: pointer;
 }
 
-.emerald .buy-btn { background: #50c878; color: #064e3b; }
+.bronze .buy-btn { background-color: #cd7f32; color: white; }
+.silver .buy-btn { background-color: #c0c0c0; color: #1e293b; }
+.emerald .buy-btn { background-color: #50c878; color: #064e3b; }
+.gold .buy-btn { background-color: #ffd700; color: #1e293b; box-shadow: 0 0 10px rgba(255, 214, 0, 0.4); }
+
+.buy-btn:hover {
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+    transition: 0.2s;
+}
+
 .xp-balance-card {
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border: 2px solid #a855f7; /* Violet vibrant */
+    border: 2px solid #a855f7;
     border-radius: 20px;
     padding: 20px;
     margin: 20px auto 30px auto;
@@ -242,7 +324,7 @@ input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #3341
 }
 
 #shop-xp {
-    color: #a855f7; /* Texte violet */
+    color: #a855f7;
     font-size: 45px;
     font-weight: 900;
     text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
@@ -264,38 +346,33 @@ input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #3341
     gap: 10px;
 }
 
-.xp-icon {
-    font-size: 30px;
-}
-/* Couleurs spécifiques pour les boutons d'achat */
-.bronze .buy-btn { 
-    background-color: #cd7f32; 
-    color: white; 
+.xp-icon { font-size: 30px; }
+
+/* CONFETTIS */
+.confetti { 
+    position: fixed; 
+    top: -20px; 
+    width: 10px; 
+    height: 10px; 
+    border-radius: 2px; 
+    z-index: 9999; 
+    pointer-events: none;
+    animation: fall 3s linear forwards; 
 }
 
-.silver .buy-btn { 
-    background-color: #c0c0c0; 
-    color: #1e293b; 
+@keyframes fall { 
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } 
 }
 
-.emerald .buy-btn { 
-    background-color: #50c878; 
-    color: #064e3b; 
-}
+/* ANIMATIONS XP */
+.xp-inhale { animation: inhale 0.7s ease-in-out forwards; }
+@keyframes inhale { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); } 100% { transform: scale(0); opacity: 0; } }
 
-.gold .buy-btn { 
-    background-color: #ffd700; 
-    color: #1e293b; 
-    box-shadow: 0 0 10px rgba(255, 214, 0, 0.4);
-}
+.final-message { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-/* Effet au survol pour tous les boutons de la boutique */
-.buy-btn:hover {
-    filter: brightness(1.2);
-    transform: translateY(-2px);
-    transition: 0.2s;
-}
-/* Style quand le mode bonus est activé */
+/* QUESTION BONUS (STYLE DORÉ) */
 .bonus-mode-active {
     background: radial-gradient(circle, #1e293b 0%, #312e81 100%) !important;
     border: 4px solid #fbbf24 !important;
@@ -303,14 +380,12 @@ input[type="text"] { padding: 15px; border-radius: 12px; border: 2px solid #3341
     transition: all 0.5s ease;
 }
 
-/* Animation de texte pour la question bonus */
 .bonus-mode-active #question-text {
     color: #fbbf24;
     text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
     font-size: 1.5rem;
 }
 
-/* On change aussi la couleur des boutons de réponse en mode bonus */
 .bonus-mode-active .answer {
     border-color: #fbbf24;
 }
