@@ -344,14 +344,13 @@ function startQuiz(mode) {
     currentQuestions = [...questionsData].sort(() => Math.random() - 0.5);
     
     if (mode === "Quotidien") {
-        // --- LOGIQUE DU DÉ CHANCEUX ---
-        let nbQuestions = 5;
-        if (stats.bonus_question > 0) { // On vérifie si l'utilisateur possède un dé
-            nbQuestions = 6; 
-            stats.bonus_question--; // On retire 1 dé du stock
-            saveUserStats();
-            alert("🎲 Dé Chanceux : Une question bonus a été ajoutée !");
-        }
+    let nbQuestions = 5;
+    if (stats.bonusQuestion > 0) { // <-- Corriger en bonusQuestion (camelCase)
+        nbQuestions = 6; 
+        stats.bonusQuestion--; 
+        saveUserStats();
+        alert("🎲 Dé Chanceux : Une question bonus a été ajoutée !");
+    }
         
         currentQuestions = currentQuestions.slice(0, nbQuestions);
         document.getElementById("timerContainer").style.display = "none";
