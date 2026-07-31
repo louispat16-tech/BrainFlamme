@@ -613,37 +613,39 @@ function buyItem(name, price) {
         stats.xp -= price;
         
         if (name === 'chrono_bonus') {
-            stats.chronoBonus += 5;
+            stats.chronoBonus = (stats.chronoBonus || 0) + 5;
             alert("⏳ Sablier activé ! +5s au prochain Chrono.");
         } 
         else if (name === 'shield') {
-            stats.shields += 1;
+            stats.shields = (stats.shields || 0) + 1;
             alert("🛡️ Bouclier d'argent obtenu !");
         } 
         else if (name === 'name_color') {
-            stats.nameColor = prompt("Entre une couleur (ex: gold, cyan, #ff00ea) :");
+            const chosenColor = prompt("Entre une couleur (ex: gold, cyan, #ff00ea) :");
+            if (chosenColor) stats.nameColor = chosenColor;
             alert("🎨 Pseudo mis à jour !");
         } 
         else if (name === 'rank_color') {
-            stats.rankColor = prompt("Entre une couleur pour ton titre (ex: lime, red) :");
+            const chosenColor = prompt("Entre une couleur pour ton titre (ex: lime, red, #f97316) :");
+            if (chosenColor) stats.rankColor = chosenColor;
             alert("✨ Rang mis à jour !");
         }
-        // --- NOUVEAUX OBJETS ---
         else if (name === 'xp_boost') {
             stats.hasXpBoost = true; 
             alert("💜 Élixir Violet activé ! Ton prochain quiz rapportera double XP.");
         }
         else if (name === 'streak_bonus') {
-            stats.streak += 5;
+            stats.streak = (stats.streak || 0) + 5;
             alert("🏮 Relique de Feu utilisée ! +5 Flammes.");
         }
         else if (name === 'aura_effect') {
             stats.hasAura = true;
-            alert("💎 Aura Céleste débloquée ! (Pense à l'ajouter dans ton CSS)");
+            alert("💎 Aura Céleste débloquée !");
         }
-        else if (name === 'bonusQuestion') {
+        // CORRECTION ICI : 'bonus_question' pour correspondre au HTML
+        else if (name === 'bonus_question' || name === 'bonusQuestion') {
             stats.bonusQuestion = (stats.bonusQuestion || 0) + 1;
-            alert("🎲 Dé Chanceux ! Tu as une question joker d'avance.");
+            alert("🎲 Dé Chanceux ! Une question bonus sera ajoutée dans ton prochain quiz quotidien.");
         }
         
         saveUserStats();
@@ -653,7 +655,6 @@ function buyItem(name, price) {
         alert("Tu n'as pas assez de points ! 🪙");
     }
 }
-
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
     const lastDate = localStorage.getItem("daily_done_" + user);
