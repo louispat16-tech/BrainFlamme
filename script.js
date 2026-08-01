@@ -281,19 +281,21 @@ document.getElementById("startBtn").onclick = () => {
 };
 
 document.getElementById("dailyMode").onclick = () => startQuiz("Quotidien");
+// Clic sur le bouton Mode Chrono
 document.getElementById("chronoMode").onclick = () => {
     selectedMode = "Chrono";
     quizHistory = [];
     score = 0;
     current = 0;
     
-    // 1. Masquer les explications, afficher le chrono
-    document.getElementById("timerContainer").style.display = "block";
+    // 💡 AFFICHER LA BARRE DE CHRONO
+    const timerBox = document.getElementById("timerContainer");
+    if (timerBox) timerBox.style.display = "block";
     
-    // 2. Charger 10 questions
+    // Sélection de 10 questions
     currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 10);
 
-    // 3. Question Bonus si achetée en boutique
+    // Question bonus si achetée
     if (stats.bonusQuestion && stats.bonusQuestion > 0) {
         let bonusQ = { ...questionsData[Math.floor(Math.random() * questionsData.length)] };
         bonusQ.isBonus = true;
@@ -302,13 +304,57 @@ document.getElementById("chronoMode").onclick = () => {
         saveUserStats();
     }
 
-    // 4. Lancer le temps (ex: 30 secondes)
-    startChronoTimer(30 + (stats.chronoBonus || 0));
+    // 💡 LANCER LE CHRONO (30 sec par défaut + bonus sablier)
+    let durance = 30 + (stats.chronoBonus || 0);
+    startChronoTimer(durance);
 
     show("quiz");
     showQuestion();
 };
 
+// Clic sur le bouton Mode Quotidien (Masque la barre de Chrono)
+document.getElementById("dailyMode").onclick = () => {
+    selectedMode = "Quotidien";
+    quizHistory = [];
+    score = 0;
+    current = 0;
+    
+    // 💡 CACHER LA BARRE DE CHRONO
+    const timerBox = document.getElementById("timerContainer");
+    if (timerBox) timerBox.style.display = "none";
+    
+    currentQuestions = [...dailyQuestions]; // Ou tes questions quotidiennes
+
+    show("quiz");
+    showQuestion();
+};
+
+// Fonction qui fait défiler la barre de timer
+function startChronoTimer(seconds) {
+    clearInterval(timerInterval);
+    let timeLeft = seconds;
+    const totalTime = seconds;
+    
+    const timerText = document.getElementById("timerText");
+    const timerBar = document.getElementById("timerBar");
+
+    if (timerText) timerText.textContent = timeLeft;
+    if (timerBar) timerBar.style.width = "100%";
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        if (timerText) timerText.textContent = timeLeft;
+        if (timerBar) {
+            let percentage = (timeLeft / totalTime) * 100;
+            timerBar.style.width = percentage + "%";
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            endQuiz();
+        }
+    }, 1000);
+}
 // Fonction pour faire diminuer la barre et le chiffre du chrono
 function startChronoTimer(seconds) {
     clearInterval(timerInterval);
@@ -459,24 +505,24 @@ function updateTimerUI() {
 }
 
 function showQuestion() {
-    const quizScreen = document.getElementById("quiz");
-
-    // 1. Fin du quiz si toutes les questions sont passées
+    // Si on a terminé toutes les questions
     if (current >= currentQuestions.length) {
+        const quizScreen = document.getElementById("quiz");
         if (quizScreen) quizScreen.classList.remove("bonus-mode-active");
         endQuiz();
         return;
     }
     
-    // Reset du conteneur d'explications du mode Quotidien
+    // 💡 Reset de la zone d'explication du mode Quotidien
     const expl = document.getElementById("explanation-container");
     if (expl) expl.innerHTML = ""; 
 
     const q = currentQuestions[current];
     const qText = document.getElementById("question");
     const area = document.getElementById("answers"); 
+    const quizScreen = document.getElementById("quiz");
 
-    // 🎨 DÉCOR QUESTION BONUS
+    // Décoration si question bonus
     if (quizScreen) {
         if (q.isBonus) {
             quizScreen.classList.add("bonus-mode-active");
@@ -504,7 +550,6 @@ function showQuestion() {
             const allBtns = document.querySelectorAll(".answer");
             allBtns.forEach(btn => btn.disabled = true);
             
-            // Enregistrement historique
             quizHistory.push({
                 question: q.question,
                 userAns: answerObj.text,
@@ -512,7 +557,6 @@ function showQuestion() {
                 isCorrect: answerObj.isCorrect
             });
             
-            // Gestion des couleurs des boutons (Correct / Wrong)
             if (answerObj.isCorrect) { 
                 b.classList.add("correct"); 
                 score += q.isBonus ? 2 : 1; 
@@ -524,14 +568,14 @@ function showQuestion() {
                 });
             }
             
-            // ⚡ MODE CHRONO : Défilement ultra rapide (300ms)
+            // ⚡ MODE CHRONO : Défilement rapide (300ms)
             if (selectedMode === "Chrono") {
                 setTimeout(() => {
                     current++;
                     showQuestion();
                 }, 300);
             } 
-            // 📅 MODE QUOTIDIEN : Présentation d'origine avec l'encadré et le bouton SUIVANT
+            // 📅 MODE QUOTIDIEN : Explication + bouton SUIVANT
             else {
                 if (expl) {
                     expl.innerHTML = `
