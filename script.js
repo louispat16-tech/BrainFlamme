@@ -131,20 +131,18 @@ const questionsData = [
 
 const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torche 🔦", "Brasier 🔥", "Or 🏆", "Diamant 💎"]; // Ajout Or et Diamant
 
-// Ajoute ces nouvelles variables dans tes stats de base
 let stats = {
     xp: 0,
-    progression: 0,
     level: 1,
+    progression: 0,
     streak: 0,
     shields: 0,
     chronoBonus: 0,
-    bonusQuestion: 0, // Corrige l'incohérence du nom
-    nameColor: null,
-    rankColor: null,
-    hasAura: false,
-    hasXpBoost: false
+    bonusQuestion: 0,
+    hasXpBoost: false,
+    hasAura: false
 };
+
 let current = 0, score = 0, timerInterval, timeLeft, currentQuestions = [], selectedMode = "";
 let dailyTimerInterval;
 let quizHistory = []; // AJOUT ICI : mémorise les réponses du joueur
@@ -559,11 +557,17 @@ function endQuiz() {
     clearInterval(timerInterval);
     clearInterval(dailyTimerInterval);
 
+    // Sécurité anti-NaN pour les variables
+    if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
+    if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
+    if (isNaN(stats.level) || !stats.level) stats.level = 1;
+
     let gain = score * 10;
     if (stats.hasXpBoost) {
         gain = gain * 2;
         stats.hasXpBoost = false; 
     }
+    
     stats.xp += gain;
     stats.progression += gain;
 
