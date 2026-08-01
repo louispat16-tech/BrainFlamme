@@ -389,3 +389,32 @@ input[type="text"] {
 .bonus-mode-active .answer {
     border-color: #fbbf24;
 }
+/* Décor VIP pour la Question Bonus */
+#quiz.bonus-mode-active {
+    background: linear-gradient(135deg, #4c1d95 0%, #c026d3 50%, #f59e0b 100%) !important;
+    border: 3px solid #fbbf24 !important;
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+    animation: bonusGlow 2s infinite alternate;
+}
+
+#quiz.bonus-mode-active .question-text {
+    color: #fef08a !important;
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.8);
+    font-weight: 800;
+}
+
+#quiz.bonus-mode-active .answer {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 2px solid #a855f7 !important;
+    color: white !important;
+}
+
+#quiz.bonus-mode-active .answer:hover {
+    background: #a855f7 !important;
+    border-color: #fef08a !important;
+}
+
+@keyframes bonusGlow {
+    0% { box-shadow: 0 0 15px rgba(192, 38, 211, 0.5); }
+    100% { box-shadow: 0 0 35px rgba(251, 191, 36, 0.9); }
+}
