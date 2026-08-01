@@ -480,9 +480,11 @@ function showQuestion() {
 }
 
 function endQuiz() {
+    // 1. STOP chronos
     clearInterval(timerInterval);
     clearInterval(dailyTimerInterval);
 
+    // 2. Calcul XP et Niveau
     let gain = score * 10;
     if (stats.hasXpBoost) {
         gain = gain * 2;
@@ -495,6 +497,7 @@ function endQuiz() {
         stats.level++;
     }
 
+    // 3. Gestion de la Flamme Quotidienne
     if (selectedMode === "Quotidien") {
         const user = localStorage.getItem("brainflamme_user");
         localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
@@ -505,6 +508,7 @@ function endQuiz() {
         checkDailyStatus();
     }
 
+    // 4. Passage à l'affichage des résultats
     continuerAffichageScore(gain);
 }
 
@@ -514,16 +518,16 @@ function continuerAffichageScore(gain) {
     if (!scoreScreen) return;
 
     saveUserStats();
-    updateShopDisplay();
+    if (typeof updateShopDisplay === "function") updateShopDisplay();
 
-    let nbQuestionsPosees = (selectedMode === "Quotidien") ? 5 : current;
+    let nbQuestionsPosees = (selectedMode === "Quotidien") ? currentQuestions.length : current;
     if (nbQuestionsPosees === 0) nbQuestionsPosees = 1; 
 
     let comment = (score >= (nbQuestionsPosees * 0.8)) ? "INCROYABLE ! 🔥" : (score >= (nbQuestionsPosees * 0.5) ? "BIEN JOUÉ ! 👏" : "ESSAIE ENCORE ! 🐢");
 
     scoreScreen.innerHTML = `
-        <h2 style="font-size:40px; margin-bottom:10px;">Résultat</h2>
-        <div class="final-score-box" style="background:#1e293b; padding:25px; border-radius:20px; border:2px solid #f97316; max-width:400px; margin:auto;">
+        <h2 style="font-size:40px; margin-bottom:10px; color:white;">Résultat</h2>
+        <div class="final-score-box" style="background:#1e293b; padding:25px; border-radius:20px; border:2px solid #f97316; max-width:400px; margin:auto; color:white;">
             <p style="font-size:20px; font-weight:bold;">Niveau ${stats.level}</p>
             <div style="width:100%; height:15px; background:#334155; border-radius:10px; margin:15px 0; overflow:hidden;">
                 <div id="anim-fill" style="width:0%; height:100%; background:#f97316; transition: width 1s ease-out;"></div>
@@ -533,8 +537,8 @@ function continuerAffichageScore(gain) {
             <h3 style="font-size:35px; color:#f97316; margin-bottom:5px;">${comment}</h3>
             <p style="font-size:20px;">${score} / ${nbQuestionsPosees} correctes</p>
             <div style="margin-top:20px;">
-                <button class="mode-btn" style="width:100%; margin-bottom:10px; background:#334155; border:1px solid #f97316;" onclick="showRecap()">VOIR LE RÉCAPITULATIF 📋</button>
-                <button class="play pulse-btn" style="width:100%; padding:15px;" onclick="show('home-screen'); updateHome();">RETOUR</button>
+                <button class="mode-btn" style="width:100%; margin-bottom:10px; background:#334155; border:1px solid #f97316; color:white; padding:12px; border-radius:10px; cursor:pointer;" onclick="showRecap()">VOIR LE RÉCAPITULATIF 📋</button>
+                <button class="play pulse-btn" style="width:100%; padding:15px; cursor:pointer;" onclick="show('home-screen'); updateHome();">RETOUR</button>
             </div>
         </div>
     `;
@@ -547,7 +551,7 @@ function continuerAffichageScore(gain) {
         }
     }, 100);
 
-    if (score === 5 && selectedMode === "Quotidien") {
+    if (score === 5 && selectedMode === "Quotidien" && typeof lancerConfettis === "function") {
         lancerConfettis();
     }
 }
