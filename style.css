@@ -483,3 +483,15 @@ input[type="text"] {
     font-weight: bold;
     font-size: 12px;
 }
+/* Style appliqué lorsque la question bonus est active */
+#quiz.bonus-mode-active {
+    background: linear-gradient(135deg, #0f172a, #1e1b4b) !important;
+    border: 3px solid #38bdf8 !important;
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.5) !important;
+    
+    /* 💡 Élargissement du conteneur */
+    max-width: 700px !important; /* Ajuste à 800px si tu veux encore plus large */
+    width: 95% !important;
+    padding: 30px !important;
+    margin: 0 auto !important;
+}
