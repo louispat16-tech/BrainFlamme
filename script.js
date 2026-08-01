@@ -434,10 +434,11 @@ function showQuestion() {
     const area = document.getElementById("answers"); 
     const quizScreen = document.getElementById("quiz");
 
+    // Décoration si question bonus (Double XP)
     if (quizScreen) {
         if (q.isBonus) {
             quizScreen.classList.add("bonus-mode-active");
-            qText.innerHTML = "✨ QUESTION BONUS ✨<br><small style='font-size:16px;'>(Double Points !)</small><br><br>" + q.question;
+            qText.innerHTML = "✨ QUESTION BONUS ✨<br><small style='font-size:16px;'>(Double XP !)</small><br><br>" + q.question;
         } else {
             quizScreen.classList.remove("bonus-mode-active");
             qText.textContent = q.question;
@@ -459,14 +460,8 @@ function showQuestion() {
         b.onclick = () => {
             const allBtns = document.querySelectorAll(".answer");
             allBtns.forEach(btn => btn.disabled = true);
-            if (answerObj.isCorrect) { 
-    b.classList.add("correct"); 
-    score += 1; 
-    
-    // 👈 AJOUTE CECI : Si c'est la question bonus, on note que l'XP sera doublée
-    if (q.isBonus) {
-        bonusSuccess = true; 
             
+            // Enregistrement dans l'historique
             quizHistory.push({
                 question: q.question,
                 userAns: answerObj.text,
@@ -474,9 +469,15 @@ function showQuestion() {
                 isCorrect: answerObj.isCorrect
             });
             
+            // Gestion du score et des couleurs
             if (answerObj.isCorrect) { 
                 b.classList.add("correct"); 
-                score += q.isBonus ? 2 : 1; 
+                score += 1; // 1 point de score normal
+                
+                // Si la question bonus est réussie, on retient de doubler son XP
+                if (q.isBonus) {
+                    bonusSuccess = true;
+                }
             } else { 
                 b.classList.add("wrong");
                 allBtns.forEach(btn => {
@@ -485,12 +486,20 @@ function showQuestion() {
                 });
             }
             
+            // ⚡ MODE CHRONO
             if (selectedMode === "Chrono") {
                 setTimeout(() => {
                     current++;
-                    showQuestion();
+                    // Si on vient de jouer la question bonus ultime, le quiz s'arrête
+                    if (q.isBonus) {
+                        endQuiz();
+                    } else {
+                        showQuestion();
+                    }
                 }, 300);
-            } else {
+            } 
+            // 📅 MODE QUOTIDIEN
+            else {
                 if (expl) {
                     expl.innerHTML = `
                         <div style="background:#1e293b; border:2px solid #f97316; padding:15px; border-radius:15px; margin-top:20px; text-align:left;">
