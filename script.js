@@ -127,6 +127,7 @@ const questionsData = [
     { question: "Quel est le point culminant de l'Afrique ?", answers: ["Kilimandjaro", "Mont Kenya", "Mont Toubkal", "Everest"], correct: 0, info: "Situé en Tanzanie, c'est un volcan éteint isolé." },
     { question: "Qui a créé le personnage de Sherlock Holmes ?", answers: ["Arthur Conan Doyle", "Agatha Christie", "Edgar Allan Poe", "Maurice Leblanc"], correct: 0, info: "Conan Doyle s'est inspiré d'un de ses professeurs de médecine." },
     { question: "Quelle est la température moyenne sur Terre ?", answers: ["10°C", "15°C", "20°C", "30°C"], correct: 1, info: "L'effet de serre naturel permet de maintenir une moyenne d'environ 15°C." }
+    }
 ];
 
 const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torche 🔦", "Brasier 🔥", "Or 🏆", "Diamant 💎"]; // Ajout Or et Diamant
