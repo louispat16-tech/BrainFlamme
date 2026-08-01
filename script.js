@@ -530,7 +530,7 @@ function showQuestion() {
                 setTimeout(() => {
                     current++;
                     showQuestion();
-                }, 1200);
+                }, 300);
             } else {
                 if (expl) {
                     expl.innerHTML = `
