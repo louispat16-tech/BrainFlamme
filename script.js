@@ -287,25 +287,55 @@ document.getElementById("chronoMode").onclick = () => {
     score = 0;
     current = 0;
     
-    // 1. On prend 10 questions normales
+    // 1. Masquer les explications, afficher le chrono
+    document.getElementById("timerContainer").style.display = "block";
+    
+    // 2. Charger 10 questions
     currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 10);
 
-    // 2. On vérifie si on injecte la question bonus (Item Dé Chanceux)
+    // 3. Question Bonus si achetée en boutique
     if (stats.bonusQuestion && stats.bonusQuestion > 0) {
         let bonusQ = { ...questionsData[Math.floor(Math.random() * questionsData.length)] };
-        bonusQ.isBonus = true; // On marque la question comme spéciale
-        
-        // On l'ajoute au début ou à la fin (ici à la fin pour la surprise)
+        bonusQ.isBonus = true;
         currentQuestions.push(bonusQ);
-        
-        // On consomme le bonus
         stats.bonusQuestion--;
         saveUserStats();
     }
 
+    // 4. Lancer le temps (ex: 30 secondes)
+    startChronoTimer(30 + (stats.chronoBonus || 0));
+
     show("quiz");
     showQuestion();
 };
+
+// Fonction pour faire diminuer la barre et le chiffre du chrono
+function startChronoTimer(seconds) {
+    clearInterval(timerInterval);
+    let timeLeft = seconds;
+    const totalTime = seconds;
+    
+    const timerText = document.getElementById("timerText");
+    const timerBar = document.getElementById("timerBar");
+
+    if(timerText) timerText.textContent = timeLeft;
+    if(timerBar) timerBar.style.width = "100%";
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        if(timerText) timerText.textContent = timeLeft;
+        if(timerBar) {
+            let percentage = (timeLeft / totalTime) * 100;
+            timerBar.style.width = percentage + "%";
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            endQuiz();
+        }
+    }, 1000);
+}
+
 function show(id) {
     // 1. On cache tous les écrans
     document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
