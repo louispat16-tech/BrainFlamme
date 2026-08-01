@@ -479,12 +479,89 @@ function showQuestion() {
     });
 }
 
+function showQuestion() {
+    // 💡 Si on a dépassé ou atteint le nombre max de questions, on termine le quiz immédiatement
+    if (current >= currentQuestions.length) {
+        endQuiz();
+        return;
+    }
+    
+    const expl = document.getElementById("explanation-container");
+    if (expl) expl.innerHTML = ""; 
+
+    const q = currentQuestions[current];
+    document.getElementById("question").textContent = q.question;
+    
+    const area = document.getElementById("answers"); 
+    area.innerHTML = "";
+
+    let mappedAnswers = q.answers.map((text, index) => {
+        return { text: text, isCorrect: index === q.correct };
+    });
+
+    mappedAnswers.sort(() => Math.random() - 0.5);
+
+    mappedAnswers.forEach((answerObj) => {
+        const b = document.createElement("button");
+        b.className = "answer"; 
+        b.textContent = answerObj.text;
+        
+        b.onclick = () => {
+            const allBtns = document.querySelectorAll(".answer");
+            allBtns.forEach(btn => btn.disabled = true);
+            
+            // Enregistrement dans l'historique
+            quizHistory.push({
+                question: q.question,
+                userAns: answerObj.text,
+                correctAns: q.answers[q.correct],
+                isCorrect: answerObj.isCorrect
+            });
+            
+            if (answerObj.isCorrect) { 
+                b.classList.add("correct"); 
+                score++; 
+            } else { 
+                b.classList.add("wrong");
+                allBtns.forEach(btn => {
+                    const originalCorrectText = q.answers[q.correct];
+                    if (btn.textContent === originalCorrectText) btn.classList.add("correct");
+                });
+            }
+            
+            if (selectedMode === "Chrono") {
+                setTimeout(() => {
+                    current++;
+                    showQuestion();
+                }, 1200);
+            } else {
+                if (expl) {
+                    expl.innerHTML = `
+                        <div style="background:#1e293b; border:2px solid #f97316; padding:15px; border-radius:15px; margin-top:20px; text-align:left;">
+                            <h4 style="color:#f97316; margin-bottom:5px;">💡 Le sais-tu ?</h4>
+                            <p style="margin-bottom:15px; color:white;">${q.info}</p>
+                            <div style="text-align:center;">
+                                <button id="nextBtnInside" class="play" style="padding:10px 30px; font-size:18px; margin-top:0; cursor:pointer;">SUIVANT</button>
+                            </div>
+                        </div>`;
+                    
+                    document.getElementById("nextBtnInside").onclick = () => { 
+                        current++; 
+                        showQuestion(); // Va relancer et déclencher endQuiz() si current >= length
+                    };
+                }
+            }
+        };
+        area.appendChild(b);
+    });
+}
+
 function endQuiz() {
-    // 1. STOP chronos
+    // 1. Arret des timers
     clearInterval(timerInterval);
     clearInterval(dailyTimerInterval);
 
-    // 2. Calcul XP et Niveau
+    // 2. Calcul des gains
     let gain = score * 10;
     if (stats.hasXpBoost) {
         gain = gain * 2;
@@ -497,7 +574,7 @@ function endQuiz() {
         stats.level++;
     }
 
-    // 3. Gestion de la Flamme Quotidienne
+    // 3. Traitement du mode Quotidien
     if (selectedMode === "Quotidien") {
         const user = localStorage.getItem("brainflamme_user");
         localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
@@ -508,7 +585,7 @@ function endQuiz() {
         checkDailyStatus();
     }
 
-    // 4. Passage à l'affichage des résultats
+    // 4. Passage à l'écran de résultat
     continuerAffichageScore(gain);
 }
 
@@ -520,10 +597,8 @@ function continuerAffichageScore(gain) {
     saveUserStats();
     if (typeof updateShopDisplay === "function") updateShopDisplay();
 
-    // 💡 CORRECTION DU COMPTAGE :
-    // On prend exactement le nombre de questions auxquelles le joueur a répondu !
-    let nbQuestionsPosees = quizHistory.length;
-    if (nbQuestionsPosees === 0) nbQuestionsPosees = 1; // Sécurité anti division par 0
+    // Nombre exact de questions répondues
+    let nbQuestionsPosees = quizHistory.length || 1;
 
     let comment = (score >= (nbQuestionsPosees * 0.8)) 
         ? "INCROYABLE ! 🔥" 
