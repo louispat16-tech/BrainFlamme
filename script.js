@@ -171,11 +171,10 @@ function setupLogin() {
             if (username) {
                 localStorage.setItem("brainflamme_user", username);
                 
-                // Si Firebase est présent, on charge ou crée les stats Cloud
+                // Si Firebase est disponible
                 if (typeof database !== "undefined" && database) {
                     database.ref('joueurs/' + username).once('value').then((snapshot) => {
                         if (snapshot.exists()) {
-                            // On fusionne avec les stats par défaut pour ne perdre aucune clé
                             stats = Object.assign({}, stats, snapshot.val());
                         } else {
                             saveUserStats();
@@ -183,14 +182,12 @@ function setupLogin() {
                         updateHome(); 
                         show("home-screen");
                     }).catch(err => {
-                        console.error("Erreur connexion Firebase:", err);
-                        updateHome();
-                        show("home-screen");
+                        console.error("Erreur Firebase fallback local:", err);
+                        chargerStatsLocales(username);
                     });
                 } else {
-                    // Si Firebase n'est pas utilisé ou indisponible
-                    updateHome();
-                    show("home-screen");
+                    // Fallback direct en local
+                    chargerStatsLocales(username);
                 }
             } else {
                 alert("Choisis un pseudo pour commencer ! 🔥");
@@ -199,44 +196,49 @@ function setupLogin() {
     }
 }
 
-// Petite fonction de secours locale pour garantir le passage à l'écran d'accueil
+// Fonction de secours locale pour garantir l'accès à l'accueil
 function chargerStatsLocales(username) {
     const saved = localStorage.getItem("brainflamme_stats_" + username);
     if (saved) {
-        stats = JSON.parse(saved);
+        stats = Object.assign({}, stats, JSON.parse(saved));
     } else {
-        stats = { 
-            xp: 0, progression: 0, level: 1, streak: 0, 
-            shields: 0, chronoBonus: 0, bonusQuestion: 0, nameColor: null, 
-            rankColor: null, hasAura: false, hasXpBoost: false
-        };
+        saveUserStats();
     }
     updateHome();
     show("home-screen");
 }
+
 function saveUserStats() {
     const username = localStorage.getItem("brainflamme_user");
-    if (!username || !stats) return; // Sécurité si stats est vide
+    if (!username || !stats) return; 
     
-    // Sauvegarde Cloud (Le point crucial)
-    database.ref('joueurs/' + username).set(stats)
-        .then(() => console.log("🔥 Stats synchronisées sur Firebase !"))
-        .catch(err => console.error("Erreur Firebase :", err));
+    // 1. Sauvegarde Firebase sécurisée
+    if (typeof database !== "undefined" && database) {
+        database.ref('joueurs/' + username).set(stats)
+            .then(() => console.log("🔥 Stats synchronisées sur Firebase !"))
+            .catch(err => console.error("Erreur Firebase :", err));
+    }
         
-    // Sauvegarde locale de secours
+    // 2. Sauvegarde locale de secours (toujours active)
     localStorage.setItem("brainflamme_stats_" + username, JSON.stringify(stats));
 }
 
 function loadUserStatsFromCloud(username) {
+    // Sécurité au cas où Firebase ne charge pas
+    if (typeof database === "undefined" || !database) {
+        chargerStatsLocales(username);
+        return;
+    }
+
     database.ref('joueurs/' + username).once('value').then((snapshot) => {
         const cloudData = snapshot.val();
        
-     if (cloudData) {
-    stats = cloudData;
-    // Sécurités pour les anciennes versions du jeu
-    if (stats.shields === undefined) stats.shields = 0;
-    if (stats.progression === undefined) stats.progression = stats.xp;
-    if (stats.hasAura === undefined) stats.hasAura = false;
+        if (cloudData) {
+            stats = Object.assign({}, stats, cloudData);
+            
+            if (stats.shields === undefined) stats.shields = 0;
+            if (stats.progression === undefined) stats.progression = stats.xp;
+            if (stats.hasAura === undefined) stats.hasAura = false;
 
             // --- LOGIQUE DE RUPTURE DE FLAMME ---
             const lastDateStr = localStorage.getItem("daily_done_" + username);
@@ -262,18 +264,18 @@ function loadUserStatsFromCloud(username) {
                 }
             }
         } else {
-            // --- NOUVEAU JOUEUR OU LOCAL ---
-            const allData = JSON.parse(localStorage.getItem("brainflamme_all_players")) || {};
-            // TRÈS IMPORTANT : Ajoute shields: 0 ici aussi
-            stats = allData[username] || { xp: 0, level: 1, streak: 0, shields: 0 };
+            chargerStatsLocales(username);
         }
         
         updateHome(); 
         show("home-screen");
+    }).catch(err => {
+        console.error("Erreur Cloud:", err);
+        chargerStatsLocales(username);
     });
 }
 
-// --- LOGIQUE DU JEU (RESTE INCHANGÉE) ---
+// --- LOGIQUE DU JEU ---
 
 document.getElementById("startBtn").onclick = () => {
     show("modeSelection");
@@ -362,13 +364,13 @@ function startQuiz(mode) {
     currentQuestions = [...questionsData].sort(() => Math.random() - 0.5);
     
     if (mode === "Quotidien") {
-    let nbQuestions = 5;
-    if (stats.bonusQuestion > 0) { // <-- Corriger en bonusQuestion (camelCase)
-        nbQuestions = 6; 
-        stats.bonusQuestion--; 
-        saveUserStats();
-        alert("🎲 Dé Chanceux : Une question bonus a été ajoutée !");
-    }
+        let nbQuestions = 5;
+        if (stats.bonusQuestion > 0) {
+            nbQuestions = 6; 
+            stats.bonusQuestion--; 
+            saveUserStats();
+            alert("🎲 Dé Chanceux : Une question bonus a été ajoutée !");
+        }
         
         currentQuestions = currentQuestions.slice(0, nbQuestions);
         document.getElementById("timerContainer").style.display = "none";
@@ -431,14 +433,14 @@ function showQuestion() {
         b.onclick = () => {
             const allBtns = document.querySelectorAll(".answer");
             allBtns.forEach(btn => btn.disabled = true);
-            // --- DEBUT BLOC ENREGISTREMENT RECAP ---
+            
             quizHistory.push({
                 question: q.question,
                 userAns: answerObj.text,
                 correctAns: q.answers[q.correct],
                 isCorrect: answerObj.isCorrect
             });
-            // --- FIN BLOC ENREGISTREMENT RECAP ---
+            
             if (answerObj.isCorrect) { 
                 b.classList.add("correct"); 
                 score++; 
@@ -472,17 +474,15 @@ function showQuestion() {
                     };
                 }
             }
-        }; // Fermeture du b.onclick
+        };
         area.appendChild(b);
-    }); // Fermeture du forEach
-} // Fermeture de showQuestion
+    });
+}
 
 function endQuiz() {
-    // 1. STOP chronos
     clearInterval(timerInterval);
     clearInterval(dailyTimerInterval);
 
-    // 2. Calcul XP et Niveau
     let gain = score * 10;
     if (stats.hasXpBoost) {
         gain = gain * 2;
@@ -495,7 +495,6 @@ function endQuiz() {
         stats.level++;
     }
 
-    // 3. Gestion de la Flamme Quotidienne
     if (selectedMode === "Quotidien") {
         const user = localStorage.getItem("brainflamme_user");
         localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
@@ -506,11 +505,9 @@ function endQuiz() {
         checkDailyStatus();
     }
 
-    // 4. On passe le relais à l'affichage du score
     continuerAffichageScore(gain);
 }
 
-// On crée une petite fonction pour finir l'affichage proprement
 function continuerAffichageScore(gain) {
     show("score");
     const scoreScreen = document.getElementById("score");
@@ -568,12 +565,10 @@ function lancerConfettis() {
 
     (function frame() {
         confetti({
-            particleCount: 5, // Plus de particules par "tir"
+            particleCount: 5,
             angle: 60,
             spread: 55,
             origin: { x: 0 },
-            // On ne définit pas de couleurs précises pour laisser le mode multicolore par défaut
-            // ou on en met une grande liste :
             colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#f97316']
         });
         confetti({
@@ -591,9 +586,7 @@ function lancerConfettis() {
 }
 
 function showStep(stepId) {
-    // Cache toutes les étapes de l'inscription
     document.querySelectorAll('.auth-step').forEach(step => step.classList.remove('active'));
-    // Affiche l'étape demandée
     const target = document.getElementById(stepId);
     if(target) target.classList.add('active');
 }
