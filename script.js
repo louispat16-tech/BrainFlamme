@@ -971,5 +971,30 @@ function lancerQuestionBonus() {
     const qText = document.getElementById("question");
     if(qText) qText.innerHTML = "✨ QUESTION BONUS ✨<br>" + qText.innerText;
 }
+#timerContainer {
+    width: 100%;
+    background-color: #334155;
+    border-radius: 10px;
+    height: 20px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
 
-console.log("🔥 Le fichier script.js s'exécute jusqu'au bout !");
+#timerBar {
+    height: 100%;
+    background: linear-gradient(90deg, #f97316, #ef4444); /* Gradient Orange -> Rouge */
+    width: 100%;
+    transition: width 1s linear; /* Animation fluide de la jauge */
+    border-radius: 10px;
+}
+
+#timerText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+}
