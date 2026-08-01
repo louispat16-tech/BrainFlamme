@@ -317,7 +317,6 @@ document.getElementById("dailyMode").onclick = () => {
     showQuestion();
 };
 
-// Gestion de la couleur du timer (Restaurée !)
 function updateTimerUI() {
     const bar = document.getElementById("timerBar");
     const text = document.getElementById("timerText");
@@ -327,11 +326,11 @@ function updateTimerUI() {
     bar.style.width = Math.max(0, pct) + "%";
     text.textContent = Math.ceil(timeLeft);
 
-    // Couleurs dynamiques restaurées
-    if (timeLeft > 20) bar.style.backgroundColor = "#22c55e";      // Vert
-    else if (timeLeft > 12) bar.style.backgroundColor = "#eab308"; // Jaune
-    else if (timeLeft > 5) bar.style.backgroundColor = "#f97316";  // Orange
-    else bar.style.backgroundColor = "#ef4444";                    // Rouge
+    // ✅ On utilise .background pour être sûr d'écraser les gradients CSS
+    if (timeLeft > 20) bar.style.background = "#22c55e";      // Vert
+    else if (timeLeft > 12) bar.style.background = "#eab308"; // Jaune
+    else if (timeLeft > 5) bar.style.background = "#f97316";  // Orange
+    else bar.style.background = "#ef4444";                    // Rouge
 }
 
 let maxChronoTime = 30;
