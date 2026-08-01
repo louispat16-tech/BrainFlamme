@@ -590,6 +590,7 @@ function showStep(stepId) {
     const target = document.getElementById(stepId);
     if(target) target.classList.add('active');
 }
+
 function showRecap() {
     let recapHTML = `
         <div id="recap-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.98); z-index:9999; overflow-y:auto; padding:20px; font-family:sans-serif;">
@@ -619,6 +620,7 @@ function showRecap() {
     `;
     document.body.insertAdjacentHTML('beforeend', recapHTML);
 }
+
 function buyItem(name, price) {
     if (stats.xp >= price) {
         stats.xp -= price;
@@ -653,7 +655,6 @@ function buyItem(name, price) {
             stats.hasAura = true;
             alert("💎 Aura Céleste débloquée !");
         }
-        // CORRECTION ICI : 'bonus_question' pour correspondre au HTML
         else if (name === 'bonus_question' || name === 'bonusQuestion') {
             stats.bonusQuestion = (stats.bonusQuestion || 0) + 1;
             alert("🎲 Dé Chanceux ! Une question bonus sera ajoutée dans ton prochain quiz quotidien.");
@@ -666,6 +667,7 @@ function buyItem(name, price) {
         alert("Tu n'as pas assez de points ! 🪙");
     }
 }
+
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
     const lastDate = localStorage.getItem("daily_done_" + user);
@@ -674,32 +676,27 @@ function checkDailyStatus() {
 
     if (!btn) return;
 
-    // On efface l'ancien intervalle s'il existe pour éviter les bugs de vitesse
     clearInterval(dailyTimerInterval);
 
     if (lastDate === today) {
-        // LE BOUTON EST GRISÉ
         btn.disabled = true;
         btn.style.opacity = "0.5";
         btn.style.cursor = "not-allowed";
 
-        // LANCEMENT DU COMPTE À REBOURS
         dailyTimerInterval = setInterval(() => {
             const now = new Date();
             const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0); // Définit minuit pile (00:00)
+            midnight.setHours(24, 0, 0, 0);
 
             const diff = midnight - now;
 
             if (diff <= 0) {
-                // C'EST MINUIT ! On débloque.
                 clearInterval(dailyTimerInterval);
                 btn.disabled = false;
                 btn.style.opacity = "1";
                 btn.style.cursor = "pointer";
                 btn.innerText = "Mode Quotidien 📅";
             } else {
-                // AFFICHAGE DU TEMPS RESTANT
                 const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
                 const m = Math.floor((diff / (1000 * 60)) % 60);
                 const s = Math.floor((diff / 1000) % 60);
@@ -707,17 +704,16 @@ function checkDailyStatus() {
             }
         }, 1000);
     } else {
-        // LE BOUTON EST DISPONIBLE
         btn.disabled = false;
         btn.style.opacity = "1";
         btn.style.cursor = "pointer";
         btn.innerText = "Mode Quotidien 📅";
     }
 }
+
 function updateShopDisplay() {
     const shopXp = document.getElementById("shop-xp");
     if (shopXp) {
-        // Affiche l'or possédé (stats.xp)
         shopXp.textContent = stats.xp; 
     }
 }
@@ -733,16 +729,26 @@ function updateHome() {
 
     if (welcomeElem) {
         welcomeElem.textContent = "Salut, " + user;
-        // Applique la couleur de pseudo si achetée
-        if (stats.nameColor) welcomeElem.style.color = stats.nameColor;
-        // Applique l'aura céleste si achetée
-        if (stats.hasAura) welcomeElem.style.textShadow = "0 0 15px #22d3ee";
+        
+        if (stats.nameColor && stats.nameColor !== "") {
+            welcomeElem.classList.remove("default-style");
+            welcomeElem.style.webkitTextFillColor = stats.nameColor; 
+            welcomeElem.style.color = stats.nameColor;
+        } else {
+            welcomeElem.classList.add("default-style");
+        }
+
+        if (stats.hasAura) {
+            welcomeElem.style.textShadow = "0 0 15px #22d3ee, 0 0 5px #22d3ee";
+            welcomeElem.style.fontWeight = "bold";
+        } else {
+            welcomeElem.style.textShadow = "none";
+        }
     }
 
     if (rankElem) {
         rankElem.textContent = "Niveau " + stats.level + " - " + titles[titleIndex];
-        // Applique la couleur de rang si achetée
-        if (stats.rankColor) rankElem.style.color = stats.rankColor;
+        rankElem.style.color = stats.rankColor ? stats.rankColor : "#fbbf24";
     }
 
     if (streakElem) streakElem.textContent = stats.streak;
@@ -753,40 +759,11 @@ function updateHome() {
     }
 }
 
-    // --- APPLICATION DES EFFETS DE LA BOUTIQUE ---
-
-    if (welcomeElem) {
-        if (stats.nameColor && stats.nameColor !== "") {
-            // SI COULEUR ACHETÉE : on retire le dégradé et on force la couleur
-            welcomeElem.classList.remove("default-style");
-            welcomeElem.style.webkitTextFillColor = stats.nameColor; 
-            welcomeElem.style.color = stats.nameColor;
-        } else {
-            // SINON : on remet le look dégradé orange/jaune
-            welcomeElem.classList.add("default-style");
-        }
-
-        // L'AURA
-        if (stats.hasAura) {
-            welcomeElem.style.textShadow = "0 0 15px #22d3ee, 0 0 5px #22d3ee";
-            welcomeElem.style.fontWeight = "bold";
-        } else {
-            welcomeElem.style.textShadow = "none";
-        }
-    }
-
-    // Couleur du Rang (Correction du bug "tous les comptes")
-    if (rankElem) {
-        // On remet la couleur par défaut (jaune) avant d'appliquer la spéciale
-        rankElem.style.color = stats.rankColor ? stats.rankColor : "#fbbf24";
-    }
-}
-
 function proposerQuestionBonus() {
     const veutJouer = confirm("🎲 Tu possèdes un Dé Chanceux ! Veux-tu l'utiliser pour une QUESTION BONUS et gagner plus d'XP ?");
     
     if (veutJouer) {
-        stats.bonusQuestion--; // On consomme le dé
+        stats.bonusQuestion--;
         lancerQuestionBonus();
     } else {
         saveUserStats();
@@ -795,20 +772,17 @@ function proposerQuestionBonus() {
 }
 
 function lancerQuestionBonus() {
-    // 1. On prépare une question au hasard
     const bonusQ = questionsData[Math.floor(Math.random() * questionsData.length)];
     currentQuestions = [bonusQ]; 
     current = 0;
 
-    // 2. On change le look du quiz pour le mode "Bonus"
     const quizScreen = document.getElementById("quiz");
-    quizScreen.classList.add("bonus-mode-active"); // On ajoute une classe spéciale
+    if(quizScreen) quizScreen.classList.add("bonus-mode-active");
     
-    // 3. On affiche la question
     showQuestion();
     
-    // Optionnel : un petit message visuel
-    const qText = document.getElementById("question-text");
-    qText.innerHTML = "✨ QUESTION BONUS ✨<br>" + qText.innerText;
+    const qText = document.getElementById("question");
+    if(qText) qText.innerHTML = "✨ QUESTION BONUS ✨<br>" + qText.innerText;
 }
+
 console.log("🔥 Le fichier script.js s'exécute jusqu'au bout !");
