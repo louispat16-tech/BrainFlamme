@@ -520,10 +520,14 @@ function continuerAffichageScore(gain) {
     saveUserStats();
     if (typeof updateShopDisplay === "function") updateShopDisplay();
 
-    let nbQuestionsPosees = (selectedMode === "Quotidien") ? currentQuestions.length : current;
-    if (nbQuestionsPosees === 0) nbQuestionsPosees = 1; 
+    // 💡 CORRECTION DU COMPTAGE :
+    // On prend exactement le nombre de questions auxquelles le joueur a répondu !
+    let nbQuestionsPosees = quizHistory.length;
+    if (nbQuestionsPosees === 0) nbQuestionsPosees = 1; // Sécurité anti division par 0
 
-    let comment = (score >= (nbQuestionsPosees * 0.8)) ? "INCROYABLE ! 🔥" : (score >= (nbQuestionsPosees * 0.5) ? "BIEN JOUÉ ! 👏" : "ESSAIE ENCORE ! 🐢");
+    let comment = (score >= (nbQuestionsPosees * 0.8)) 
+        ? "INCROYABLE ! 🔥" 
+        : (score >= (nbQuestionsPosees * 0.5) ? "BIEN JOUÉ ! 👏" : "ESSAIE ENCORE ! 🐢");
 
     scoreScreen.innerHTML = `
         <h2 style="font-size:40px; margin-bottom:10px; color:white;">Résultat</h2>
@@ -545,13 +549,13 @@ function continuerAffichageScore(gain) {
 
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
-        if(bar) {
+        if (bar) {
             const currentLevelXP = stats.progression % 100; 
             bar.style.width = currentLevelXP + "%";
         }
     }, 100);
 
-    if (score === 5 && selectedMode === "Quotidien" && typeof lancerConfettis === "function") {
+    if (score === nbQuestionsPosees && selectedMode === "Quotidien" && typeof lancerConfettis === "function") {
         lancerConfettis();
     }
 }
