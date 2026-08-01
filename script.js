@@ -169,7 +169,6 @@ function setupLogin() {
             if (username) {
                 localStorage.setItem("brainflamme_user", username);
                 
-                // Si Firebase est disponible
                 if (typeof database !== "undefined" && database) {
                     database.ref('joueurs/' + username).once('value').then((snapshot) => {
                         if (snapshot.exists()) {
@@ -184,7 +183,6 @@ function setupLogin() {
                         chargerStatsLocales(username);
                     });
                 } else {
-                    // Fallback direct en local
                     chargerStatsLocales(username);
                 }
             } else {
@@ -194,7 +192,6 @@ function setupLogin() {
     }
 }
 
-// Fonction de secours locale pour garantir l'accès à l'accueil
 function chargerStatsLocales(username) {
     const saved = localStorage.getItem("brainflamme_stats_" + username);
     if (saved) {
@@ -210,19 +207,16 @@ function saveUserStats() {
     const username = localStorage.getItem("brainflamme_user");
     if (!username || !stats) return; 
     
-    // 1. Sauvegarde Firebase sécurisée
     if (typeof database !== "undefined" && database) {
         database.ref('joueurs/' + username).set(stats)
             .then(() => console.log("🔥 Stats synchronisées sur Firebase !"))
             .catch(err => console.error("Erreur Firebase :", err));
     }
         
-    // 2. Sauvegarde locale de secours (toujours active)
     localStorage.setItem("brainflamme_stats_" + username, JSON.stringify(stats));
 }
 
 function loadUserStatsFromCloud(username) {
-    // Sécurité au cas où Firebase ne charge pas
     if (typeof database === "undefined" || !database) {
         chargerStatsLocales(username);
         return;
@@ -238,7 +232,6 @@ function loadUserStatsFromCloud(username) {
             if (stats.progression === undefined) stats.progression = stats.xp;
             if (stats.hasAura === undefined) stats.hasAura = false;
 
-            // --- LOGIQUE DE RUPTURE DE FLAMME ---
             const lastDateStr = localStorage.getItem("daily_done_" + username);
             if (lastDateStr) {
                 const lastDate = new Date(lastDateStr);
@@ -280,21 +273,18 @@ document.getElementById("startBtn").onclick = () => {
     checkDailyStatus();
 };
 
-// Clic sur le bouton Mode Chrono
+// Mode Chrono (Corrigé)
 document.getElementById("chronoMode").onclick = () => {
     selectedMode = "Chrono";
     quizHistory = [];
     score = 0;
     current = 0;
     
-    // 💡 AFFICHER LA BARRE DE CHRONO
     const timerBox = document.getElementById("timerContainer");
     if (timerBox) timerBox.style.display = "block";
     
-    // Sélection de 10 questions
     currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 10);
 
-    // Question bonus si achetée
     if (stats.bonusQuestion && stats.bonusQuestion > 0) {
         let bonusQ = { ...questionsData[Math.floor(Math.random() * questionsData.length)] };
         bonusQ.isBonus = true;
@@ -303,7 +293,6 @@ document.getElementById("chronoMode").onclick = () => {
         saveUserStats();
     }
 
-    // 💡 LANCER LE CHRONO (30 sec par défaut + bonus sablier)
     let durance = 30 + (stats.chronoBonus || 0);
     startChronoTimer(durance);
 
@@ -311,171 +300,75 @@ document.getElementById("chronoMode").onclick = () => {
     showQuestion();
 };
 
-// Clic sur le bouton Mode Quotidien (Masque la barre de Chrono)
+// Mode Quotidien (Corrigé : charge questionsData au lieu de dailyQuestions inexistant)
 document.getElementById("dailyMode").onclick = () => {
     selectedMode = "Quotidien";
     quizHistory = [];
     score = 0;
     current = 0;
     
-    // 💡 CACHER LA BARRE DE CHRONO
     const timerBox = document.getElementById("timerContainer");
     if (timerBox) timerBox.style.display = "none";
     
-    currentQuestions = [...dailyQuestions]; // Ou tes questions quotidiennes
+    currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 5);
 
     show("quiz");
     showQuestion();
 };
 
-// Fonction qui fait défiler la barre de timer
-function startChronoTimer(seconds) {
-    clearInterval(timerInterval);
-    let timeLeft = seconds;
-    const totalTime = seconds;
-    
-    const timerText = document.getElementById("timerText");
-    const timerBar = document.getElementById("timerBar");
+// Gestion de la couleur du timer (Restaurée !)
+function updateTimerUI() {
+    const bar = document.getElementById("timerBar");
+    const text = document.getElementById("timerText");
+    if (!bar || !text) return;
 
-    if (timerText) timerText.textContent = timeLeft;
-    if (timerBar) timerBar.style.width = "100%";
+    const pct = (timeLeft / maxChronoTime) * 100;
+    bar.style.width = Math.max(0, pct) + "%";
+    text.textContent = Math.ceil(timeLeft);
 
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        if (timerText) timerText.textContent = timeLeft;
-        if (timerBar) {
-            let percentage = (timeLeft / totalTime) * 100;
-            timerBar.style.width = percentage + "%";
-        }
-
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            endQuiz();
-        }
-    }, 1000);
+    // Couleurs dynamiques restaurées
+    if (timeLeft > 20) bar.style.backgroundColor = "#22c55e";      // Vert
+    else if (timeLeft > 12) bar.style.backgroundColor = "#eab308"; // Jaune
+    else if (timeLeft > 5) bar.style.backgroundColor = "#f97316";  // Orange
+    else bar.style.backgroundColor = "#ef4444";                    // Rouge
 }
-document.getElementById("chronoMode").onclick = () => {
-    selectedMode = "Chrono";
-    quizHistory = [];
-    score = 0;
-    current = 0;
-    
-    // 💡 AFFICHER LA BARRE DE CHRONO
-    const timerBox = document.getElementById("timerContainer");
-    if (timerBox) timerBox.style.display = "block";
-    
-    // Sélection de 10 questions
-    currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 10);
 
-    // Question bonus si achetée
-    if (stats.bonusQuestion && stats.bonusQuestion > 0) {
-        let bonusQ = { ...questionsData[Math.floor(Math.random() * questionsData.length)] };
-        bonusQ.isBonus = true;
-        currentQuestions.push(bonusQ);
-        stats.bonusQuestion--;
-        saveUserStats();
-    }
-
-    // 💡 LANCER LE CHRONO (30 sec par défaut + bonus sablier)
-    let durance = 30 + (stats.chronoBonus || 0);
-    startChronoTimer(durance);
-
-    show("quiz");
-    showQuestion();
-};
-
-// Clic sur le bouton Mode Quotidien (Masque la barre de Chrono)
-document.getElementById("dailyMode").onclick = () => {
-    selectedMode = "Quotidien";
-    quizHistory = [];
-    score = 0;
-    current = 0;
-    
-    // 💡 CACHER LA BARRE DE CHRONO
-    const timerBox = document.getElementById("timerContainer");
-    if (timerBox) timerBox.style.display = "none";
-    
-    currentQuestions = [...dailyQuestions]; // Ou tes questions quotidiennes
-
-    show("quiz");
-    showQuestion();
-};
-
-// Fonction qui fait défiler la barre de timer
+let maxChronoTime = 30;
 function startChronoTimer(seconds) {
     clearInterval(timerInterval);
-    let timeLeft = seconds;
-    const totalTime = seconds;
+    timeLeft = seconds;
+    maxChronoTime = seconds;
     
-    const timerText = document.getElementById("timerText");
-    const timerBar = document.getElementById("timerBar");
-
-    if (timerText) timerText.textContent = timeLeft;
-    if (timerBar) timerBar.style.width = "100%";
+    updateTimerUI();
 
     timerInterval = setInterval(() => {
-        timeLeft--;
-        if (timerText) timerText.textContent = timeLeft;
-        if (timerBar) {
-            let percentage = (timeLeft / totalTime) * 100;
-            timerBar.style.width = percentage + "%";
-        }
+        timeLeft -= 0.1;
+        updateTimerUI();
 
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
             endQuiz();
         }
-    }, 1000);
-}
-// Fonction pour faire diminuer la barre et le chiffre du chrono
-function startChronoTimer(seconds) {
-    clearInterval(timerInterval);
-    let timeLeft = seconds;
-    const totalTime = seconds;
-    
-    const timerText = document.getElementById("timerText");
-    const timerBar = document.getElementById("timerBar");
-
-    if(timerText) timerText.textContent = timeLeft;
-    if(timerBar) timerBar.style.width = "100%";
-
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        if(timerText) timerText.textContent = timeLeft;
-        if(timerBar) {
-            let percentage = (timeLeft / totalTime) * 100;
-            timerBar.style.width = percentage + "%";
-        }
-
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            endQuiz();
-        }
-    }, 1000);
+    }, 100);
 }
 
 function show(id) {
-    // 1. On cache tous les écrans
     document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
     
-    // 2. On affiche l'écran demandé
     const target = document.getElementById(id);
     if (target) {
         target.style.display = "block";
     }
 
-    // 3. Mise à jour spécifique à la boutique
     if (id === "shop-screen" && typeof updateShopDisplay === "function") { 
         updateShopDisplay();
     }
 
-    // 4. Gestion de l'aura visuelle du joueur
     const welcomeUser = document.getElementById("welcome-user");
     if (welcomeUser) {
         welcomeUser.style.textShadow = stats.hasAura ? "0 0 15px #22d3ee" : "none";
     }
 
-    // 5. Gestion de la barre de navigation (nav)
     const nav = document.getElementById("main-nav");
     if (nav) {
         if (id === "login-screen" || id === "quiz") {
@@ -524,60 +417,7 @@ function checkDailyStatus() {
     }
 }
 
-function startQuiz(mode) {
-    quizHistory = []; 
-    selectedMode = mode; 
-    current = 0; 
-    score = 0;
-    
-    currentQuestions = [...questionsData].sort(() => Math.random() - 0.5);
-    
-    if (mode === "Quotidien") {
-        let nbQuestions = 5;
-        if (stats.bonusQuestion > 0) {
-            nbQuestions = 6; 
-            stats.bonusQuestion--; 
-            saveUserStats();
-            alert("🎲 Dé Chanceux : Une question bonus a été ajoutée !");
-        }
-        
-        currentQuestions = currentQuestions.slice(0, nbQuestions);
-        document.getElementById("timerContainer").style.display = "none";
-    } else {
-        document.getElementById("timerContainer").style.display = "block";
-        
-        // --- BONUS CHRONO ---
-        timeLeft = 30 + (stats.chronoBonus || 0); 
-        stats.chronoBonus = 0; 
-        saveUserStats(); 
-        
-        updateTimerUI();
-        clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            timeLeft -= 0.1; 
-            updateTimerUI();
-            if (timeLeft <= 0) endQuiz();
-        }, 100);
-    }
-    show("quiz");
-    showQuestion();
-}
-
-function updateTimerUI() {
-    const bar = document.getElementById("timerBar");
-    const text = document.getElementById("timerText");
-    const pct = (timeLeft / 30) * 100;
-    bar.style.width = pct + "%";
-    text.textContent = Math.ceil(timeLeft);
-    if (timeLeft > 23) bar.style.backgroundColor = "#22c55e";
-    else if (timeLeft > 15) bar.style.backgroundColor = "#84cc16";
-    else if (timeLeft > 10) bar.style.backgroundColor = "#eab308";
-    else if (timeLeft > 5) bar.style.backgroundColor = "#f97316";
-    else bar.style.backgroundColor = "#ef4444";
-}
-
 function showQuestion() {
-    // Si on a terminé toutes les questions
     if (current >= currentQuestions.length) {
         const quizScreen = document.getElementById("quiz");
         if (quizScreen) quizScreen.classList.remove("bonus-mode-active");
@@ -585,7 +425,6 @@ function showQuestion() {
         return;
     }
     
-    // 💡 Reset de la zone d'explication du mode Quotidien
     const expl = document.getElementById("explanation-container");
     if (expl) expl.innerHTML = ""; 
 
@@ -594,7 +433,6 @@ function showQuestion() {
     const area = document.getElementById("answers"); 
     const quizScreen = document.getElementById("quiz");
 
-    // Décoration si question bonus
     if (quizScreen) {
         if (q.isBonus) {
             quizScreen.classList.add("bonus-mode-active");
@@ -607,7 +445,6 @@ function showQuestion() {
     
     area.innerHTML = "";
 
-    // Mélange des réponses
     let mappedAnswers = q.answers.map((text, index) => {
         return { text: text, isCorrect: index === q.correct };
     });
@@ -640,15 +477,12 @@ function showQuestion() {
                 });
             }
             
-            // ⚡ MODE CHRONO : Défilement rapide (300ms)
             if (selectedMode === "Chrono") {
                 setTimeout(() => {
                     current++;
                     showQuestion();
                 }, 300);
-            } 
-            // 📅 MODE QUOTIDIEN : Explication + bouton SUIVANT
-            else {
+            } else {
                 if (expl) {
                     expl.innerHTML = `
                         <div style="background:#1e293b; border:2px solid #f97316; padding:15px; border-radius:15px; margin-top:20px; text-align:left;">
@@ -674,7 +508,6 @@ function endQuiz() {
     clearInterval(timerInterval);
     clearInterval(dailyTimerInterval);
 
-    // Sécurité anti-NaN pour les variables
     if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
     if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
     if (isNaN(stats.level) || !stats.level) stats.level = 1;
