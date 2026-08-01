@@ -278,21 +278,21 @@ document.getElementById("chronoMode").onclick = () => {
     quizHistory = [];
     score = 0;
     current = 0;
-    bonusSuccess = false; // 👈 Pour bien réinitialiser le bonus XP
+    bonusSuccess = false;
     
     const timerBox = document.getElementById("timerContainer");
     if (timerBox) timerBox.style.display = "block";
     
-    // On prend TOUTES les questions mélangées
     currentQuestions = [...questionsData].sort(() => Math.random() - 0.5);
 
-    // ⏱️ 30 secondes strictes
+    // ⏱️ Temps de base = 30s
     let durance = 30;
-    
-    // Si un bonus de temps était en stock, on l'annule ou l'utilise sans dépasser les 30s de base
-    if (stats.chronoBonus) {
-        stats.chronoBonus = 0;
-        saveUserStats();
+
+    // 💡 Si le joueur a l'item Bonus de Temps (+5s) en réserve :
+    if (stats.chronoBonus && stats.chronoBonus > 0) {
+        durance += stats.chronoBonus; // Ajoute les +5s (fait passer à 35s)
+        stats.chronoBonus = 0;        // Consomme le bonus pour cette partie
+        saveUserStats();               // Sauvegarde la consommation
     }
 
     startChronoTimer(durance);
