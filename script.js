@@ -280,8 +280,80 @@ document.getElementById("startBtn").onclick = () => {
     checkDailyStatus();
 };
 
-document.getElementById("dailyMode").onclick = () => startQuiz("Quotidien");
 // Clic sur le bouton Mode Chrono
+document.getElementById("chronoMode").onclick = () => {
+    selectedMode = "Chrono";
+    quizHistory = [];
+    score = 0;
+    current = 0;
+    
+    // 💡 AFFICHER LA BARRE DE CHRONO
+    const timerBox = document.getElementById("timerContainer");
+    if (timerBox) timerBox.style.display = "block";
+    
+    // Sélection de 10 questions
+    currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 10);
+
+    // Question bonus si achetée
+    if (stats.bonusQuestion && stats.bonusQuestion > 0) {
+        let bonusQ = { ...questionsData[Math.floor(Math.random() * questionsData.length)] };
+        bonusQ.isBonus = true;
+        currentQuestions.push(bonusQ);
+        stats.bonusQuestion--;
+        saveUserStats();
+    }
+
+    // 💡 LANCER LE CHRONO (30 sec par défaut + bonus sablier)
+    let durance = 30 + (stats.chronoBonus || 0);
+    startChronoTimer(durance);
+
+    show("quiz");
+    showQuestion();
+};
+
+// Clic sur le bouton Mode Quotidien (Masque la barre de Chrono)
+document.getElementById("dailyMode").onclick = () => {
+    selectedMode = "Quotidien";
+    quizHistory = [];
+    score = 0;
+    current = 0;
+    
+    // 💡 CACHER LA BARRE DE CHRONO
+    const timerBox = document.getElementById("timerContainer");
+    if (timerBox) timerBox.style.display = "none";
+    
+    currentQuestions = [...dailyQuestions]; // Ou tes questions quotidiennes
+
+    show("quiz");
+    showQuestion();
+};
+
+// Fonction qui fait défiler la barre de timer
+function startChronoTimer(seconds) {
+    clearInterval(timerInterval);
+    let timeLeft = seconds;
+    const totalTime = seconds;
+    
+    const timerText = document.getElementById("timerText");
+    const timerBar = document.getElementById("timerBar");
+
+    if (timerText) timerText.textContent = timeLeft;
+    if (timerBar) timerBar.style.width = "100%";
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        if (timerText) timerText.textContent = timeLeft;
+        if (timerBar) {
+            let percentage = (timeLeft / totalTime) * 100;
+            timerBar.style.width = percentage + "%";
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            endQuiz();
+        }
+    }, 1000);
+}
 document.getElementById("chronoMode").onclick = () => {
     selectedMode = "Chrono";
     quizHistory = [];
