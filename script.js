@@ -273,7 +273,6 @@ document.getElementById("startBtn").onclick = () => {
     checkDailyStatus();
 };
 
-// Mode Chrono (Corrigé)
 document.getElementById("chronoMode").onclick = () => {
     selectedMode = "Chrono";
     quizHistory = [];
@@ -283,15 +282,8 @@ document.getElementById("chronoMode").onclick = () => {
     const timerBox = document.getElementById("timerContainer");
     if (timerBox) timerBox.style.display = "block";
     
-    currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 10);
-
-    if (stats.bonusQuestion && stats.bonusQuestion > 0) {
-        let bonusQ = { ...questionsData[Math.floor(Math.random() * questionsData.length)] };
-        bonusQ.isBonus = true;
-        currentQuestions.push(bonusQ);
-        stats.bonusQuestion--;
-        saveUserStats();
-    }
+    // 💡 On prend TOUTES les questions mélangées (pas de limite à 10 !)
+    currentQuestions = [...questionsData].sort(() => Math.random() - 0.5);
 
     let durance = 30 + (stats.chronoBonus || 0);
     startChronoTimer(durance);
@@ -345,9 +337,18 @@ function startChronoTimer(seconds) {
         timeLeft -= 0.1;
         updateTimerUI();
 
+        // ⏱️ Quand le temps est écoulé :
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            endQuiz();
+            
+            // Si le joueur a l'item bonus en réserve
+            if (stats.bonusQuestion && stats.bonusQuestion > 0) {
+                stats.bonusQuestion--;
+                saveUserStats();
+                lancerQuestionBonus(); // 👈 On lance la prolongation bonus !
+            } else {
+                endQuiz();
+            }
         }
     }, 100);
 }
