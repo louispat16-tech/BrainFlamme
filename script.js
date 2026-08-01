@@ -811,3 +811,4 @@ function lancerQuestionBonus() {
     const qText = document.getElementById("question-text");
     qText.innerHTML = "✨ QUESTION BONUS ✨<br>" + qText.innerText;
 }
+console.log("🔥 Le fichier script.js s'exécute jusqu'au bout !");
