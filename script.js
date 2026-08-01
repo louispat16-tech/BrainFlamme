@@ -406,8 +406,11 @@ function updateTimerUI() {
 }
 
 function showQuestion() {
-    // Si on a répondu à toutes les questions, on termine le quiz
+    const quizScreen = document.getElementById("quiz");
+
+    // Si on a dépassé ou atteint le nombre max de questions, on termine le quiz immédiatement
     if (current >= currentQuestions.length) {
+        if (quizScreen) quizScreen.classList.remove("bonus-mode-active"); // Nettoyage décor
         endQuiz();
         return;
     }
@@ -416,7 +419,17 @@ function showQuestion() {
     if (expl) expl.innerHTML = ""; 
 
     const q = currentQuestions[current];
-    document.getElementById("question").textContent = q.question;
+
+    // 💡 AJOUT : Appliquer le décor spécial si c'est la question bonus
+    if (quizScreen) {
+        if (q.isBonus) {
+            quizScreen.classList.add("bonus-mode-active");
+            document.getElementById("question").innerHTML = "✨ QUESTION BONUS ✨<br><br>" + q.question;
+        } else {
+            quizScreen.classList.remove("bonus-mode-active");
+            document.getElementById("question").textContent = q.question;
+        }
+    }
     
     const area = document.getElementById("answers"); 
     area.innerHTML = "";
@@ -455,6 +468,7 @@ function showQuestion() {
             }
             
             if (selectedMode === "Chrono") {
+                // ⚡ MODIFICATION : Passé de 1200ms à 300ms pour un enchaînement ultra-rapide
                 setTimeout(() => {
                     current++;
                     showQuestion();
