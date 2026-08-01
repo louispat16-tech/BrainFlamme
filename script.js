@@ -459,6 +459,13 @@ function showQuestion() {
         b.onclick = () => {
             const allBtns = document.querySelectorAll(".answer");
             allBtns.forEach(btn => btn.disabled = true);
+            if (answerObj.isCorrect) { 
+    b.classList.add("correct"); 
+    score += 1; 
+    
+    // 👈 AJOUTE CECI : Si c'est la question bonus, on note que l'XP sera doublée
+    if (q.isBonus) {
+        bonusSuccess = true; 
             
             quizHistory.push({
                 question: q.question,
@@ -513,11 +520,14 @@ function endQuiz() {
     if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
     if (isNaN(stats.level) || !stats.level) stats.level = 1;
 
-    let gain = score * 10;
-    if (stats.hasXpBoost) {
-        gain = gain * 2;
-        stats.hasXpBoost = false; 
-    }
+    // Calcul standard (10 XP par bonne réponse)
+let gain = score * 10; 
+
+// 👈 AJOUTE CECI : 10 XP supplémentaires si la question bonus a été réussie (= XP doublée)
+if (typeof bonusSuccess !== "undefined" && bonusSuccess) {
+    gain += 10; 
+    bonusSuccess = false;
+}
     
     stats.xp += gain;
     stats.progression += gain;
@@ -790,4 +800,17 @@ function proposerQuestionBonus() {
         saveUserStats();
         updateHome();
     }
+}
+function lancerQuestionBonus() {
+    const timerBox = document.getElementById("timerContainer");
+    if (timerBox) timerBox.style.display = "none";
+
+    // Préparer la question bonus ultime
+    let bonusQ = { ...questionsData[Math.floor(Math.random() * questionsData.length)] };
+    bonusQ.isBonus = true;
+
+    currentQuestions = [bonusQ];
+    current = 0;
+
+    showQuestion();
 }
