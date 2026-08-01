@@ -418,3 +418,41 @@ input[type="text"] {
     0% { box-shadow: 0 0 15px rgba(192, 38, 211, 0.5); }
     100% { box-shadow: 0 0 35px rgba(251, 191, 36, 0.9); }
 }
+/* --- STYLE SPÉCIAL QUESTION BONUS --- */
+
+/* Fond animé (dégradé qui bouge) */
+#quiz.bonus-mode-active {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab) !important;
+    background-size: 400% 400% !important;
+    animation: gradientBG 5s ease infinite, bonusPulse 2s infinite alternate !important;
+    border: 4px solid #fbbf24 !important;
+}
+
+/* Animation du dégradé */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Animation de pulsation de la bordure */
+@keyframes bonusPulse {
+    0% { box-shadow: 0 0 10px #fbbf24; }
+    100% { box-shadow: 0 0 30px #f59e0b, 0 0 50px rgba(245, 158, 11, 0.3); }
+}
+
+/* Style du texte pendant le bonus */
+#quiz.bonus-mode-active #question {
+    color: #fff !important;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5), 0 0 15px #fef08a;
+    font-weight: 900;
+    transform: scale(1.05);
+}
+
+/* Style des boutons pendant le bonus */
+#quiz.bonus-mode-active .answer {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    color: white !important;
+}
