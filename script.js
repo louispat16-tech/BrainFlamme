@@ -287,25 +287,22 @@ document.getElementById("chronoMode").onclick = () => {
     score = 0;
     current = 0;
     
-    // 1. On mélange et on prend 10 questions au hasard
+    // 1. On prend 10 questions normales
     currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 10);
 
-    // 💡 LA PARTIE 2A EST ICI :
-    // On vérifie si le joueur possède l'item "bonusQuestion" dans ses stats
+    // 2. On vérifie si on injecte la question bonus (Item Dé Chanceux)
     if (stats.bonusQuestion && stats.bonusQuestion > 0) {
-        // On prend une question au hasard et on la marque comme bonus
         let bonusQ = { ...questionsData[Math.floor(Math.random() * questionsData.length)] };
-        bonusQ.isBonus = true; 
+        bonusQ.isBonus = true; // On marque la question comme spéciale
         
-        // On l'ajoute à la liste des questions du quiz
+        // On l'ajoute au début ou à la fin (ici à la fin pour la surprise)
         currentQuestions.push(bonusQ);
         
-        // On consomme 1 bonus de l'inventaire
-        stats.bonusQuestion--; 
+        // On consomme le bonus
+        stats.bonusQuestion--;
         saveUserStats();
     }
 
-    // 2. On lance l'écran du quiz
     show("quiz");
     showQuestion();
 };
