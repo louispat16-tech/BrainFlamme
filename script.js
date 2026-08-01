@@ -461,29 +461,35 @@ function updateTimerUI() {
 function showQuestion() {
     const quizScreen = document.getElementById("quiz");
 
+    // 1. Fin du quiz si toutes les questions sont passées
     if (current >= currentQuestions.length) {
-        // IMPORTANT : On retire le fond animé quand le quiz est fini !
         if (quizScreen) quizScreen.classList.remove("bonus-mode-active");
         endQuiz();
         return;
     }
     
+    // Reset du conteneur d'explications du mode Quotidien
+    const expl = document.getElementById("explanation-container");
+    if (expl) expl.innerHTML = ""; 
+
     const q = currentQuestions[current];
-    const area = document.getElementById("answers"); 
     const qText = document.getElementById("question");
-    
-    // ✨ GESTION DE L'ANIMATION BONUS
-    if (q.isBonus) {
-        quizScreen.classList.add("bonus-mode-active");
-        qText.innerHTML = "✨ QUESTION BONUS ✨<br><small style='font-size:15px'>(Double Points !)</small><br><br>" + q.question;
-    } else {
-        quizScreen.classList.remove("bonus-mode-active");
-        qText.textContent = q.question;
+    const area = document.getElementById("answers"); 
+
+    // 🎨 DÉCOR QUESTION BONUS
+    if (quizScreen) {
+        if (q.isBonus) {
+            quizScreen.classList.add("bonus-mode-active");
+            qText.innerHTML = "✨ QUESTION BONUS ✨<br><small style='font-size:16px;'>(Double Points !)</small><br><br>" + q.question;
+        } else {
+            quizScreen.classList.remove("bonus-mode-active");
+            qText.textContent = q.question;
+        }
     }
-
+    
     area.innerHTML = "";
-    document.getElementById("explanation-container").innerHTML = "";
 
+    // Mélange des réponses
     let mappedAnswers = q.answers.map((text, index) => {
         return { text: text, isCorrect: index === q.correct };
     });
@@ -498,33 +504,50 @@ function showQuestion() {
             const allBtns = document.querySelectorAll(".answer");
             allBtns.forEach(btn => btn.disabled = true);
             
+            // Enregistrement historique
             quizHistory.push({
-                question: q.question, userAns: answerObj.text,
-                correctAns: q.answers[q.correct], isCorrect: answerObj.isCorrect
+                question: q.question,
+                userAns: answerObj.text,
+                correctAns: q.answers[q.correct],
+                isCorrect: answerObj.isCorrect
             });
             
+            // Gestion des couleurs des boutons (Correct / Wrong)
             if (answerObj.isCorrect) { 
                 b.classList.add("correct"); 
-                // La question bonus rapporte 2 points !
                 score += q.isBonus ? 2 : 1; 
             } else { 
                 b.classList.add("wrong");
                 allBtns.forEach(btn => {
-                    if (btn.textContent === q.answers[q.correct]) btn.classList.add("correct");
+                    const originalCorrectText = q.answers[q.correct];
+                    if (btn.textContent === originalCorrectText) btn.classList.add("correct");
                 });
             }
             
-            // Passage rapide en mode Chrono (300ms)
-            let delay = (selectedMode === "Chrono") ? 300 : 0; 
+            // ⚡ MODE CHRONO : Défilement ultra rapide (300ms)
             if (selectedMode === "Chrono") {
-                setTimeout(() => { current++; showQuestion(); }, delay);
-            } else {
-                // ... (ton code habituel pour le mode quotidien avec le bouton suivant)
-                const expl = document.getElementById("explanation-container");
-                expl.innerHTML = `<div style="background:#1e293b; padding:15px; border-radius:15px; margin-top:20px;">
-                    <p style="color:white; margin-bottom:10px;">${q.info}</p>
-                    <button class="play" onclick="current++; showQuestion();">SUIVANT</button>
-                </div>`;
+                setTimeout(() => {
+                    current++;
+                    showQuestion();
+                }, 300);
+            } 
+            // 📅 MODE QUOTIDIEN : Présentation d'origine avec l'encadré et le bouton SUIVANT
+            else {
+                if (expl) {
+                    expl.innerHTML = `
+                        <div style="background:#1e293b; border:2px solid #f97316; padding:15px; border-radius:15px; margin-top:20px; text-align:left;">
+                            <h4 style="color:#f97316; margin-bottom:5px;">💡 Le sais-tu ?</h4>
+                            <p style="margin-bottom:15px; color:white;">${q.info}</p>
+                            <div style="text-align:center;">
+                                <button id="nextBtnInside" class="play" style="padding:10px 30px; font-size:18px; margin-top:0; cursor:pointer;">SUIVANT</button>
+                            </div>
+                        </div>`;
+                    
+                    document.getElementById("nextBtnInside").onclick = () => { 
+                        current++; 
+                        showQuestion();
+                    };
+                }
             }
         };
         area.appendChild(b);
