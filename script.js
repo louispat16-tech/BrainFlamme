@@ -461,7 +461,7 @@ function showQuestion() {
             const allBtns = document.querySelectorAll(".answer");
             allBtns.forEach(btn => btn.disabled = true);
             
-            // Enregistrement dans l'historique
+            // Historique de réponse
             quizHistory.push({
                 question: q.question,
                 userAns: answerObj.text,
@@ -469,12 +469,11 @@ function showQuestion() {
                 isCorrect: answerObj.isCorrect
             });
             
-            // Gestion du score et des couleurs
+            // Vérification de la réponse
             if (answerObj.isCorrect) { 
                 b.classList.add("correct"); 
-                score += 1; // 1 point de score normal
+                score += 1;
                 
-                // Si la question bonus est réussie, on retient de doubler son XP
                 if (q.isBonus) {
                     bonusSuccess = true;
                 }
@@ -487,18 +486,6 @@ function showQuestion() {
             }
             
             // ⚡ MODE CHRONO
-            if (selectedMode === "Chrono") {
-                setTimeout(() => {
-                    current++;
-                    // Si on vient de jouer la question bonus ultime, le quiz s'arrête
-                    if (q.isBonus) {
-                        endQuiz();
-                    } else {
-                        showQuestion();
-                    }
-                }, 300);
-            } 
-// ⚡ MODE CHRONO
             if (selectedMode === "Chrono") {
                 setTimeout(() => {
                     current++;
