@@ -69,7 +69,7 @@ const questionsData = [
     { question: "Quelle est la capitale du Canada ?", answers: ["Toronto", "Montréal", "Ottawa", "Vancouver"], correct: 2, info: "Ottawa a été choisie par la reine Victoria en 1857 pour des raisons stratégiques et linguistiques." },
     { question: "Quelle est la boisson la plus consommée au monde après l'eau ?", answers: ["Le Café", "Le Thé", "Le Coca-Cola", "La Bière"], correct: 1, info: "Des milliards de tasses de thé sont bues chaque jour à travers le globe." },
     { question: "Quel élément chimique a pour symbole 'Fe' ?", answers: ["Le Fluor", "Le Fer", "Le Francium", "L'Étain"], correct: 1, info: "Le symbole vient du mot latin pour le fer : 'Ferrum'." },
-    { question: "En quelle année est tombé le mur de Berlin ?", answers: ["1985", "1989", "1991", "1993"], correct: 1, info: "La chute du mur le 9 novembre 1989 a marqué la fin symbolique de la guerre froide." }
+    { question: "En quelle année est tombé le mur de Berlin ?", answers: ["1985", "1989", "1991", "1993"], correct: 1, info: "La chute du mur le 9 novembre 1989 a marqué la fin symbolique de la guerre froide." },
     { question: "Combien y a-t-il d'os chez un adulte ?", answers: ["186", "206", "226", "256"], correct: 1, info: "Le squelette d'un adulte compte 206 os. À la naissance, les bébés en ont environ 270." },
     { question: "Quel est le symbole chimique de l'Or ?", answers: ["Ag", "Fe", "Au", "Pb"], correct: 2, info: "Le symbole 'Au' vient du mot latin 'Aurum', qui signifie 'aurore éclatante'." },
     { question: "Comment s'appelle la planète la plus chaude ?", answers: ["Mercure", "Vénus", "Mars", "Jupiter"], correct: 1, info: "Vénus est la plus chaude (460°C) car son atmosphère épaisse de CO2 piège la chaleur." },
