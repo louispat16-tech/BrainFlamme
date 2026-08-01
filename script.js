@@ -498,6 +498,17 @@ function showQuestion() {
                     }
                 }, 300);
             } 
+// ⚡ MODE CHRONO
+            if (selectedMode === "Chrono") {
+                setTimeout(() => {
+                    current++;
+                    if (q.isBonus) {
+                        endQuiz();
+                    } else {
+                        showQuestion();
+                    }
+                }, 300);
+            } 
             // 📅 MODE QUOTIDIEN
             else {
                 if (expl) {
