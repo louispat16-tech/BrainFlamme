@@ -434,36 +434,32 @@ function updateTimerUI() {
 function showQuestion() {
     const quizScreen = document.getElementById("quiz");
 
-    // Si on a dépassé ou atteint le nombre max de questions, on termine le quiz immédiatement
     if (current >= currentQuestions.length) {
-        if (quizScreen) quizScreen.classList.remove("bonus-mode-active"); // Nettoyage décor
+        // IMPORTANT : On retire le fond animé quand le quiz est fini !
+        if (quizScreen) quizScreen.classList.remove("bonus-mode-active");
         endQuiz();
         return;
     }
     
-    const expl = document.getElementById("explanation-container");
-    if (expl) expl.innerHTML = ""; 
-
     const q = currentQuestions[current];
-
-    // 💡 AJOUT : Appliquer le décor spécial si c'est la question bonus
-    if (quizScreen) {
-        if (q.isBonus) {
-            quizScreen.classList.add("bonus-mode-active");
-            document.getElementById("question").innerHTML = "✨ QUESTION BONUS ✨<br><br>" + q.question;
-        } else {
-            quizScreen.classList.remove("bonus-mode-active");
-            document.getElementById("question").textContent = q.question;
-        }
-    }
-    
     const area = document.getElementById("answers"); 
+    const qText = document.getElementById("question");
+    
+    // ✨ GESTION DE L'ANIMATION BONUS
+    if (q.isBonus) {
+        quizScreen.classList.add("bonus-mode-active");
+        qText.innerHTML = "✨ QUESTION BONUS ✨<br><small style='font-size:15px'>(Double Points !)</small><br><br>" + q.question;
+    } else {
+        quizScreen.classList.remove("bonus-mode-active");
+        qText.textContent = q.question;
+    }
+
     area.innerHTML = "";
+    document.getElementById("explanation-container").innerHTML = "";
 
     let mappedAnswers = q.answers.map((text, index) => {
         return { text: text, isCorrect: index === q.correct };
     });
-
     mappedAnswers.sort(() => Math.random() - 0.5);
 
     mappedAnswers.forEach((answerObj) => {
@@ -476,45 +472,32 @@ function showQuestion() {
             allBtns.forEach(btn => btn.disabled = true);
             
             quizHistory.push({
-                question: q.question,
-                userAns: answerObj.text,
-                correctAns: q.answers[q.correct],
-                isCorrect: answerObj.isCorrect
+                question: q.question, userAns: answerObj.text,
+                correctAns: q.answers[q.correct], isCorrect: answerObj.isCorrect
             });
             
             if (answerObj.isCorrect) { 
                 b.classList.add("correct"); 
-                score++; 
+                // La question bonus rapporte 2 points !
+                score += q.isBonus ? 2 : 1; 
             } else { 
                 b.classList.add("wrong");
                 allBtns.forEach(btn => {
-                    const originalCorrectText = q.answers[q.correct];
-                    if (btn.textContent === originalCorrectText) btn.classList.add("correct");
+                    if (btn.textContent === q.answers[q.correct]) btn.classList.add("correct");
                 });
             }
             
+            // Passage rapide en mode Chrono (300ms)
+            let delay = (selectedMode === "Chrono") ? 300 : 0; 
             if (selectedMode === "Chrono") {
-                // ⚡ MODIFICATION : Passé de 1200ms à 300ms pour un enchaînement ultra-rapide
-                setTimeout(() => {
-                    current++;
-                    showQuestion();
-                }, 300);
+                setTimeout(() => { current++; showQuestion(); }, delay);
             } else {
-                if (expl) {
-                    expl.innerHTML = `
-                        <div style="background:#1e293b; border:2px solid #f97316; padding:15px; border-radius:15px; margin-top:20px; text-align:left;">
-                            <h4 style="color:#f97316; margin-bottom:5px;">💡 Le sais-tu ?</h4>
-                            <p style="margin-bottom:15px; color:white;">${q.info}</p>
-                            <div style="text-align:center;">
-                                <button id="nextBtnInside" class="play" style="padding:10px 30px; font-size:18px; margin-top:0; cursor:pointer;">SUIVANT</button>
-                            </div>
-                        </div>`;
-                    
-                    document.getElementById("nextBtnInside").onclick = () => { 
-                        current++; 
-                        showQuestion();
-                    };
-                }
+                // ... (ton code habituel pour le mode quotidien avec le bouton suivant)
+                const expl = document.getElementById("explanation-container");
+                expl.innerHTML = `<div style="background:#1e293b; padding:15px; border-radius:15px; margin-top:20px;">
+                    <p style="color:white; margin-bottom:10px;">${q.info}</p>
+                    <button class="play" onclick="current++; showQuestion();">SUIVANT</button>
+                </div>`;
             }
         };
         area.appendChild(b);
