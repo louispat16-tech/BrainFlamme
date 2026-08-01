@@ -480,7 +480,7 @@ function showQuestion() {
 }
 
 function showQuestion() {
-    // 💡 Si on a dépassé ou atteint le nombre max de questions, on termine le quiz immédiatement
+    // Si on a répondu à toutes les questions, on termine le quiz
     if (current >= currentQuestions.length) {
         endQuiz();
         return;
@@ -510,7 +510,6 @@ function showQuestion() {
             const allBtns = document.querySelectorAll(".answer");
             allBtns.forEach(btn => btn.disabled = true);
             
-            // Enregistrement dans l'historique
             quizHistory.push({
                 question: q.question,
                 userAns: answerObj.text,
@@ -547,7 +546,7 @@ function showQuestion() {
                     
                     document.getElementById("nextBtnInside").onclick = () => { 
                         current++; 
-                        showQuestion(); // Va relancer et déclencher endQuiz() si current >= length
+                        showQuestion();
                     };
                 }
             }
@@ -557,11 +556,9 @@ function showQuestion() {
 }
 
 function endQuiz() {
-    // 1. Arret des timers
     clearInterval(timerInterval);
     clearInterval(dailyTimerInterval);
 
-    // 2. Calcul des gains
     let gain = score * 10;
     if (stats.hasXpBoost) {
         gain = gain * 2;
@@ -574,7 +571,6 @@ function endQuiz() {
         stats.level++;
     }
 
-    // 3. Traitement du mode Quotidien
     if (selectedMode === "Quotidien") {
         const user = localStorage.getItem("brainflamme_user");
         localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
@@ -585,42 +581,29 @@ function endQuiz() {
         checkDailyStatus();
     }
 
-    // 4. Passage à l'écran de résultat
+    saveUserStats();
     continuerAffichageScore(gain);
 }
 
 function continuerAffichageScore(gain) {
     show("score");
-    const scoreScreen = document.getElementById("score");
-    if (!scoreScreen) return;
 
-    saveUserStats();
-    if (typeof updateShopDisplay === "function") updateShopDisplay();
-
-    // Nombre exact de questions répondues
     let nbQuestionsPosees = quizHistory.length || 1;
-
     let comment = (score >= (nbQuestionsPosees * 0.8)) 
         ? "INCROYABLE ! 🔥" 
         : (score >= (nbQuestionsPosees * 0.5) ? "BIEN JOUÉ ! 👏" : "ESSAIE ENCORE ! 🐢");
 
-    scoreScreen.innerHTML = `
-        <h2 style="font-size:40px; margin-bottom:10px; color:white;">Résultat</h2>
-        <div class="final-score-box" style="background:#1e293b; padding:25px; border-radius:20px; border:2px solid #f97316; max-width:400px; margin:auto; color:white;">
-            <p style="font-size:20px; font-weight:bold;">Niveau ${stats.level}</p>
-            <div style="width:100%; height:15px; background:#334155; border-radius:10px; margin:15px 0; overflow:hidden;">
-                <div id="anim-fill" style="width:0%; height:100%; background:#f97316; transition: width 1s ease-out;"></div>
-            </div>
-            <p style="font-size:24px; color:#22c55e; font-weight:bold;">+${gain} XP</p>
-            <hr style="border:0; border-top:1px solid #334155; margin:20px 0;">
-            <h3 style="font-size:35px; color:#f97316; margin-bottom:5px;">${comment}</h3>
-            <p style="font-size:20px;">${score} / ${nbQuestionsPosees} correctes</p>
-            <div style="margin-top:20px;">
-                <button class="mode-btn" style="width:100%; margin-bottom:10px; background:#334155; border:1px solid #f97316; color:white; padding:12px; border-radius:10px; cursor:pointer;" onclick="showRecap()">VOIR LE RÉCAPITULATIF 📋</button>
-                <button class="play pulse-btn" style="width:100%; padding:15px; cursor:pointer;" onclick="show('home-screen'); updateHome();">RETOUR</button>
-            </div>
-        </div>
-    `;
+    const lvlElem = document.getElementById("score-level");
+    const xpElem = document.getElementById("score-xp");
+    const commElem = document.getElementById("score-comment");
+    const textElem = document.getElementById("score-text");
+
+    if (lvlElem) lvlElem.textContent = "Niveau " + stats.level;
+    if (xpElem) xpElem.textContent = "+" + gain + " XP";
+    if (commElem) commElem.textContent = comment;
+    if (textElem) textElem.textContent = score + " / " + nbQuestionsPosees + " correctes";
+
+    if (typeof updateShopDisplay === "function") updateShopDisplay();
 
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
