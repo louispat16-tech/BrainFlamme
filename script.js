@@ -8,9 +8,21 @@ const firebaseConfig = {
     appId: "1:200853989780:web:94b21502105f8ae860c781"
 };
 
-// Initialisation Firebase (Version Compat)
+// Initialisation Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
+const auth = firebase.auth(); // 👈 Assure-toi d'avoir aussi cette ligne pour l'authentification !
+
+// --- ÉCOUTEUR DE CONNEXION (Point 3) ---
+auth.onAuthStateChanged(user => {
+    if (user) {
+        console.log("Utilisateur connecté :", user.displayName || user.uid);
+        // On charge et rafraîchit le profil dès que Firebase confirme la connexion du compte
+        renderProfile();
+    } else {
+        console.log("Aucun utilisateur connecté");
+    }
+});
 
 const questionsData = [
     { question: "Quelle est la capitale de l'Australie ?", answers: ["Sydney", "Melbourne", "Canberra", "Perth"], correct: 2, info: "C'est Canberra qui a été choisie en 1908 comme compromis pour mettre fin à la rivalité entre Sydney et Melbourne." },
@@ -966,31 +978,29 @@ function switchTab(screenId, clickedBtn) {
 
 // 👤 MISE À JOUR DYNAMIQUE DU PROFIL
 function renderProfile() {
-    let currentUsername = "";
+    let currentUsername = "Joueur";
 
-    // 1. Récupération du pseudo (Firebase / Variables / LocalStorage)
+    // 1. Récupération du pseudo exact
     if (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.displayName) {
         currentUsername = auth.currentUser.displayName;
     } else if (typeof username !== 'undefined' && username) {
         currentUsername = username;
-    } else if (typeof stats !== 'undefined' && stats.username) {
-        currentUsername = stats.username;
-    } else {
-        currentUsername = localStorage.getItem("username") || "Joueur";
+    } else if (localStorage.getItem("username")) {
+        currentUsername = localStorage.getItem("username");
     }
 
-    // 2. Affichage du pseudo sur la carte
+    // Affichage Pseudo & Tag
     const nameEl = document.getElementById("profileUsername");
     const tagEl = document.querySelector(".user-tag");
     if (nameEl) nameEl.textContent = currentUsername;
     if (tagEl) tagEl.textContent = "@" + currentUsername.toLowerCase().replace(/\s+/g, '');
 
-    // 3. Calcul et affichage de la barre de niveau (XP)
-    const currentXp = (typeof xp !== 'undefined') ? xp : ((typeof stats !== 'undefined' && stats.xp) ? stats.xp : 0);
+    // 2. Mise à jour de la barre d'XP
+    const currentXp = (typeof xp !== 'undefined') ? xp : 0;
     const maxXp = (typeof maxXpForLevel !== 'undefined') ? maxXpForLevel : 100;
     
-    let percentage = (currentXp / maxXp) * 100;
-    percentage = Math.min(100, Math.max(0, percentage)); // Limite entre 0 et 100%
+    let percentage = (maxXp > 0) ? (currentXp / maxXp) * 100 : 0;
+    percentage = Math.min(100, Math.max(0, percentage));
 
     if (document.getElementById("xpText")) {
         document.getElementById("xpText").textContent = `${currentXp} / ${maxXp} XP`;
@@ -999,42 +1009,45 @@ function renderProfile() {
         document.getElementById("xpBarFill").style.width = percentage + "%";
     }
 
-    // 4. Statistiques complémentaires (Flammes, Niveau)
-    const currentFlames = (typeof streak !== 'undefined') ? streak : 0;
-    const maxFlames = (typeof maxStreak !== 'undefined') ? maxStreak : 0;
-    const lvl = (typeof level !== 'undefined') ? level : 1;
+    // 3. Stats (Flammes / Niveau)
+    if (document.getElementById("profileCurrentFlame")) {
+        document.getElementById("profileCurrentFlame").textContent = (typeof streak !== 'undefined') ? streak : 0;
+    }
+    if (document.getElementById("profileMaxFlame")) {
+        document.getElementById("profileMaxFlame").textContent = "🔥 " + ((typeof maxStreak !== 'undefined') ? maxStreak : 0);
+    }
+    if (document.getElementById("profileLevel")) {
+        document.getElementById("profileLevel").textContent = "Niv. " + ((typeof level !== 'undefined') ? level : 1);
+    }
 
-    if (document.getElementById("profileCurrentFlame")) document.getElementById("profileCurrentFlame").textContent = currentFlames;
-    if (document.getElementById("profileMaxFlame")) document.getElementById("profileMaxFlame").textContent = "🔥 " + maxFlames;
-    if (document.getElementById("profileLevel")) document.getElementById("profileLevel").textContent = "Niv. " + lvl;
-
-    // 5. Chargement des données Firebase (Avatar & Amis depuis le compte)
+    // 4. CHARGEMENT DEPUIS LE COMPTE FIREBASE (Avatar & Amis)
     if (typeof auth !== 'undefined' && auth.currentUser && typeof db !== 'undefined') {
         db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
             if (doc.exists) {
-                const userData = doc.data();
+                const data = doc.data();
 
-                // Charger l'avatar
-                if (userData.avatar && document.getElementById("avatarImg")) {
-                    document.getElementById("avatarImg").src = userData.avatar;
+                // Charger le vrai pseudo du compte si présent
+                if (data.username && nameEl) {
+                    nameEl.textContent = data.username;
+                    if (tagEl) tagEl.textContent = "@" + data.username.toLowerCase().replace(/\s+/g, '');
                 }
 
-                // Charger la liste d'amis
-                if (userData.friends) {
-                    window.myFriendsList = userData.friends;
-                    renderFriends(myFriendsList);
+                // Charger l'avatar du compte
+                if (data.avatar && document.getElementById("avatarImg")) {
+                    document.getElementById("avatarImg").src = data.avatar;
+                }
+
+                // Charger la liste d'amis du compte
+                if (data.friends) {
+                    window.myFriendsList = data.friends;
+                    renderFriends(window.myFriendsList);
                 }
             }
-        }).catch(err => console.error("Erreur chargement profil Firebase:", err));
+        }).catch(err => console.error("Erreur Firebase Profil:", err));
     } else {
-        // En secours si Firebase n'est pas actif localement
-        const savedAvatar = localStorage.getItem("userAvatar");
-        if (savedAvatar && document.getElementById("avatarImg")) {
-            document.getElementById("avatarImg").src = savedAvatar;
-        }
-
-        if (typeof myFriendsList !== 'undefined') {
-            renderFriends(myFriendsList);
+        // Mode secours (si hors-ligne)
+        if (typeof window.myFriendsList !== 'undefined') {
+            renderFriends(window.myFriendsList);
         }
     }
 }
@@ -1074,31 +1087,47 @@ function addFriend() {
     if (!input) return;
     
     const friendName = input.value.trim();
+    if (friendName === "") return;
 
-    if (friendName !== "") {
-        // S'assurer que le tableau des amis existe
-        if (typeof myFriendsList === 'undefined') {
-            window.myFriendsList = [];
-        }
+    // ⛔ SÉCURITÉ : Récupérer son propre pseudo
+    let myOwnName = "";
+    if (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.displayName) {
+        myOwnName = auth.currentUser.displayName;
+    } else if (typeof username !== 'undefined') {
+        myOwnName = username;
+    }
 
-        // 1. Ajout immédiat dans le tableau local
-        if (!myFriendsList.includes(friendName)) {
-            myFriendsList.push(friendName);
-        }
-
-        // 2. Réinitialiser le champ texte
+    // Si on essaie de s'ajouter soi-même
+    if (myOwnName && friendName.toLowerCase() === myOwnName.toLowerCase()) {
+        alert("Vous ne pouvez pas vous ajouter vous-même en ami !");
         input.value = "";
+        return;
+    }
 
-        // 3. Forcer le réaffichage de la liste d'amis
-        renderFriends(myFriendsList);
+    if (typeof window.myFriendsList === 'undefined') {
+        window.myFriendsList = [];
+    }
 
-        // 4. Sauvegarde sur Firebase (sur le compte de l'utilisateur)
+    // Éviter les doublons
+    if (!window.myFriendsList.includes(friendName)) {
+        window.myFriendsList.push(friendName);
+        
+        // Mettre à jour l'affichage
+        renderFriends(window.myFriendsList);
+
+        // Enregistrer sur Firebase Firestore sur le compte
         if (typeof auth !== 'undefined' && auth.currentUser && typeof db !== 'undefined') {
             db.collection("users").doc(auth.currentUser.uid).update({
                 friends: firebase.firestore.FieldValue.arrayUnion(friendName)
-            }).catch(err => console.error("Erreur d'enregistrement Firebase :", err));
+            }).then(() => {
+                console.log("Ami sauvegardé sur le compte !");
+            }).catch(err => {
+                console.error("Erreur d'enregistrement d'ami:", err);
+            });
         }
     }
+
+    input.value = "";
 }
     
 function renderFriends(friendsList) {
