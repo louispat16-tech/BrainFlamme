@@ -989,10 +989,25 @@ function renderProfile() {
         }
     }
 
-    // 3. Alternatives de secours (LocalStorage / Variable globale)
-    if (!currentUsername && typeof username !== 'undefined') currentUsername = username;
-    if (!currentUsername && localStorage.getItem("username")) currentUsername = localStorage.getItem("username");
-    if (!currentUsername) currentUsername = "Joueur";
+    // À mettre au début ou dans le chargement du profil :
+if (auth.currentUser) {
+    db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+        if (doc.exists) {
+            const userData = doc.data();
+
+            // 1. Charger l'image depuis le compte
+            if (userData.avatar && document.getElementById("avatarImg")) {
+                document.getElementById("avatarImg").src = userData.avatar;
+            }
+
+            // 2. Charger les amis depuis le compte
+            if (userData.friends) {
+                myFriendsList = userData.friends;
+                renderFriends(myFriendsList);
+            }
+        }
+    });
+}
 
     // 4. Affichage sur la carte PROFIL (l'accueil reste inchangé)
     const nameEl = document.getElementById("profileUsername");
@@ -1028,15 +1043,26 @@ renderFriends(myFriendsList);
   
 }
 
-// 📷 Sauvegarde de la photo dans le LocalStorage
 function updateAvatar(event) {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const imageDataUrl = e.target.result;
+            
+            // 1. Mise à jour visuelle immédiate
             document.getElementById("avatarImg").src = imageDataUrl;
-            localStorage.setItem("userAvatar", imageDataUrl);
+            
+            // 2. Enregistrement en base de données sur le compte utilisateur (Firebase)
+            if (auth.currentUser) {
+                db.collection("users").doc(auth.currentUser.uid).update({
+                    avatar: imageDataUrl
+                }).then(() => {
+                    console.log("Avatar enregistré sur le compte !");
+                }).catch(err => {
+                    console.error("Erreur de sauvegarde de l'avatar :", err);
+                });
+            }
         };
         reader.readAsDataURL(file);
     }
@@ -1047,7 +1073,6 @@ if (typeof myFriendsList === 'undefined') {
     var myFriendsList = JSON.parse(localStorage.getItem("brainflamme_friends")) || [];
 }
 
-// ➕ AJOUTER UN AMI
 function addFriend() {
     const input = document.getElementById("friendInput");
     if (!input) return;
@@ -1055,21 +1080,28 @@ function addFriend() {
     const friendName = input.value.trim();
 
     if (friendName !== "") {
-        // Eviter les doublons
-        if (!myFriendsList.includes(friendName)) {
-            myFriendsList.push(friendName);
-            // Sauvegarde dans le navigateur
-            localStorage.setItem("brainflamme_friends", JSON.stringify(myFriendsList));
+        // Vérification de sécurité sur le compte
+        if (auth.currentUser) {
+            const userRef = db.collection("users").doc(auth.currentUser.uid);
+
+            // firebase.firestore.FieldValue.arrayUnion évite les doublons automatiquement
+            userRef.update({
+                friends: firebase.firestore.FieldValue.arrayUnion(friendName)
+            }).then(() => {
+                console.log("Ami ajouté au compte !");
+                // On met à jour le tableau local et le visuel
+                if (!myFriendsList.includes(friendName)) {
+                    myFriendsList.push(friendName);
+                }
+                renderFriends(myFriendsList);
+            }).catch(err => {
+                console.error("Erreur lors de l'ajout de l'ami :", err);
+            });
         }
 
-        // Vider le champ de saisie
         input.value = "";
-
-        // Mettre à jour l'affichage de la liste tout de suite !
-        renderFriends(myFriendsList);
     }
 }
-
 function renderFriends(friendsList) {
     const list = document.getElementById("friendsList");
     if (!list) return;
