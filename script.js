@@ -1016,8 +1016,8 @@ function renderProfile() {
         document.getElementById("profileCurrentFlame").textContent = stats.streak || 0;
     }
     if (document.getElementById("profileMaxFlame")) {
-        document.getElementById("profileMaxFlame").textContent = "🔥 " + (stats.streak || 0);
-    }
+    document.getElementById("profileMaxFlame").textContent = "🔥 " + (stats.maxStreak || stats.streak || 0);
+}
     if (document.getElementById("profileLevel")) {
         document.getElementById("profileLevel").textContent = "Niv. " + currentLevel;
     }
