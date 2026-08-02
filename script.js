@@ -915,3 +915,265 @@ function lancerQuestionBonus() {
 
     showQuestion();
 }
+// ==========================================
+// 👤 LOGIQUE DU PROFIL & DE LA PHOTO
+// ==========================================
+
+// 🔄 GESTION DES ONGLETS DE LA BARRE DU BAS
+function switchTab(screenId, clickedBtn) {
+    // 1. Liste de tous les écrans principaux à masquer
+    const allScreens = [
+        'login-screen', 
+        'home-screen', 
+        'shop-screen', 
+        'modeSelection', 
+        'quiz', 
+        'profile', 
+        'score', 
+        'leaderboard-screen'
+    ];
+
+    // 2. On masque tous les écrans
+    allScreens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = 'none';
+        }
+    });
+
+    // 3. On affiche UNIQUEMENT l'écran cliqué
+    const target = document.getElementById(screenId);
+    if (target) {
+        target.style.display = 'block';
+    }
+
+    // 4. On met à jour le bouton actif dans le menu du bas
+    const buttons = document.querySelectorAll('.bottom-nav .nav-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    if (clickedBtn) {
+        clickedBtn.classList.add('active');
+    }
+
+    // 5. Actions spécifiques selon l'onglet ouvert
+    if (screenId === 'home-screen' && typeof updateHome === 'function') {
+        updateHome();
+    } else if (screenId === 'shop-screen' && typeof updateShopDisplay === 'function') {
+        updateShopDisplay();
+    } else if (screenId === 'profile' && typeof renderProfile === 'function') {
+        renderProfile();
+    }
+}
+
+// 👤 MISE À JOUR DYNAMIQUE DU PROFIL
+function renderProfile() {
+    let currentUsername = "";
+
+    // 1. On essaie de récupérer le pseudo dans le champ de texte
+    const inputEl = document.getElementById("username-input");
+    if (inputEl && inputEl.value.trim() !== "") {
+        currentUsername = inputEl.value.trim();
+    }
+
+    // 2. Extraction et nettoyage strict du texte de l'accueil
+    if (!currentUsername) {
+        const welcomeEl = document.getElementById("welcome-user");
+        if (welcomeEl && welcomeEl.textContent) {
+            currentUsername = welcomeEl.textContent
+                .replace(/Salut/gi, "")
+                .replace(/Bienvenue/gi, "")
+                .replace(/Bonjour/gi, "")
+                .replace(/Coucou/gi, "")
+                .replace(/,/g, "")        // Enlève la virgule
+                .replace(/[!👋🔥]/g, "")   // Enlève émojis et ponctuation
+                .trim();                  // Enlève l'espace au début et à la fin
+        }
+    }
+
+    // 3. Alternatives de secours (LocalStorage / Variable globale)
+    if (!currentUsername && typeof username !== 'undefined') currentUsername = username;
+    if (!currentUsername && localStorage.getItem("username")) currentUsername = localStorage.getItem("username");
+    if (!currentUsername) currentUsername = "Joueur";
+
+    // 4. Affichage sur la carte PROFIL (l'accueil reste inchangé)
+    const nameEl = document.getElementById("profileUsername");
+    const tagEl = document.querySelector(".user-tag");
+    
+    if (nameEl) nameEl.textContent = currentUsername;
+    if (tagEl) tagEl.textContent = "@" + currentUsername.toLowerCase().replace(/\s+/g, '');
+
+    // 5. Statistiques du profil
+    const currentFlames = (typeof streak !== 'undefined') ? streak : 0;
+    const maxFlames = (typeof maxStreak !== 'undefined') ? maxStreak : 0;
+    const lvl = (typeof level !== 'undefined') ? level : 1;
+    const currentXp = (typeof xp !== 'undefined') ? xp : 0;
+    const maxXp = (typeof maxXpForLevel !== 'undefined') ? maxXpForLevel : 100;
+
+    if (document.getElementById("profileCurrentFlame")) document.getElementById("profileCurrentFlame").textContent = currentFlames;
+    if (document.getElementById("profileMaxFlame")) document.getElementById("profileMaxFlame").textContent = "🔥 " + maxFlames;
+    if (document.getElementById("profileLevel")) document.getElementById("profileLevel").textContent = "Niv. " + lvl;
+    if (document.getElementById("xpText")) document.getElementById("xpText").textContent = `${currentXp} / ${maxXp} XP`;
+
+    if (document.getElementById("xpBarFill")) {
+        let pct = (currentXp / maxXp) * 100;
+        document.getElementById("xpBarFill").style.width = Math.min(100, pct) + "%";
+    }
+
+    // Photo de profil
+    const savedAvatar = localStorage.getItem("userAvatar");
+    if (savedAvatar && document.getElementById("avatarImg")) {
+        document.getElementById("avatarImg").src = savedAvatar;
+    }
+// ⚠️ Assure-toi d'avoir cette ligne TOUT À LA FIN de ta fonction renderProfile() :
+renderFriends(myFriendsList);
+  
+}
+
+// 📷 Sauvegarde de la photo dans le LocalStorage
+function updateAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageDataUrl = e.target.result;
+            document.getElementById("avatarImg").src = imageDataUrl;
+            localStorage.setItem("userAvatar", imageDataUrl);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Variable globale pour stocker la liste des amis si 'stats' n'existe pas encore
+if (typeof myFriendsList === 'undefined') {
+    var myFriendsList = JSON.parse(localStorage.getItem("brainflamme_friends")) || [];
+}
+
+// ➕ AJOUTER UN AMI
+function addFriend() {
+    const input = document.getElementById("friendInput");
+    if (!input) return;
+    
+    const friendName = input.value.trim();
+
+    if (friendName !== "") {
+        // Eviter les doublons
+        if (!myFriendsList.includes(friendName)) {
+            myFriendsList.push(friendName);
+            // Sauvegarde dans le navigateur
+            localStorage.setItem("brainflamme_friends", JSON.stringify(myFriendsList));
+        }
+
+        // Vider le champ de saisie
+        input.value = "";
+
+        // Mettre à jour l'affichage de la liste tout de suite !
+        renderFriends(myFriendsList);
+    }
+}
+
+function renderFriends(friendsList) {
+    const list = document.getElementById("friendsList");
+    if (!list) return;
+    list.innerHTML = "";
+    
+    if (friendsList.length === 0) {
+        list.innerHTML = "<li style='color:#a6adc8; font-style:italic;'>Aucun ami ajouté</li>";
+        return;
+    }
+
+    friendsList.forEach(friend => {
+        const li = document.createElement("li");
+        li.style.cursor = "pointer";
+        li.style.display = "flex";
+        li.style.justify = "space-between";
+        li.style.alignItems = "center";
+        
+        // Clic sur l'ami pour voir son profil
+        li.onclick = function() {
+            showFriendProfile(friend);
+        };
+
+        li.innerHTML = `<span>👤 <strong>${friend}</strong></span> <span style="font-size:0.8rem; color:#f97316;">Voir ➔</span>`;
+        list.appendChild(li);
+    });
+}
+// Fonction pour mettre à jour la fonction show() d'origine
+const originalShow = window.show;
+window.show = function(screenId) {
+    // Liste de tous les écrans du jeu
+    const screens = ['login-screen', 'home-screen', 'shop-screen', 'modeSelection', 'quiz', 'profile', 'score', 'leaderboard-screen'];
+    
+    // On cache tous les écrans
+    screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    // On affiche uniquement l'écran demandé
+    const target = document.getElementById(screenId);
+    if (target) {
+        target.style.display = 'block';
+    }
+};
+
+// Gestion de la couleur orange sur le bouton de la barre active
+function setNavActive(clickedBtn) {
+    const buttons = document.querySelectorAll('.bottom-nav .nav-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    if (clickedBtn) {
+        clickedBtn.classList.add('active');
+    }
+}
+// 👤 AFFICHER LE PROFIL D'UN AMI
+function showFriendProfile(friendName) {
+    const nameEl = document.getElementById("profileUsername");
+    const tagEl = document.querySelector(".user-tag");
+    
+    if (nameEl) nameEl.textContent = friendName;
+    if (tagEl) tagEl.textContent = "@" + friendName.toLowerCase().replace(/\s+/g, '');
+
+    // Génère des stats fictives/aléatoires pour l'ami (ou lis-les depuis Firebase si tu les as)
+    const mockFlame = Math.floor(Math.random() * 20) + 1;
+    const mockLevel = Math.floor(Math.random() * 5) + 1;
+
+    if (document.getElementById("profileCurrentFlame")) document.getElementById("profileCurrentFlame").textContent = mockFlame;
+    if (document.getElementById("profileMaxFlame")) document.getElementById("profileMaxFlame").textContent = "🔥 " + (mockFlame + 5);
+    if (document.getElementById("profileLevel")) document.getElementById("profileLevel").textContent = "Niv. " + mockLevel;
+    if (document.getElementById("xpText")) document.getElementById("xpText").textContent = "50 / 100 XP";
+    if (document.getElementById("xpBarFill")) document.getElementById("xpBarFill").style.width = "50%";
+
+    // Photo par défaut pour l'ami
+    if (document.getElementById("avatarImg")) {
+        document.getElementById("avatarImg").src = "https://via.placeholder.com/100?text=" + friendName.charAt(0).toUpperCase();
+    }
+
+    // Cache la zone "Ajouter des amis" pendant qu'on consulte le profil d'un ami
+    const socialSec = document.querySelector(".social-section");
+    if (socialSec) {
+        socialSec.innerHTML = `
+            <button onclick="renderProfile(); restoreSocialSection();" style="width:100%; padding:10px; background:#f97316; border:none; border-radius:10px; color:white; font-weight:bold; cursor:pointer;">
+                ← Retour à Mon Profil
+            </button>
+        `;
+    }
+}
+
+// Restaure la boîte d'ajout d'amis quand on revient sur son profil
+function restoreSocialSection() {
+    const socialSec = document.querySelector(".social-section");
+    if (socialSec) {
+        socialSec.innerHTML = `
+            <h3>👥 Mes Amis</h3>
+            <div class="add-friend-box">
+                <input type="text" id="friendInput" placeholder="Entrer un pseudo...">
+                <button onclick="addFriend()">Ajouter</button>
+            </div>
+            <ul id="friendsList" class="friends-list"></ul>
+        `;
+        // Recharge la liste des amis
+        if (typeof stats !== 'undefined' && stats.friends) {
+            renderFriends(stats.friends);
+        } else {
+            renderFriends([]);
+        }
+    }
+}
