@@ -1025,14 +1025,7 @@ if (auth.currentUser) {
     });
 }
 
-    // 4. Affichage sur la carte PROFIL (l'accueil reste inchangé)
-    const nameEl = document.getElementById("profileUsername");
-    const tagEl = document.querySelector(".user-tag");
-    
-    if (nameEl) nameEl.textContent = currentUsername;
-    if (tagEl) tagEl.textContent = "@" + currentUsername.toLowerCase().replace(/\s+/g, '');
-
-    // 5. Statistiques du profil
+        // 5. Statistiques du profil
     const currentFlames = (typeof streak !== 'undefined') ? streak : 0;
     const maxFlames = (typeof maxStreak !== 'undefined') ? maxStreak : 0;
     const lvl = (typeof level !== 'undefined') ? level : 1;
