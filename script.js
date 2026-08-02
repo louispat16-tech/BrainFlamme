@@ -978,16 +978,8 @@ function switchTab(screenId, clickedBtn) {
 
 // 👤 MISE À JOUR DYNAMIQUE DU PROFIL
 function renderProfile() {
-    let currentUsername = "Joueur";
-
-    // 1. Récupération du pseudo exact
-    if (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.displayName) {
-        currentUsername = auth.currentUser.displayName;
-    } else if (typeof username !== 'undefined' && username) {
-        currentUsername = username;
-    } else if (localStorage.getItem("username")) {
-        currentUsername = localStorage.getItem("username");
-    }
+    // 1. Récupération du pseudo
+    const currentUsername = localStorage.getItem("brainflamme_user") || "Joueur";
 
     // Affichage Pseudo & Tag
     const nameEl = document.getElementById("profileUsername");
@@ -995,61 +987,36 @@ function renderProfile() {
     if (nameEl) nameEl.textContent = currentUsername;
     if (tagEl) tagEl.textContent = "@" + currentUsername.toLowerCase().replace(/\s+/g, '');
 
-    // 2. Mise à jour de la barre d'XP
-    const currentXp = (typeof xp !== 'undefined') ? xp : 0;
-    const maxXp = (typeof maxXpForLevel !== 'undefined') ? maxXpForLevel : 100;
-    
-    let percentage = (maxXp > 0) ? (currentXp / maxXp) * 100 : 0;
-    percentage = Math.min(100, Math.max(0, percentage));
+    // 2. Mise à jour de la barre d'XP (basée sur l'objet stats)
+    const currentXp = (stats && stats.xp) ? stats.xp : 0;
+    const currentLevel = (stats && stats.level) ? stats.level : 1;
+    const currentProgression = (stats && stats.progression) ? (stats.progression % 100) : (currentXp % 100);
 
     if (document.getElementById("xpText")) {
-        document.getElementById("xpText").textContent = `${currentXp} / ${maxXp} XP`;
+        document.getElementById("xpText").textContent = `${currentProgression} / 100 XP`;
     }
     if (document.getElementById("xpBarFill")) {
-        document.getElementById("xpBarFill").style.width = percentage + "%";
+        document.getElementById("xpBarFill").style.width = currentProgression + "%";
     }
 
     // 3. Stats (Flammes / Niveau)
     if (document.getElementById("profileCurrentFlame")) {
-        document.getElementById("profileCurrentFlame").textContent = (typeof streak !== 'undefined') ? streak : 0;
+        document.getElementById("profileCurrentFlame").textContent = stats.streak || 0;
     }
     if (document.getElementById("profileMaxFlame")) {
-        document.getElementById("profileMaxFlame").textContent = "🔥 " + ((typeof maxStreak !== 'undefined') ? maxStreak : 0);
+        document.getElementById("profileMaxFlame").textContent = "🔥 " + (stats.streak || 0);
     }
     if (document.getElementById("profileLevel")) {
-        document.getElementById("profileLevel").textContent = "Niv. " + ((typeof level !== 'undefined') ? level : 1);
+        document.getElementById("profileLevel").textContent = "Niv. " + currentLevel;
     }
 
-    // 4. CHARGEMENT DEPUIS LE COMPTE FIREBASE (Avatar & Amis)
-    if (typeof auth !== 'undefined' && auth.currentUser && typeof db !== 'undefined') {
-        db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-
-                // Charger le vrai pseudo du compte si présent
-                if (data.username && nameEl) {
-                    nameEl.textContent = data.username;
-                    if (tagEl) tagEl.textContent = "@" + data.username.toLowerCase().replace(/\s+/g, '');
-                }
-
-                // Charger l'avatar du compte
-                if (data.avatar && document.getElementById("avatarImg")) {
-                    document.getElementById("avatarImg").src = data.avatar;
-                }
-
-                // Charger la liste d'amis du compte
-                if (data.friends) {
-                    window.myFriendsList = data.friends;
-                    renderFriends(window.myFriendsList);
-                }
-            }
-        }).catch(err => console.error("Erreur Firebase Profil:", err));
-    } else {
-        // Mode secours (si hors-ligne)
-        if (typeof window.myFriendsList !== 'undefined') {
-            renderFriends(window.myFriendsList);
-        }
+    // 4. Charger l'avatar et les amis depuis les stats
+    if (stats.avatar && document.getElementById("avatarImg")) {
+        document.getElementById("avatarImg").src = stats.avatar;
     }
+
+    if (!stats.friends) stats.friends = [];
+    renderFriends(stats.friends);
 }
 
 function updateAvatar(event) {
@@ -1059,27 +1026,17 @@ function updateAvatar(event) {
         reader.onload = function(e) {
             const imageDataUrl = e.target.result;
             
-            // 1. Mise à jour visuelle immédiate
-            document.getElementById("avatarImg").src = imageDataUrl;
+            // 1. Mise à jour visuelle
+            const img = document.getElementById("avatarImg");
+            if (img) img.src = imageDataUrl;
             
-            // 2. Enregistrement en base de données sur le compte utilisateur (Firebase)
-            if (auth.currentUser) {
-                db.collection("users").doc(auth.currentUser.uid).update({
-                    avatar: imageDataUrl
-                }).then(() => {
-                    console.log("Avatar enregistré sur le compte !");
-                }).catch(err => {
-                    console.error("Erreur de sauvegarde de l'avatar :", err);
-                });
-            }
+            // 2. Enregistrement dans les stats
+            stats.avatar = imageDataUrl;
+            saveUserStats();
+            console.log("🔥 Avatar enregistré avec succès !");
         };
         reader.readAsDataURL(file);
     }
-}
-
-// Variable globale pour stocker la liste des amis si 'stats' n'existe pas encore
-if (typeof myFriendsList === 'undefined') {
-    var myFriendsList = JSON.parse(localStorage.getItem("brainflamme_friends")) || [];
 }
 
 function addFriend() {
@@ -1089,13 +1046,8 @@ function addFriend() {
     const friendName = input.value.trim();
     if (friendName === "") return;
 
-    // ⛔ SÉCURITÉ : Récupérer son propre pseudo
-    let myOwnName = "";
-    if (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.displayName) {
-        myOwnName = auth.currentUser.displayName;
-    } else if (typeof username !== 'undefined') {
-        myOwnName = username;
-    }
+    // ⛔ SÉCURITÉ : Récupérer son propre pseudo dans localStorage
+    const myOwnName = localStorage.getItem("brainflamme_user") || "";
 
     // Si on essaie de s'ajouter soi-même
     if (myOwnName && friendName.toLowerCase() === myOwnName.toLowerCase()) {
@@ -1104,27 +1056,20 @@ function addFriend() {
         return;
     }
 
-    if (typeof window.myFriendsList === 'undefined') {
-        window.myFriendsList = [];
-    }
+    if (!stats.friends) stats.friends = [];
 
     // Éviter les doublons
-    if (!window.myFriendsList.includes(friendName)) {
-        window.myFriendsList.push(friendName);
+    if (!stats.friends.some(f => f.toLowerCase() === friendName.toLowerCase())) {
+        stats.friends.push(friendName);
         
         // Mettre à jour l'affichage
-        renderFriends(window.myFriendsList);
+        renderFriends(stats.friends);
 
-        // Enregistrer sur Firebase Firestore sur le compte
-        if (typeof auth !== 'undefined' && auth.currentUser && typeof db !== 'undefined') {
-            db.collection("users").doc(auth.currentUser.uid).update({
-                friends: firebase.firestore.FieldValue.arrayUnion(friendName)
-            }).then(() => {
-                console.log("Ami sauvegardé sur le compte !");
-            }).catch(err => {
-                console.error("Erreur d'enregistrement d'ami:", err);
-            });
-        }
+        // Sauvegarder dans Firebase Realtime Database
+        saveUserStats();
+        alert(`Ami ${friendName} ajouté avec succès !`);
+    } else {
+        alert("Cet ami est déjà dans ta liste !");
     }
 
     input.value = "";
