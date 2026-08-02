@@ -402,6 +402,10 @@ document.getElementById("chronoMode").onclick = () => {
     show("quiz");
     showQuestion();
 };
+// Remet l'avatar sauvegardé à l'écran s'il existe
+if (stats.avatar && document.getElementById("avatarImg")) {
+    document.getElementById("avatarImg").src = stats.avatar;
+}
 
 // Mode Quotidien (Corrigé : charge questionsData au lieu de dailyQuestions inexistant)
 document.getElementById("dailyMode").onclick = () => {
@@ -875,8 +879,8 @@ function updateShopDisplay() {
 }
 
 function updateHome() {
-    const titleIndex = Math.min(Math.floor(stats.level / 10), 6);
-    const user = localStorage.getItem("brainflamme_user");
+    const titleIndex = Math.min(Math.floor((stats.level || 1) / 10), 6);
+    const user = localStorage.getItem("brainflamme_user") || "Joueur";
     
     const welcomeElem = document.getElementById("welcome-user");
     const rankElem = document.getElementById("player-level");
@@ -886,32 +890,27 @@ function updateHome() {
     if (welcomeElem) {
         welcomeElem.textContent = "Salut, " + user;
         
-        if (stats.nameColor && stats.nameColor !== "") {
-            welcomeElem.classList.remove("default-style");
+        if (stats.nameColor) {
             welcomeElem.style.webkitTextFillColor = stats.nameColor; 
             welcomeElem.style.color = stats.nameColor;
-        } else {
-            welcomeElem.classList.add("default-style");
         }
 
         if (stats.hasAura) {
             welcomeElem.style.textShadow = "0 0 15px #22d3ee, 0 0 5px #22d3ee";
-            welcomeElem.style.fontWeight = "bold";
-        } else {
-            welcomeElem.style.textShadow = "none";
         }
     }
 
     if (rankElem) {
-        rankElem.textContent = "Niveau " + stats.level + " - " + titles[titleIndex];
+        rankElem.textContent = "Niveau " + (stats.level || 1) + " - " + titles[titleIndex];
         rankElem.style.color = stats.rankColor ? stats.rankColor : "#fbbf24";
     }
 
-    if (streakElem) streakElem.textContent = stats.streak;
+    if (streakElem) streakElem.textContent = stats.streak || 0;
 
+    // 🎯 Calcul propre et sécurisé de la barre de progression (0 à 100%)
     if (xpBar) {
-        const currentLevelProgression = stats.progression % 100; 
-        xpBar.style.width = currentLevelProgression + "%";
+        const currentXP = (stats.progression || 0) % 100;
+        xpBar.style.width = Math.min(100, Math.max(0, currentXP)) + "%";
     }
 }
 
