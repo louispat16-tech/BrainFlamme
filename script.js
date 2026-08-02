@@ -699,13 +699,17 @@ function continuerAffichageScore(gain) {
 
     if (typeof updateShopDisplay === "function") updateShopDisplay();
 
+    // 🎯 Animation de la barre DE FIN DE QUIZ
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
         if (bar) {
-            const currentLevelXP = stats.progression % 100; 
+            const currentLevelXP = (stats.progression || 0) % 100; 
             bar.style.width = currentLevelXP + "%";
         }
     }, 100);
+
+    // 🎯 MISE À JOUR SYNC : On met aussi à jour la barre de l'ÉCRAN D'ACCUEIL
+    updateHome();
 
     if (score === nbQuestionsPosees && selectedMode === "Quotidien" && typeof lancerConfettis === "function") {
         lancerConfettis();
