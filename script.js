@@ -330,28 +330,32 @@ function loadUserStatsFromCloud(username) {
             if (stats.progression === undefined) stats.progression = stats.xp;
             if (stats.hasAura === undefined) stats.hasAura = false;
 
-            const lastDateStr = localStorage.getItem("daily_done_" + username);
-            if (lastDateStr) {
-                const lastDate = new Date(lastDateStr);
-                const today = new Date();
-                
-                lastDate.setHours(0,0,0,0);
-                today.setHours(0,0,0,0);
-                
-                const diffTime = today - lastDate;
-                const diffDays = diffTime / (1000 * 60 * 60 * 24);
-                
-                if (diffDays > 1) {
-                    if (stats.shields > 0) {
-                        stats.shields--; 
-                        alert("🛡️ Ton bouclier a été utilisé ! Ta flamme est sauvée.");
-                    } else {
-                        stats.streak = 0; 
-                        alert("🔥 Ta flamme s'est éteinte car tu n'as pas joué hier.");
-                    }
-                    saveUserStats(); 
-                }
-            }
+// --- DANS loadUserStatsFromCloud() ---
+const lastDateStr = stats.lastDailyDate || localStorage.getItem("daily_done_" + username);
+
+if (lastDateStr) {
+    const lastDate = new Date(lastDateStr);
+    const today = new Date();
+    
+    // On met l'heure à minuit pour comparer uniquement les jours
+    lastDate.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+    
+    const diffTime = today - lastDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Si plus d'1 jour s'est écoulé sans jouer
+    if (diffDays > 1) {
+        if (stats.shields && stats.shields > 0) {
+            stats.shields--; 
+            alert("🛡️ Ton bouclier a été utilisé ! Ta flamme est sauvée.");
+        } else {
+            stats.streak = 0; 
+            alert("🔥 Ta flamme s'est éteinte car tu n'as pas joué hier.");
+        }
+        saveUserStats(); 
+    }
+}
         } else {
             chargerStatsLocales(username);
         }
@@ -649,15 +653,23 @@ if (typeof bonusSuccess !== "undefined" && bonusSuccess) {
         stats.level++;
     }
 
-    if (selectedMode === "Quotidien") {
-        const user = localStorage.getItem("brainflamme_user");
-        localStorage.setItem("daily_done_" + user, new Date().toLocaleDateString());
-        
-        stats.streak = (stats.streak || 0) + 1;
-        stats.lastPlayDate = new Date().toDateString(); 
-        
-        checkDailyStatus();
+    // --- DANS endQuiz() ---
+if (selectedMode === "Quotidien") {
+    const todayISO = new Date().toISOString().split('T')[0]; // Format standard YYYY-MM-DD
+    
+    stats.lastDailyDate = todayISO;
+    stats.streak = (stats.streak || 0) + 1;
+    
+    // Mise à jour du record historique (maxStreak)
+    if (!stats.maxStreak || stats.streak > stats.maxStreak) {
+        stats.maxStreak = stats.streak;
     }
+
+    const user = localStorage.getItem("brainflamme_user");
+    localStorage.setItem("daily_done_" + user, todayISO);
+    
+    checkDailyStatus();
+}
 
     saveUserStats();
     continuerAffichageScore(gain);
