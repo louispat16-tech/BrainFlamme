@@ -117,6 +117,85 @@
             <div id="answers" class="answers-grid"></div>
             <div id="explanation-container"></div>
         </div>
+      
+     <div id="profile" class="screen" style="display: none;">
+  <div class="profile-card">
+    
+    <div class="profile-header">
+      <div class="avatar-container" onclick="document.getElementById('avatarInput').click()">
+        <img id="avatarImg" src="https://via.placeholder.com/100?text=Photo" alt="Avatar">
+        <div class="avatar-overlay">📷 Modif.</div>
+      </div>
+      <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="updateAvatar(event)">
+      
+      <div class="user-info">
+        <h2 id="profileUsername">PseudoJoueur</h2>
+        <span class="user-tag">@joueur</span>
+      </div>
+    </div>
+
+    <div class="flame-section">
+      <div class="flame-badge">
+        <span class="flame-icon">🔥</span>
+        <span id="profileCurrentFlame" class="flame-count">0</span>
+      </div>
+      <p class="flame-label">Flammes Actuelles</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-title">Record de Flammes</span>
+        <span id="profileMaxFlame" class="stat-value">🔥 0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-title">Niveau Actuel</span>
+        <span id="profileLevel" class="stat-value">Niv. 1</span>
+      </div>
+    </div>
+
+    <div class="xp-section">
+      <div class="xp-header">
+        <span>Progression XP</span>
+        <span id="xpText">0 / 100 XP</span>
+      </div>
+      <div class="xp-bar-bg">
+        <div id="xpBarFill" class="xp-bar-fill" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <div class="social-section">
+      <h3>👥 Mes Amis</h3>
+      <div class="add-friend-box">
+        <input type="text" id="friendInput" placeholder="Entrer un pseudo...">
+        <button onclick="addFriend()">Ajouter</button>
+      </div>
+      <ul id="friendsList" class="friends-list"></ul>
+    </div>
+
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="show('home-screen'); updateHome(); setNavActive(this);">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Accueil</span>
+  </button>
+  
+  <button class="nav-btn" onclick="show('shop-screen'); updateShopDisplay(); setNavActive(this);">
+    <span class="nav-icon">🛒</span>
+    <span class="nav-label">Boutique</span>
+  </button>
+  
+  <button class="nav-btn" onclick="show('leaderboard-screen'); setNavActive(this);">
+    <span class="nav-icon">🏆</span>
+    <span class="nav-label">Classement</span>
+  </button>
+  
+  <button class="nav-btn" onclick="show('profile'); renderProfile(); setNavActive(this);">
+    <span class="nav-icon">👤</span>
+    <span class="nav-label">Profil</span>
+  </button>
+</nav>
 
         <div id="score" class="screen" style="display:none;">
     <h2 style="font-size:40px; margin-bottom:10px; color:white;">Résultat</h2>
@@ -154,21 +233,6 @@
                 <button onclick="show('home-screen')" class="play" style="margin-top: 30px;">RETOUR</button>
             </div>
         </div>
-
-    </div> <nav id="main-nav" class="bottom-nav" style="display:none;">
-        <div class="nav-item" onclick="show('home-screen'); updateHome();">
-            <span>🏠</span>
-            <p>Accueil</p>
-        </div>
-        <div class="nav-item" onclick="show('shop-screen'); updateShopDisplay();">
-            <span>🛒</span>
-            <p>Boutique</p>
-        </div>
-        <div class="nav-item" onclick="show('leaderboard-screen')">
-            <span>🏆</span>
-            <p>Classement</p>
-        </div>
-    </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
