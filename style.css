@@ -61,21 +61,19 @@ body {
     margin-bottom: 10px; 
 }
 
-/* Le conteneur de la barre */
 .xp-bar-bg {
   width: 100%;
   height: 14px;
   background: #0f0f17;
-  border-radius: 10px; /* Arrondi du fond */
-  overflow: hidden;    /* 👈 CRUCIAL : Coupe tout ce qui dépasse (empêche les angles droits !) */
+  border-radius: 10px;
+  overflow: hidden; /* 👈 Bloque les coins droits pour qu'ils restent bien arrondis */
 }
 
-/* La barre de remplissage colorée */
 .xp-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, #f97316, #a855f7);
-  border-radius: 10px; /* Arrondi identique */
-  transition: width 0.5s ease-out;
+  border-radius: 10px;
+  transition: width 0.3s ease;
 }
 
 .main-flame { 
