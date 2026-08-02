@@ -1036,22 +1036,35 @@ function renderProfile() {
 
 function updateAvatar(event) {
     const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const imageDataUrl = e.target.result;
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Redimensionner l'image en 150x150 max pour Firebase Realtime DB
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = 150;
+            canvas.height = 150;
+
+            ctx.drawImage(img, 0, 0, 150, 150);
             
-            // 1. Mise à jour visuelle
-            const img = document.getElementById("avatarImg");
-            if (img) img.src = imageDataUrl;
-            
-            // 2. Enregistrement dans les stats
-            stats.avatar = imageDataUrl;
+            // Conversion en JPEG compressé
+            const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+
+            // 1. Affichage visuel immédiat
+            const avatarElem = document.getElementById("avatarImg");
+            if (avatarElem) avatarElem.src = compressedBase64;
+
+            // 2. Sauvegarde dans les stats et sur Firebase
+            stats.avatar = compressedBase64;
             saveUserStats();
-            console.log("🔥 Avatar enregistré avec succès !");
+            console.log("🔥 Avatar compressé et synchronisé sur Firebase !");
         };
-        reader.readAsDataURL(file);
-    }
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
 }
 
 function addFriend() {
@@ -1151,22 +1164,43 @@ function showFriendProfile(friendName) {
     if (nameEl) nameEl.textContent = friendName;
     if (tagEl) tagEl.textContent = "@" + friendName.toLowerCase().replace(/\s+/g, '');
 
-    // Génère des stats fictives/aléatoires pour l'ami (ou lis-les depuis Firebase si tu les as)
-    const mockFlame = Math.floor(Math.random() * 20) + 1;
-    const mockLevel = Math.floor(Math.random() * 5) + 1;
+    // 🔄 Téléchargement des VRAIES données de l'ami sur Firebase
+    if (typeof database !== "undefined" && database) {
+        database.ref('joueurs/' + friendName).once('value').then((snapshot) => {
+            const friendStats = snapshot.val();
 
-    if (document.getElementById("profileCurrentFlame")) document.getElementById("profileCurrentFlame").textContent = mockFlame;
-    if (document.getElementById("profileMaxFlame")) document.getElementById("profileMaxFlame").textContent = "🔥 " + (mockFlame + 5);
-    if (document.getElementById("profileLevel")) document.getElementById("profileLevel").textContent = "Niv. " + mockLevel;
-    if (document.getElementById("xpText")) document.getElementById("xpText").textContent = "50 / 100 XP";
-    if (document.getElementById("xpBarFill")) document.getElementById("xpBarFill").style.width = "50%";
+            if (friendStats) {
+                // 1. Mise à jour des flammes / niveau réels
+                if (document.getElementById("profileCurrentFlame")) {
+                    document.getElementById("profileCurrentFlame").textContent = friendStats.streak || 0;
+                }
+                if (document.getElementById("profileMaxFlame")) {
+                    document.getElementById("profileMaxFlame").textContent = "🔥 " + (friendStats.maxStreak || friendStats.streak || 0);
+                }
+                if (document.getElementById("profileLevel")) {
+                    document.getElementById("profileLevel").textContent = "Niv. " + (friendStats.level || 1);
+                }
 
-    // Photo par défaut pour l'ami
-    if (document.getElementById("avatarImg")) {
-        document.getElementById("avatarImg").src = "https://via.placeholder.com/100?text=" + friendName.charAt(0).toUpperCase();
+                // 2. Progression d'XP réelle
+                const currentProgression = (friendStats.progression !== undefined) ? (friendStats.progression % 100) : 0;
+                if (document.getElementById("xpText")) {
+                    document.getElementById("xpText").textContent = currentProgression + " / 100 XP";
+                }
+                if (document.getElementById("xpBarFill")) {
+                    document.getElementById("xpBarFill").style.width = currentProgression + "%";
+                }
+
+                // 3. Avatar réel de l'ami
+                if (document.getElementById("avatarImg")) {
+                    document.getElementById("avatarImg").src = friendStats.avatar || "https://via.placeholder.com/100?text=" + friendName.charAt(0).toUpperCase();
+                }
+            } else {
+                alert("Impossible de trouver les données de cet ami.");
+            }
+        }).catch(err => console.error("Erreur chargement ami :", err));
     }
 
-    // Cache la zone "Ajouter des amis" pendant qu'on consulte le profil d'un ami
+    // Bouton pour revenir à son propre profil
     const socialSec = document.querySelector(".social-section");
     if (socialSec) {
         socialSec.innerHTML = `
