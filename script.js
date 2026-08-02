@@ -966,7 +966,6 @@ function switchTab(screenId, clickedBtn) {
 
 // 👤 MISE À JOUR DYNAMIQUE DU PROFIL
 function renderProfile() {
-    function renderProfile() {
     let currentUsername = "";
 
     // 1. Récupération du pseudo (Firebase / Variables / LocalStorage)
@@ -1000,56 +999,44 @@ function renderProfile() {
         document.getElementById("xpBarFill").style.width = percentage + "%";
     }
 
-    // 4. Charger la liste d'amis
-    if (typeof myFriendsList !== 'undefined') {
-        renderFriends(myFriendsList);
-    }
-
-    // À mettre au début ou dans le chargement du profil :
-if (auth.currentUser) {
-    db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
-        if (doc.exists) {
-            const userData = doc.data();
-
-            // 1. Charger l'image depuis le compte
-            if (userData.avatar && document.getElementById("avatarImg")) {
-                document.getElementById("avatarImg").src = userData.avatar;
-            }
-
-            // 2. Charger les amis depuis le compte
-            if (userData.friends) {
-                myFriendsList = userData.friends;
-                renderFriends(myFriendsList);
-            }
-        }
-    });
-}
-
-        // 5. Statistiques du profil
+    // 4. Statistiques complémentaires (Flammes, Niveau)
     const currentFlames = (typeof streak !== 'undefined') ? streak : 0;
     const maxFlames = (typeof maxStreak !== 'undefined') ? maxStreak : 0;
     const lvl = (typeof level !== 'undefined') ? level : 1;
-    const currentXp = (typeof xp !== 'undefined') ? xp : 0;
-    const maxXp = (typeof maxXpForLevel !== 'undefined') ? maxXpForLevel : 100;
 
     if (document.getElementById("profileCurrentFlame")) document.getElementById("profileCurrentFlame").textContent = currentFlames;
     if (document.getElementById("profileMaxFlame")) document.getElementById("profileMaxFlame").textContent = "🔥 " + maxFlames;
     if (document.getElementById("profileLevel")) document.getElementById("profileLevel").textContent = "Niv. " + lvl;
-    if (document.getElementById("xpText")) document.getElementById("xpText").textContent = `${currentXp} / ${maxXp} XP`;
 
-    if (document.getElementById("xpBarFill")) {
-        let pct = (currentXp / maxXp) * 100;
-        document.getElementById("xpBarFill").style.width = Math.min(100, pct) + "%";
-    }
+    // 5. Chargement des données Firebase (Avatar & Amis depuis le compte)
+    if (typeof auth !== 'undefined' && auth.currentUser && typeof db !== 'undefined') {
+        db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+            if (doc.exists) {
+                const userData = doc.data();
 
-    // Photo de profil
-    const savedAvatar = localStorage.getItem("userAvatar");
-    if (savedAvatar && document.getElementById("avatarImg")) {
-        document.getElementById("avatarImg").src = savedAvatar;
+                // Charger l'avatar
+                if (userData.avatar && document.getElementById("avatarImg")) {
+                    document.getElementById("avatarImg").src = userData.avatar;
+                }
+
+                // Charger la liste d'amis
+                if (userData.friends) {
+                    window.myFriendsList = userData.friends;
+                    renderFriends(myFriendsList);
+                }
+            }
+        }).catch(err => console.error("Erreur chargement profil Firebase:", err));
+    } else {
+        // En secours si Firebase n'est pas actif localement
+        const savedAvatar = localStorage.getItem("userAvatar");
+        if (savedAvatar && document.getElementById("avatarImg")) {
+            document.getElementById("avatarImg").src = savedAvatar;
+        }
+
+        if (typeof myFriendsList !== 'undefined') {
+            renderFriends(myFriendsList);
+        }
     }
-// ⚠️ Assure-toi d'avoir cette ligne TOUT À LA FIN de ta fonction renderProfile() :
-renderFriends(myFriendsList);
-  
 }
 
 function updateAvatar(event) {
