@@ -966,27 +966,43 @@ function switchTab(screenId, clickedBtn) {
 
 // 👤 MISE À JOUR DYNAMIQUE DU PROFIL
 function renderProfile() {
+    function renderProfile() {
     let currentUsername = "";
 
-    // 1. On essaie de récupérer le pseudo dans le champ de texte
-    const inputEl = document.getElementById("username-input");
-    if (inputEl && inputEl.value.trim() !== "") {
-        currentUsername = inputEl.value.trim();
+    // 1. Récupération du pseudo (Firebase / Variables / LocalStorage)
+    if (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.displayName) {
+        currentUsername = auth.currentUser.displayName;
+    } else if (typeof username !== 'undefined' && username) {
+        currentUsername = username;
+    } else if (typeof stats !== 'undefined' && stats.username) {
+        currentUsername = stats.username;
+    } else {
+        currentUsername = localStorage.getItem("username") || "Joueur";
     }
 
-    // 2. Extraction et nettoyage strict du texte de l'accueil
-    if (!currentUsername) {
-        const welcomeEl = document.getElementById("welcome-user");
-        if (welcomeEl && welcomeEl.textContent) {
-            currentUsername = welcomeEl.textContent
-                .replace(/Salut/gi, "")
-                .replace(/Bienvenue/gi, "")
-                .replace(/Bonjour/gi, "")
-                .replace(/Coucou/gi, "")
-                .replace(/,/g, "")        // Enlève la virgule
-                .replace(/[!👋🔥]/g, "")   // Enlève émojis et ponctuation
-                .trim();                  // Enlève l'espace au début et à la fin
-        }
+    // 2. Affichage du pseudo sur la carte
+    const nameEl = document.getElementById("profileUsername");
+    const tagEl = document.querySelector(".user-tag");
+    if (nameEl) nameEl.textContent = currentUsername;
+    if (tagEl) tagEl.textContent = "@" + currentUsername.toLowerCase().replace(/\s+/g, '');
+
+    // 3. Calcul et affichage de la barre de niveau (XP)
+    const currentXp = (typeof xp !== 'undefined') ? xp : ((typeof stats !== 'undefined' && stats.xp) ? stats.xp : 0);
+    const maxXp = (typeof maxXpForLevel !== 'undefined') ? maxXpForLevel : 100;
+    
+    let percentage = (currentXp / maxXp) * 100;
+    percentage = Math.min(100, Math.max(0, percentage)); // Limite entre 0 et 100%
+
+    if (document.getElementById("xpText")) {
+        document.getElementById("xpText").textContent = `${currentXp} / ${maxXp} XP`;
+    }
+    if (document.getElementById("xpBarFill")) {
+        document.getElementById("xpBarFill").style.width = percentage + "%";
+    }
+
+    // 4. Charger la liste d'amis
+    if (typeof myFriendsList !== 'undefined') {
+        renderFriends(myFriendsList);
     }
 
     // À mettre au début ou dans le chargement du profil :
@@ -1080,28 +1096,31 @@ function addFriend() {
     const friendName = input.value.trim();
 
     if (friendName !== "") {
-        // Vérification de sécurité sur le compte
-        if (auth.currentUser) {
-            const userRef = db.collection("users").doc(auth.currentUser.uid);
-
-            // firebase.firestore.FieldValue.arrayUnion évite les doublons automatiquement
-            userRef.update({
-                friends: firebase.firestore.FieldValue.arrayUnion(friendName)
-            }).then(() => {
-                console.log("Ami ajouté au compte !");
-                // On met à jour le tableau local et le visuel
-                if (!myFriendsList.includes(friendName)) {
-                    myFriendsList.push(friendName);
-                }
-                renderFriends(myFriendsList);
-            }).catch(err => {
-                console.error("Erreur lors de l'ajout de l'ami :", err);
-            });
+        // S'assurer que le tableau des amis existe
+        if (typeof myFriendsList === 'undefined') {
+            window.myFriendsList = [];
         }
 
+        // 1. Ajout immédiat dans le tableau local
+        if (!myFriendsList.includes(friendName)) {
+            myFriendsList.push(friendName);
+        }
+
+        // 2. Réinitialiser le champ texte
         input.value = "";
+
+        // 3. Forcer le réaffichage de la liste d'amis
+        renderFriends(myFriendsList);
+
+        // 4. Sauvegarde sur Firebase (sur le compte de l'utilisateur)
+        if (typeof auth !== 'undefined' && auth.currentUser && typeof db !== 'undefined') {
+            db.collection("users").doc(auth.currentUser.uid).update({
+                friends: firebase.firestore.FieldValue.arrayUnion(friendName)
+            }).catch(err => console.error("Erreur d'enregistrement Firebase :", err));
+        }
     }
 }
+    
 function renderFriends(friendsList) {
     const list = document.getElementById("friendsList");
     if (!list) return;
