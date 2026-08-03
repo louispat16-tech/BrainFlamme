@@ -1124,39 +1124,48 @@ function updateAvatar(event) {
 }
 
 function addFriend() {
-    const input = document.getElementById("friendInput");
-    if (!input) return;
-    
-    const friendName = input.value.trim();
-    if (friendName === "") return;
+    const friendInput = document.getElementById("friendInput");
+    if (!friendInput) return;
 
-    // ⛔ SÉCURITÉ : Récupérer son propre pseudo dans localStorage
-    const myOwnName = localStorage.getItem("brainflamme_user") || "";
+    const friendName = friendInput.value.trim();
+    const currentUser = localStorage.getItem("brainflamme_user");
 
-    // Si on essaie de s'ajouter soi-même
-    if (myOwnName && friendName.toLowerCase() === myOwnName.toLowerCase()) {
-        alert("Vous ne pouvez pas vous ajouter vous-même en ami !");
-        input.value = "";
+    if (!friendName) {
+        alert("⚠️ Merci de saisir un pseudo.");
+        return;
+    }
+
+    if (friendName.toLowerCase() === currentUser.toLowerCase()) {
+        alert("⚠️ Tu ne peux pas t'ajouter toi-même en ami !");
         return;
     }
 
     if (!stats.friends) stats.friends = [];
 
-    // Éviter les doublons
-    if (!stats.friends.some(f => f.toLowerCase() === friendName.toLowerCase())) {
-        stats.friends.push(friendName);
-        
-        // Mettre à jour l'affichage
-        renderFriends(stats.friends);
-
-        // Sauvegarder dans Firebase Realtime Database
-        saveUserStats();
-        alert(`Ami ${friendName} ajouté avec succès !`);
-    } else {
-        alert("Cet ami est déjà dans ta liste !");
+    if (stats.friends.includes(friendName)) {
+        alert("⚠️ Ce joueur est déjà dans ta liste d'amis.");
+        return;
     }
 
-    input.value = "";
+    // 🔍 VÉRIFICATION DANS FIREBASE
+    if (typeof database !== "undefined" && database) {
+        database.ref('joueurs/' + friendName).once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                // 🛑 Le joueur existe ! On l'ajoute.
+                stats.friends.push(friendName);
+                saveUserStats();
+                friendInput.value = "";
+                alert(`✅ ${friendName} a été ajouté à tes amis !`);
+                if (typeof renderFriendsList === "function") renderFriendsList();
+            } else {
+                // ❌ Le joueur n'existe pas dans la BDD.
+                alert(`❌ Le joueur "${friendName}" n'existe pas !`);
+            }
+        }).catch(err => {
+            console.error("Erreur vérification ami :", err);
+            alert("Erreur de connexion lors de la recherche du joueur.");
+        });
+    }
 }
     
 function renderFriends(friendsList) {
