@@ -636,111 +636,98 @@ function showQuestion() {
 // ==========================================
 // 1. FIN DU QUIZ (Avec Confettis 5/5 & Sécurité Quotidien)
 // ==========================================
-function endQuiz() {
-    clearInterval(timerInterval);
-    if (typeof dailyTimerInterval !== "undefined") clearInterval(dailyTimerInterval);
+function openChest(selectedIndex) {
+    if (chestOpenedToday) return;
+    chestOpenedToday = true;
 
-    if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
-    if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
-    if (isNaN(stats.level) || !stats.level) stats.level = 1;
+    const chests = document.querySelectorAll(".chest-card");
+    chests.forEach(c => c.style.pointerEvents = "none");
 
-    let gain = score * 10; 
+    const rand = Math.random() * 100;
+    let rewardText = "";
 
-    if (typeof bonusSuccess !== "undefined" && bonusSuccess) {
-        gain += 10; 
-        bonusSuccess = false;
-    }
-        
-    stats.xp += gain;
-    stats.progression += gain;
-
-    while (stats.progression >= stats.level * 100) {
-        stats.level++;
-    }
-
-    // 📅 GESTION DU MODE QUOTIDIEN
-    if (selectedMode === "Quotidien") {
-        const todayStr = new Date().toISOString().split('T')[0];
-
-        const streakGain = stats.hasDoubleFlame ? 2 : 1;
-        stats.streak = (stats.streak || 0) + streakGain;
-        stats.hasDoubleFlame = false; 
-
-        if (!stats.maxStreak || stats.streak > stats.maxStreak) {
-            stats.maxStreak = stats.streak;
-        }
-
-        stats.lastDailyDate = todayStr;
-        const user = localStorage.getItem("brainflamme_user");
-        if (user) {
-            localStorage.setItem("daily_done_" + user, todayStr);
-        }
-
-        saveUserStats();
-        checkDailyStatus(); // 🔥 Verrouille le bouton direct !
-    } else {
-        saveUserStats();
+    if (rand < 50) {
+        const xpGain = 50;
+        stats.progression = (stats.progression || 0) + xpGain;
+        stats.xp = (stats.xp || 0) + xpGain;
+        rewardText = `🎉 Tu as trouvé **+${xpGain} XP Bonus** !`;
+    } 
+    else if (rand < 75) {
+        stats.chronoBonus = (stats.chronoBonus || 0) + 5;
+        rewardText = "⏱️ Tu as gagné **+5 secondes** pour ta prochaine partie Chrono !";
+    } 
+    else if (rand < 85) {
+        stats.hasDoubleFlame = true;
+        rewardText = "🧪 **POTION MAGIQUE !** Demain, ton quiz quotidien te donnera **+2 Flammes** !";
+    } 
+    else if (rand < 95) {
+        stats.shields = (stats.shields || 0) + 1;
+        rewardText = "🛡️ Tu as trouvé un **Bouclier Anti-Extinction** !";
+    } 
+    else {
+        const superXp = 150;
+        stats.progression = (stats.progression || 0) + superXp;
+        stats.xp = (stats.xp || 0) + superXp;
+        rewardText = `🔥 **JACKPOT RARE !** +${superXp} XP accordés !`;
     }
 
-    // 🎉 DÉCLENCHEMENT CERTAIN DES CONFETTIS (Si 5/5 ou score parfait)
-    if (score >= 5 || (currentQuestions && score === currentQuestions.length && score > 0)) {
-        if (typeof confetti === "function") {
-            confetti({
-                particleCount: 120,
-                spread: 80,
-                origin: { y: 0.6 }
-            });
-        }
-    }
+    saveUserStats();
+    updateHome();
 
-    // 🎁 REDIRECTION
-    if (selectedMode === "Quotidien") {
-        setTimeout(() => {
-            if (typeof triggerChestReward === "function") {
-                triggerChestReward();
-            } else {
-                continuerAffichageScore(gain);
-            }
-        }, 1200);
-    } else {
-        continuerAffichageScore(gain);
+    chests[selectedIndex].textContent = "🎁";
+    document.getElementById("chest-result").innerHTML = rewardText;
+    document.getElementById("closeChestBtn").style.display = "block";
+
+    // 🎉 JET DE CONFETTIS UNIQUE SI 5/5
+    if (score >= 5 && typeof confetti === "function") {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
     }
 }
 
 // ==========================================
 // 2. DÉCOMPTE & VERROUILLAGE BOUTON QUOTIDIEN
 // ==========================================
+// Variable globale pour le timer du bouton
+let dailyTimerInterval = null;
+
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
+    if (!user) return;
+
+    // Date du jour au format YYYY-MM-DD
     const todayStr = new Date().toISOString().split('T')[0];
-    const lastDone = (stats && stats.lastDailyDate) ? stats.lastDailyDate : localStorage.getItem("daily_done_" + user);
+    
+    // Récupère la date enregistrée dans stats ou dans le localStorage
+    const lastDone = (stats && stats.lastDailyDate) 
+        ? stats.lastDailyDate 
+        : localStorage.getItem("daily_done_" + user);
 
     const btn = document.getElementById("dailyMode");
     if (!btn) return;
 
-    if (typeof dailyTimerInterval !== "undefined" && dailyTimerInterval) {
-        clearInterval(dailyTimerInterval);
-    }
+    if (dailyTimerInterval) clearInterval(dailyTimerInterval);
 
-    // Si le quiz a déjà été fait aujourd'hui
+    // Si le quiz a déjà été fait aujourd'hui -> Bloquer le bouton
     if (lastDone === todayStr) {
         btn.disabled = true;
         btn.style.opacity = "0.5";
-        btn.style.pointerEvents = "none"; // Bloque tout clic physique
         btn.style.cursor = "not-allowed";
 
         const updateTimer = () => {
             const now = new Date();
             const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0);
+            midnight.setHours(24, 0, 0, 0); // Minuit de ce soir
 
             const diff = midnight - now;
 
             if (diff <= 0) {
-                if (typeof dailyTimerInterval !== "undefined") clearInterval(dailyTimerInterval);
+                if (dailyTimerInterval) clearInterval(dailyTimerInterval);
                 btn.disabled = false;
                 btn.style.opacity = "1";
-                btn.style.pointerEvents = "auto";
                 btn.style.cursor = "pointer";
                 btn.innerText = "Mode Quotidien 📅";
             } else {
@@ -760,9 +747,9 @@ function checkDailyStatus() {
         dailyTimerInterval = setInterval(updateTimer, 1000);
 
     } else {
+        // Quiz disponible
         btn.disabled = false;
         btn.style.opacity = "1";
-        btn.style.pointerEvents = "auto";
         btn.style.cursor = "pointer";
         btn.innerText = "Mode Quotidien 📅";
     }
