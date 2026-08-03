@@ -275,14 +275,33 @@ function setupLogin() {
             if (username) {
                 localStorage.setItem("brainflamme_user", username);
                 
+                // 🧹 RESET CRUCIAL : On remet l'objet stats à zéro pour éviter d'hériter de l'aura ou stats du compte précédent
+                stats = {
+                    xp: 0,
+                    progression: 0,
+                    level: 1,
+                    streak: 0,
+                    maxStreak: 0,
+                    lastDailyDate: "",
+                    shields: 0,
+                    friends: [],
+                    hasAura: false
+                };
+                
                 if (typeof database !== "undefined" && database) {
                     database.ref('joueurs/' + username).once('value').then((snapshot) => {
                         if (snapshot.exists()) {
-                            stats = Object.assign({}, stats, snapshot.val());
+                            const val = snapshot.val();
+                            stats = Object.assign({}, stats, val);
+                            
+                            // 🛡️ SÉCURITÉ AURA : Force FALSE si le compte n'a pas explicitement l'aura
+                            stats.hasAura = val.hasAura === true;
                         } else {
                             saveUserStats();
                         }
-                        updateHome(); 
+                        
+                        updateHome();
+                        checkDailyStatus(); // 👈 Verrouille/Déverrouille le bouton quotidien selon le compte connecté
                         show("home-screen");
                     }).catch(err => {
                         console.error("Erreur Firebase fallback local:", err);
@@ -684,22 +703,20 @@ function checkDailyStatus() {
     const btn = document.getElementById("dailyMode");
     if (!btn || !user) return;
 
-    // 1. On récupère la date enregistrée
+    // 1. Récupération et nettoyage de la date
     let lastDone = (stats && stats.lastDailyDate) ? stats.lastDailyDate : localStorage.getItem("daily_done_" + user);
 
-    // Si la date contient une heure (T...), on ne garde que YYYY-MM-DD
     if (lastDone && lastDone.includes("T")) {
         lastDone = lastDone.split("T")[0];
     }
 
-    // 2. Date d'aujourd'hui en local (YYYY-MM-DD)
+    // 2. Date d'aujourd'hui au format YYYY-MM-DD
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const todayStr = `${year}-${month}-${day}`;
 
-    // Nettoyage de l'ancien timer s'il existe
     if (typeof dailyTimerInterval !== "undefined" && dailyTimerInterval) {
         clearInterval(dailyTimerInterval);
     }
@@ -707,23 +724,27 @@ function checkDailyStatus() {
     // 🔒 SI LE QUIZ A DÉJÀ ÉTÉ FAIT AUJOURD'HUI
     if (lastDone === todayStr) {
         btn.disabled = true;
-        btn.style.opacity = "0.5";
-        btn.style.cursor = "not-allowed";
-        btn.style.pointerEvents = "none";
+        
+        // Style visuel grisé forcé !
+        btn.style.setProperty("background", "#475569", "important"); // Gris foncé
+        btn.style.setProperty("opacity", "0.6", "important");
+        btn.style.setProperty("cursor", "not-allowed", "important");
+        btn.style.setProperty("pointer-events", "none", "important");
 
         const updateTimer = () => {
             const currentTime = new Date();
             const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0); // Minuit prochain
+            midnight.setHours(24, 0, 0, 0);
 
             const diff = midnight - currentTime;
 
             if (diff <= 0) {
                 if (typeof dailyTimerInterval !== "undefined") clearInterval(dailyTimerInterval);
                 btn.disabled = false;
-                btn.style.opacity = "1";
-                btn.style.cursor = "pointer";
-                btn.style.pointerEvents = "auto";
+                btn.style.removeProperty("background");
+                btn.style.removeProperty("opacity");
+                btn.style.removeProperty("cursor");
+                btn.style.removeProperty("pointer-events");
                 btn.innerText = "Mode Quotidien 📅";
             } else {
                 const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
@@ -734,7 +755,6 @@ function checkDailyStatus() {
                 const formatM = String(m).padStart(2, '0');
                 const formatS = String(s).padStart(2, '0');
 
-                // ⏳ AFFICHE LE TIMER DIRECTEMENT SUR LE BOUTON
                 btn.innerText = `⏳ Dispo dans ${formatH}h ${formatM}m ${formatS}s`;
             }
         };
@@ -745,9 +765,10 @@ function checkDailyStatus() {
     } else {
         // 🟢 QUIZ DISPONIBLE
         btn.disabled = false;
-        btn.style.opacity = "1";
-        btn.style.cursor = "pointer";
-        btn.style.pointerEvents = "auto";
+        btn.style.removeProperty("background");
+        btn.style.removeProperty("opacity");
+        btn.style.removeProperty("cursor");
+        btn.style.removeProperty("pointer-events");
         btn.innerText = "Mode Quotidien 📅";
     }
 }
