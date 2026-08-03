@@ -372,12 +372,13 @@ function loadUserStatsFromCloud(username) {
         }
         
         updateHome(); 
-        checkDailyStatus(); // Met à jour l'état du bouton Quotidien
+        checkDailyStatus(); // 👈 OBLIGATOIRE : Met à jour le bouton APRES avoir reçu les stats Firebase !
         show("home-screen");
 
     }).catch(err => {
         console.error("Erreur Cloud:", err);
         chargerStatsLocales(username);
+        checkDailyStatus(); // 👈 Appelé aussi en cas d'erreur
     });
 }
 
@@ -1156,12 +1157,13 @@ function addFriend() {
     const friendName = friendInput.value.trim();
     const currentUser = localStorage.getItem("brainflamme_user");
 
+    // 1. Validation de base
     if (!friendName) {
-        alert("⚠️ Merci de saisir un pseudo.");
+        alert("⚠️ Merci d'entrer un nom d'utilisateur.");
         return;
     }
 
-    if (friendName.toLowerCase() === currentUser.toLowerCase()) {
+    if (currentUser && friendName.toLowerCase() === currentUser.toLowerCase()) {
         alert("⚠️ Tu ne peux pas t'ajouter toi-même en ami !");
         return;
     }
@@ -1173,24 +1175,27 @@ function addFriend() {
         return;
     }
 
-    // 🔍 VÉRIFICATION DANS FIREBASE
+    // 2. 🔍 Vérification sur Firebase pour voir si le joueur existe VRAIMENT
     if (typeof database !== "undefined" && database) {
         database.ref('joueurs/' + friendName).once('value').then((snapshot) => {
             if (snapshot.exists()) {
-                // 🛑 Le joueur existe ! On l'ajoute.
+                // ✅ Le joueur existe sur Firebase !
                 stats.friends.push(friendName);
                 saveUserStats();
                 friendInput.value = "";
                 alert(`✅ ${friendName} a été ajouté à tes amis !`);
+                
                 if (typeof renderFriendsList === "function") renderFriendsList();
             } else {
-                // ❌ Le joueur n'existe pas dans la BDD.
+                // ❌ Le joueur n'existe pas dans la base de données
                 alert(`❌ Le joueur "${friendName}" n'existe pas !`);
             }
         }).catch(err => {
             console.error("Erreur vérification ami :", err);
             alert("Erreur de connexion lors de la recherche du joueur.");
         });
+    } else {
+        alert("Impossible de vérifier l'ami : BDD non connectée.");
     }
 }
     
