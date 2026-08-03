@@ -549,11 +549,18 @@ function show(id) {
         checkDailyStatus();
     }
 
-    // ✨ Gestion de l'aura autour du pseudo
-    const welcomeUser = document.getElementById("welcome-user");
-    if (welcomeUser) {
-        welcomeUser.style.textShadow = (stats && stats.hasAura) ? "0 0 15px #22d3ee" : "none";
+   // Remplace le passage welcomeUser dans ta fonction show(id) par ceci :
+const welcomeUser = document.getElementById("welcome-user");
+if (welcomeUser) {
+    // Vérifie STRICTEMENT si l'utilisateur possède l'aura (doit être true)
+    if (stats && stats.hasAura === true) {
+        welcomeUser.style.textShadow = "0 0 15px #22d3ee, 0 0 25px #22d3ee";
+        welcomeUser.style.color = "#22d3ee"; // Ou ta couleur brillante
+    } else {
+        welcomeUser.style.textShadow = "none";
+        welcomeUser.style.color = ""; // Remet la couleur par défaut du texte
     }
+}
 
     // 🧭 Gestion de la barre de navigation
     const nav = document.getElementById("main-nav");
