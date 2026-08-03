@@ -883,8 +883,6 @@ function addFriend() {
 }
 
 function continuerAffichageScore(gain) {
-    show("score");
-
     let nbQuestionsPosees = quizHistory.length || 1;
     let comment = (score >= (nbQuestionsPosees * 0.8)) 
         ? "INCROYABLE ! 🔥" 
@@ -902,7 +900,6 @@ function continuerAffichageScore(gain) {
 
     if (typeof updateShopDisplay === "function") updateShopDisplay();
 
-    // 🎯 Animation de la barre DE FIN DE QUIZ
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
         if (bar) {
@@ -911,11 +908,19 @@ function continuerAffichageScore(gain) {
         }
     }, 100);
 
-    // 🎯 MISE À JOUR SYNC : On met aussi à jour la barre de l'ÉCRAN D'ACCUEIL
     updateHome();
 
     if (score === nbQuestionsPosees && selectedMode === "Quotidien" && typeof lancerConfettis === "function") {
         lancerConfettis();
+    }
+
+    let aUnCoffre = false;
+    if (typeof preparerCoffre === "function") {
+        aUnCoffre = preparerCoffre();
+    }
+
+    if (!aUnCoffre) {
+        show("score");
     }
 }
 
@@ -1336,4 +1341,215 @@ function restoreSocialSection() {
             renderFriends([]);
         }
     }
+}
+let currentChestType = null; // "Quotidien" ou "Chrono"
+let coffreDejaOuvert = false;
+
+// 1. AFFICHER LE COFFRE SELON LE MODE DE JEU
+// 1. AFFICHER LE COFFRE SELON LE MODE DE JEU (Version Améliorée)
+// JS : Dans ta fonction preparerCoffre()
+function preparerCoffre() {
+    const chestScreen = document.getElementById("chest-screen");
+    const chestImg = document.getElementById("chest-img");
+    const title = document.getElementById("chest-title");
+
+    if (!chestScreen || !chestImg) return false;
+
+    coffreDejaOuvert = false;
+
+    if (selectedMode === "Quotidien") {
+        currentChestType = "Quotidien";
+        if (title) title.textContent = "🏆 COFFRE DORÉ QUOTIDIEN !";
+        chestImg.src = "images/coffre_or_flat.png";
+        show("chest-screen");
+        return true; 
+    } else if (selectedMode === "Chrono") {
+        currentChestType = "Chrono";
+        if (title) title.textContent = "📦 COFFRE EN BOIS CHRONO";
+        chestImg.src = "images/coffre_bois_flat.png";
+        show("chest-screen");
+        return true; 
+    }
+
+    return false;
+}
+
+// 2. LOGIQUE D'OUVERTURE AVEC SUSPENSE
+function ouvrirCoffre() {
+    if (coffreDejaOuvert) return;
+    coffreDejaOuvert = true;
+
+    const box = document.getElementById("chest-box");
+    box.classList.add("shake-chest"); // Déclenche la secousse
+
+    // Attente de suspense (800ms) avant l'explosion de récompense
+    setTimeout(() => {
+        box.classList.remove("shake-chest");
+        genererEtAfficherRecompense();
+    }, 800);
+}
+
+// 3. TIRAGE AU SORT DU DROP & POPUP DE RÉCOMPENSE
+function genererEtAfficherRecompense() {
+    let xpGagne = 0;
+    let itemObtenu = null;
+    let itemIcone = "";
+    let itemName = "";
+
+    const tirageRarete = Math.random();
+
+    if (currentChestType === "Quotidien") {
+        // 🏆 GAINS DU COFFRE QUOTIDIEN (Gros drops)
+        xpGagne = Math.floor(Math.random() * 51) + 50; // 50 à 100 XP
+
+        if (tirageRarete < 0.35) {
+            itemObtenu = "bonus_question";
+            itemIcone = "🎲";
+            itemName = "Dé Chanceux";
+            stats.bonusQuestion = (stats.bonusQuestion || 0) + 1;
+        } else if (tirageRarete < 0.65) {
+            itemObtenu = "shield";
+            itemIcone = "🛡️";
+            itemName = "Bouclier d'argent";
+            stats.shields = (stats.shields || 0) + 1;
+        } else if (tirageRarete < 0.85) {
+            itemObtenu = "xp_boost";
+            itemIcone = "💜";
+            itemName = "Élixir Violet";
+            stats.hasXpBoost = true;
+        }
+    } else {
+        // 📦 GAINS DU COFFRE CHRONO (Petits drops)
+        xpGagne = Math.floor(Math.random() * 16) + 10; // 10 à 25 XP
+
+        if (tirageRarete < 0.15) { // 15% chance seulement d'un item
+            itemObtenu = "chrono_bonus";
+            itemIcone = "⏳";
+            itemName = "+5s Sablier";
+            stats.chronoBonus = (stats.chronoBonus || 0) + 5;
+        }
+    }
+
+    // Appliquer l'XP aux stats
+    stats.xp = (stats.xp || 0) + xpGagne;
+    stats.progression = (stats.progression || 0) + xpGagne;
+    
+    // Check passage de niveau si besoin
+    while (stats.progression >= stats.level * 100) {
+        stats.level++;
+    }
+
+    saveUserStats();
+    updateHome();
+
+    // Pluie de Confettis de Victoire !
+    if (typeof confetti === "function") {
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+    }
+
+    // Affichage de la Modale Dopamine
+    let itemHTML = itemObtenu ? `
+        <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; padding: 10px; border-radius: 12px; margin-top: 15px;">
+            <span style="font-size: 2rem;">${itemIcone}</span>
+            <p style="color: #22c55e; font-weight: bold; margin: 5px 0 0 0;">ITEM DROP : ${itemName} !</p>
+        </div>
+    ` : '';
+
+    const modalHTML = `
+        <div id="reward-modal-screen" class="reward-modal">
+            <div class="reward-card">
+                <h1 style="font-size: 3rem; margin: 0;">🎉</h1>
+                <h2 style="color: #fbbf24; font-size: 1.8rem; margin: 10px 0;">BUTIN OBTENU !</h2>
+                
+                <p style="font-size: 2.2rem; font-weight: 900; color: #38bdf8; margin: 10px 0;">
+                    +${xpGagne} XP 🪙
+                </p>
+
+                ${itemHTML}
+
+                <button onclick="document.getElementById('reward-modal-screen').remove(); document.getElementById('chest-container').style.display='none';" 
+                        style="margin-top: 25px; padding: 12px 30px; background: #f97316; border: none; border-radius: 12px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; width: 100%;">
+                    REUPÉRER LE BUTIN 🔥
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+function genererEtAfficherRecompense() {
+    let xpGagne = 0;
+    let itemObtenu = null;
+    let itemIcone = "";
+    let itemName = "";
+
+    const tirageRarete = Math.random();
+
+    if (currentChestType === "Quotidien") {
+        xpGagne = Math.floor(Math.random() * 51) + 50; // 50 à 100 XP
+
+        if (tirageRarete < 0.35) {
+            itemObtenu = "bonus_question"; itemIcone = "🎲"; itemName = "Dé Chanceux";
+            stats.bonusQuestion = (stats.bonusQuestion || 0) + 1;
+        } else if (tirageRarete < 0.65) {
+            itemObtenu = "shield"; itemIcone = "🛡️"; itemName = "Bouclier d'argent";
+            stats.shields = (stats.shields || 0) + 1;
+        } else if (tirageRarete < 0.85) {
+            itemObtenu = "xp_boost"; itemIcone = "💜"; itemName = "Élixir Violet";
+            stats.hasXpBoost = true;
+        }
+    } else {
+        xpGagne = Math.floor(Math.random() * 16) + 10; // 10 à 25 XP
+
+        if (tirageRarete < 0.15) { 
+            itemObtenu = "chrono_bonus"; itemIcone = "⏳"; itemName = "+5s Sablier";
+            stats.chronoBonus = (stats.chronoBonus || 0) + 5;
+        }
+    }
+
+    stats.xp = (stats.xp || 0) + xpGagne;
+    stats.progression = (stats.progression || 0) + xpGagne;
+    
+    while (stats.progression >= stats.level * 100) {
+        stats.level++;
+    }
+
+    if (typeof saveUserStats === "function") saveUserStats();
+    if (typeof updateHome === "function") updateHome();
+
+    if (typeof confetti === "function") {
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+    }
+
+    const chestName = currentChestType === "Quotidien" ? "DORÉ" : "EN BOIS";
+    const chestColor = currentChestType === "Quotidien" ? "#fbbf24" : "#94a3b8";
+
+    let itemHTML = itemObtenu ? `
+        <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; padding: 10px; border-radius: 12px; margin-top: 15px;">
+            <span style="font-size: 2rem;">${itemIcone}</span>
+            <p style="color: #22c55e; font-weight: bold; margin: 5px 0 0 0;">ITEM DROP : ${itemName} !</p>
+        </div>
+    ` : '';
+
+    const modalHTML = `
+        <div id="reward-modal-screen" class="reward-modal">
+            <div class="reward-card" style="border-color: ${chestColor}; box-shadow: 0 0 30px ${chestColor}80;">
+                <h1 style="font-size: 3rem; margin: 0;">🎉</h1>
+                <h2 style="color: ${chestColor}; font-size: 1.8rem; margin: 10px 0;">BUTIN DU COFFRE ${chestName} !</h2>
+                
+                <p style="font-size: 2.5rem; font-weight: 900; color: #38bdf8; margin: 10px 0;">
+                    +${xpGagne} XP 🪙
+                </p>
+
+                ${itemHTML}
+
+                <button onclick="document.getElementById('reward-modal-screen').remove(); show('score');" 
+                        style="margin-top: 25px; padding: 15px 30px; background: #f97316; border: none; border-radius: 12px; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; width: 100%;">
+                    RÉCUPÉRER LE BUTIN 🔥
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
