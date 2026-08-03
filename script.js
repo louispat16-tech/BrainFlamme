@@ -521,8 +521,6 @@ function show(id) {
     }
 }
 
-let dailyTimerInterval = null;
-
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
     const todayStr = new Date().toISOString().split('T')[0];
