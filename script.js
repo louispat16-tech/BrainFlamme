@@ -1351,29 +1351,38 @@ let coffreDejaOuvert = false;
 function preparerCoffre() {
     const chestScreen = document.getElementById("chest-screen");
     const chestImg = document.getElementById("chest-img");
+    const fallback = document.getElementById("chest-fallback");
     const title = document.getElementById("chest-title");
 
     if (!chestScreen || !chestImg) return false;
 
     coffreDejaOuvert = false;
 
+    chestImg.style.display = "block";
+    if (fallback) fallback.style.display = "none";
+
     if (selectedMode === "Quotidien") {
         currentChestType = "Quotidien";
         if (title) title.textContent = "🏆 COFFRE DORÉ QUOTIDIEN !";
-        chestImg.src = "images/coffre_or_flat.png";
+        
+        // 🎯 SANS "images/" car l'image est à la racine sur GitHub
+        chestImg.src = "coffre_or_flat.png"; 
+        
         show("chest-screen");
         return true; 
     } else if (selectedMode === "Chrono") {
         currentChestType = "Chrono";
         if (title) title.textContent = "📦 COFFRE EN BOIS CHRONO";
-        chestImg.src = "images/coffre_bois_flat.png";
+        
+        // 🎯 SANS "images/" car l'image est à la racine sur GitHub
+        chestImg.src = "coffre_bois_flat.png"; 
+        
         show("chest-screen");
         return true; 
     }
 
     return false;
 }
-
 // 2. LOGIQUE D'OUVERTURE AVEC SUSPENSE
 function ouvrirCoffre() {
     if (coffreDejaOuvert) return;
