@@ -198,18 +198,22 @@
 </nav>
 
         <div id="chest-screen" class="screen" style="display:none; text-align: center;">
-    <div style="max-width:500px; margin: 10vh auto 40px auto; padding: 20px;">
+    <div style="max-width:380px; margin: 6vh auto 20px auto; padding: 15px;">
         
-        <h2 id="chest-title" style="color: #fbbf24; font-size: 2.5rem; margin-bottom: 50px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.6); font-weight: 900;">
-            🎁 RÉCOMPENSE DÉBLOQUÉE !
+        <h2 id="chest-title" style="color: #fbbf24; font-size: 1.4rem; margin-bottom: 25px; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); font-weight: 800; text-transform: uppercase; line-height: 1.3;">
+            🎁 COFFRE DÉBLOQUÉ !
         </h2>
         
-        <div id="chest-box" onclick="ouvrirCoffre()" style="cursor: pointer; display: inline-block; margin: 20px 0;">
+        <div id="chest-box" onclick="ouvrirCoffre()" style="cursor: pointer; display: inline-block; margin: 10px 0;">
             <div id="chest-icon" style="animation: pulseChest 1.5s infinite alternate;">
-                <img id="chest-img" src="" alt="Coffre" style="width: 320px; height: auto; filter: drop-shadow(0 0 35px rgba(251, 191, 36, 0.7)); display: block; margin: 0 auto; transition: transform 0.2s;">
+                <img id="chest-img" src="" alt="Coffre" 
+                     onerror="this.style.display='none'; document.getElementById('chest-fallback').style.display='block';"
+                     style="width: 260px; height: auto; filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.6)); display: block; margin: 0 auto;">
+                
+                <div id="chest-fallback" style="display:none; font-size: 8rem; filter: drop-shadow(0 0 20px #fbbf24);">🧰</div>
             </div>
             
-            <p style="color: #a6adc8; font-size: 1.4rem; margin-top: 40px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+            <p style="color: #a6adc8; font-size: 1.1rem; margin-top: 25px; font-weight: bold; letter-spacing: 0.5px;">
                 👉 CLIQUE POUR OUVRIR ! 👈
             </p>
         </div>
