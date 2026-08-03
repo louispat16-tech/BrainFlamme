@@ -353,21 +353,17 @@ function loadUserStatsFromCloud(username) {
     }
 
     database.ref('joueurs/' + username).once('value').then((snapshot) => {
-        const cloudData = snapshot.val();
-        
-        // Dans loadUserStatsFromCloud(username) :
-if (cloudData) {
-    stats = Object.assign({}, stats, cloudData);
-    
-    // 🛡️ SÉCURITÉ AURA : Si le joueur n'a pas l'aura, on force FALSE
-    stats.hasAura = cloudData.hasAura === true; 
-
-    // ... reste du code ...
-}
+        if (snapshot.exists()) {
+            const cloudData = snapshot.val();
             
+            // Charge les données cloud dans l'objet global
+            stats = Object.assign({}, stats, cloudData);
+            
+            // 🛡️ SÉCURITÉ AURA : Force FALSE si le compte ne l'a pas achetée
+            stats.hasAura = cloudData.hasAura === true; 
+
             if (stats.shields === undefined) stats.shields = 0;
             if (stats.progression === undefined) stats.progression = stats.xp || 0;
-            if (stats.hasAura === undefined) stats.hasAura = false;
 
             // 🎯 VÉRIFICATION DE LA FLAMME (Sécurisée)
             const lastDateStr = stats.lastDailyDate || localStorage.getItem("daily_done_" + username);
@@ -407,13 +403,13 @@ if (cloudData) {
         }
         
         updateHome(); 
-        checkDailyStatus(); // 👈 OBLIGATOIRE : Met à jour le bouton APRES avoir reçu les stats Firebase !
+        checkDailyStatus(); // Met à jour le bouton après réception
         show("home-screen");
 
     }).catch(err => {
         console.error("Erreur Cloud:", err);
         chargerStatsLocales(username);
-        checkDailyStatus(); // 👈 Appelé aussi en cas d'erreur
+        checkDailyStatus();
     });
 }
 
