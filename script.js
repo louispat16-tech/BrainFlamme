@@ -684,55 +684,81 @@ function showQuestion() {
 
 function endQuiz() {
     clearInterval(timerInterval);
-    clearInterval(dailyTimerInterval);
+    if (typeof dailyTimerInterval !== "undefined") clearInterval(dailyTimerInterval);
 
+    // Sécurité sur les variables d'expérience
     if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
     if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
     if (isNaN(stats.level) || !stats.level) stats.level = 1;
 
     // Calcul standard (10 XP par bonne réponse)
-let gain = score * 10; 
+    let gain = score * 10; 
 
-// 👈 AJOUTE CECI : 10 XP supplémentaires si la question bonus a été réussie (= XP doublée)
-if (typeof bonusSuccess !== "undefined" && bonusSuccess) {
-    gain += 10; 
-    bonusSuccess = false;
-}
-    
+    // AJOUT : +10 XP si la question bonus a été réussie
+    if (typeof bonusSuccess !== "undefined" && bonusSuccess) {
+        gain += 10; 
+        bonusSuccess = false;
+    }
+        
     stats.xp += gain;
     stats.progression += gain;
 
+    // Passage de niveaux
     while (stats.progression >= stats.level * 100) {
         stats.level++;
     }
 
-// À l'intérieur de endQuiz(), au moment d'accorder les récompenses :
-if (selectedMode === "Quotidien") {
-    // 1. Obtenir la date du jour au format YYYY-MM-DD (indépendant du fuseau horaire local)
-    const todayStr = new Date().toISOString().split('T')[0];
+    // 📅 GESTION DU MODE QUOTIDIEN
+    if (selectedMode === "Quotidien") {
+        const todayStr = new Date().toISOString().split('T')[0];
 
-    // 2. Augmenter la flamme (+1)
-    stats.streak = (stats.streak || 0) + 1;
+        // Augmentation de la flamme (+2 si Potion Double Flamme active, sinon +1)
+        const streakGain = stats.hasDoubleFlame ? 2 : 1;
+        stats.streak = (stats.streak || 0) + streakGain;
+        stats.hasDoubleFlame = false; // Consomme le boost s'il était actif
 
-    // 3. Mettre à jour le record de flammes si nécessaire
-    if (!stats.maxStreak || stats.streak > stats.maxStreak) {
-        stats.maxStreak = stats.streak;
+        // Record de flammes
+        if (!stats.maxStreak || stats.streak > stats.maxStreak) {
+            stats.maxStreak = stats.streak;
+        }
+
+        // Marquer la date du jour
+        stats.lastDailyDate = todayStr;
+        const user = localStorage.getItem("brainflamme_user");
+        if (user) {
+            localStorage.setItem("daily_done_" + user, todayStr);
+        }
+
+        // Sauvegarde Firebase + Grise immédiatement le bouton Quotidien
+        saveUserStats();
+        checkDailyStatus();
+    } else {
+        saveUserStats();
     }
 
-    // 4. Marquer le jour comme complété
-    stats.lastDailyDate = todayStr;
-    const user = localStorage.getItem("brainflamme_user");
-    if (user) {
-        localStorage.setItem("daily_done_" + user, todayStr);
+    // 🎉 DÉCLENCHEMENT DES CONFETTIS (Score parfait 5/5 ou équivalent)
+    if (score === currentQuestions.length && currentQuestions.length > 0) {
+        if (typeof confetti === "function") {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
     }
 
-    // 5. Sauvegarder sur Firebase & bloquer le bouton quotidien
-    saveUserStats();
-    checkDailyStatus();
-}
-
-    saveUserStats();
-    continuerAffichageScore(gain);
+    // 🎁 REDIRECTION (Coffres si Mode Quotidien, sinon Score classique)
+    if (selectedMode === "Quotidien") {
+        setTimeout(() => {
+            if (typeof triggerChestReward === "function") {
+                triggerChestReward();
+            } else {
+                continuerAffichageScore(gain);
+            }
+        }, 1200);
+    } else {
+        continuerAffichageScore(gain);
+    }
 }
 
 function continuerAffichageScore(gain) {
