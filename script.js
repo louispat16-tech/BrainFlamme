@@ -755,7 +755,7 @@ function checkDailyStatus() {
                 const formatM = String(m).padStart(2, '0');
                 const formatS = String(s).padStart(2, '0');
 
-                btn.innerText = `⏳ Dispo dans ${formatH}h ${formatM}m ${formatS}s`;
+                btn.innerText = `⏳ Disponible dans ${formatH}h ${formatM}m ${formatS}s`;
             }
         };
 
