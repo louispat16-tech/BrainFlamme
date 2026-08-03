@@ -355,9 +355,15 @@ function loadUserStatsFromCloud(username) {
     database.ref('joueurs/' + username).once('value').then((snapshot) => {
         const cloudData = snapshot.val();
         
-        if (cloudData) {
-            // Charge les données cloud dans l'objet global
-            stats = Object.assign({}, stats, cloudData);
+        // Dans loadUserStatsFromCloud(username) :
+if (cloudData) {
+    stats = Object.assign({}, stats, cloudData);
+    
+    // 🛡️ SÉCURITÉ AURA : Si le joueur n'a pas l'aura, on force FALSE
+    stats.hasAura = cloudData.hasAura === true; 
+
+    // ... reste du code ...
+}
             
             if (stats.shields === undefined) stats.shields = 0;
             if (stats.progression === undefined) stats.progression = stats.xp || 0;
@@ -549,19 +555,17 @@ function show(id) {
         checkDailyStatus();
     }
 
-   // Remplace le passage welcomeUser dans ta fonction show(id) par ceci :
-const welcomeUser = document.getElementById("welcome-user");
+  const welcomeUser = document.getElementById("welcome-user");
 if (welcomeUser) {
-    // Vérifie STRICTEMENT si l'utilisateur possède l'aura (doit être true)
     if (stats && stats.hasAura === true) {
         welcomeUser.style.textShadow = "0 0 15px #22d3ee, 0 0 25px #22d3ee";
-        welcomeUser.style.color = "#22d3ee"; // Ou ta couleur brillante
+        welcomeUser.style.color = "#22d3ee";
     } else {
+        // ❌ Désactivation explicite pour tous les autres comptes
         welcomeUser.style.textShadow = "none";
-        welcomeUser.style.color = ""; // Remet la couleur par défaut du texte
+        welcomeUser.style.color = "inherit"; // Couleur par défaut
     }
 }
-
     // 🧭 Gestion de la barre de navigation
     const nav = document.getElementById("main-nav");
     if (nav) {
@@ -681,48 +685,60 @@ function showQuestion() {
 
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
-    if (!user) return;
-
-    const todayStr = new Date().toISOString().split('T')[0];
-    const lastDone = (stats && stats.lastDailyDate) 
-        ? stats.lastDailyDate 
-        : localStorage.getItem("daily_done_" + user);
-
     const btn = document.getElementById("dailyMode");
-    if (!btn) return;
+    if (!btn || !user) return;
 
-    if (dailyTimerInterval) clearInterval(dailyTimerInterval);
+    // 1. On récupère la date enregistrée
+    let lastDone = (stats && stats.lastDailyDate) ? stats.lastDailyDate : localStorage.getItem("daily_done_" + user);
 
-    // 🔒 Si déjà joué aujourd'hui
+    // Si la date contient une heure (T...), on ne garde que YYYY-MM-DD
+    if (lastDone && lastDone.includes("T")) {
+        lastDone = lastDone.split("T")[0];
+    }
+
+    // 2. Date d'aujourd'hui en local (YYYY-MM-DD)
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+
+    // Nettoyage de l'ancien timer s'il existe
+    if (typeof dailyTimerInterval !== "undefined" && dailyTimerInterval) {
+        clearInterval(dailyTimerInterval);
+    }
+
+    // 🔒 SI LE QUIZ A DÉJÀ ÉTÉ FAIT AUJOURD'HUI
     if (lastDone === todayStr) {
         btn.disabled = true;
         btn.style.opacity = "0.5";
-        btn.style.pointerEvents = "none";
         btn.style.cursor = "not-allowed";
+        btn.style.pointerEvents = "none";
 
         const updateTimer = () => {
-            const now = new Date();
+            const currentTime = new Date();
             const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0);
+            midnight.setHours(24, 0, 0, 0); // Minuit prochain
 
-            const diff = midnight - now;
+            const diff = midnight - currentTime;
 
             if (diff <= 0) {
-                if (dailyTimerInterval) clearInterval(dailyTimerInterval);
+                if (typeof dailyTimerInterval !== "undefined") clearInterval(dailyTimerInterval);
                 btn.disabled = false;
                 btn.style.opacity = "1";
-                btn.style.pointerEvents = "auto";
                 btn.style.cursor = "pointer";
+                btn.style.pointerEvents = "auto";
                 btn.innerText = "Mode Quotidien 📅";
             } else {
                 const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
                 const m = Math.floor((diff / (1000 * 60)) % 60);
                 const s = Math.floor((diff / 1000) % 60);
-                
+
                 const formatH = String(h).padStart(2, '0');
                 const formatM = String(m).padStart(2, '0');
                 const formatS = String(s).padStart(2, '0');
 
+                // ⏳ AFFICHE LE TIMER DIRECTEMENT SUR LE BOUTON
                 btn.innerText = `⏳ Dispo dans ${formatH}h ${formatM}m ${formatS}s`;
             }
         };
@@ -731,11 +747,11 @@ function checkDailyStatus() {
         dailyTimerInterval = setInterval(updateTimer, 1000);
 
     } else {
-        // 🟢 Quiz disponible
+        // 🟢 QUIZ DISPONIBLE
         btn.disabled = false;
         btn.style.opacity = "1";
-        btn.style.pointerEvents = "auto";
         btn.style.cursor = "pointer";
+        btn.style.pointerEvents = "auto";
         btn.innerText = "Mode Quotidien 📅";
     }
 }
