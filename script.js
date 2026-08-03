@@ -314,6 +314,9 @@ function saveUserStats() {
     localStorage.setItem("brainflamme_stats_" + username, JSON.stringify(stats));
 }
 
+// ==========================================
+// 🔄 CHARGEMENT DES STATISTIQUES (FIREBASE / LOCAL)
+// ==========================================
 function loadUserStatsFromCloud(username) {
     if (typeof database === "undefined" || !database) {
         chargerStatsLocales(username);
@@ -322,106 +325,132 @@ function loadUserStatsFromCloud(username) {
 
     database.ref('joueurs/' + username).once('value').then((snapshot) => {
         const cloudData = snapshot.val();
-       
+        
         if (cloudData) {
+            // Charge les données cloud dans l'objet global
             stats = Object.assign({}, stats, cloudData);
             
             if (stats.shields === undefined) stats.shields = 0;
-            if (stats.progression === undefined) stats.progression = stats.xp;
+            if (stats.progression === undefined) stats.progression = stats.xp || 0;
             if (stats.hasAura === undefined) stats.hasAura = false;
 
-// --- DANS loadUserStatsFromCloud() ---
-const lastDateStr = stats.lastDailyDate || localStorage.getItem("daily_done_" + username);
+            // 🎯 VÉRIFICATION DE LA FLAMME (Sécurisée)
+            const lastDateStr = stats.lastDailyDate || localStorage.getItem("daily_done_" + username);
 
-if (lastDateStr) {
-    const lastDate = new Date(lastDateStr);
-    const today = new Date();
-    
-    // On met l'heure à minuit pour comparer uniquement les jours
-    lastDate.setHours(0,0,0,0);
-    today.setHours(0,0,0,0);
-    
-    const diffTime = today - lastDate;
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    // Si plus d'1 jour s'est écoulé sans jouer
-    if (diffDays > 1) {
-        if (stats.shields && stats.shields > 0) {
-            stats.shields--; 
-            alert("🛡️ Ton bouclier a été utilisé ! Ta flamme est sauvée.");
-        } else {
-            stats.streak = 0; 
-            alert("🔥 Ta flamme s'est éteinte car tu n'as pas joué hier.");
-        }
-        saveUserStats(); 
-    }
-}
+            if (lastDateStr) {
+                const lastDate = new Date(lastDateStr);
+                const today = new Date();
+                
+                // Réinitialisation des heures pour comparer UNIQUEMENT les jours
+                lastDate.setHours(0,0,0,0);
+                today.setHours(0,0,0,0);
+                
+                const diffTime = today.getTime() - lastDate.getTime();
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                
+                // Se déclenche uniquement si 2 jours ou plus sont passés
+                if (diffDays > 1) {
+                    if (stats.shields && stats.shields > 0) {
+                        stats.shields--; 
+                        alert("🛡️ Ton bouclier a été utilisé ! Ta flamme est sauvée.");
+                        saveUserStats(); 
+                    } else if (stats.streak > 0) {
+                        stats.streak = 0; 
+                        alert("🔥 Ta flamme s'est éteinte car tu n'as pas joué hier.");
+                        saveUserStats(); 
+                    }
+                }
+            }
+
+            // 🖼️ Remet l'avatar à l'écran si disponible
+            if (stats.avatar && document.getElementById("avatarImg")) {
+                document.getElementById("avatarImg").src = stats.avatar;
+            }
+
         } else {
             chargerStatsLocales(username);
         }
         
         updateHome(); 
+        checkDailyStatus(); // Met à jour l'état du bouton Quotidien
         show("home-screen");
+
     }).catch(err => {
         console.error("Erreur Cloud:", err);
         chargerStatsLocales(username);
     });
 }
 
-// --- LOGIQUE DU JEU ---
+// ==========================================
+// 🎮 LOGIQUE DE DÉMARRAGE DES QUIZ
+// ==========================================
 
-document.getElementById("startBtn").onclick = () => {
-    show("modeSelection");
-    checkDailyStatus();
-};
-
-document.getElementById("chronoMode").onclick = () => {
-    selectedMode = "Chrono";
-    quizHistory = [];
-    score = 0;
-    current = 0;
-    bonusSuccess = false;
-    
-    const timerBox = document.getElementById("timerContainer");
-    if (timerBox) timerBox.style.display = "block";
-    
-    currentQuestions = [...questionsData].sort(() => Math.random() - 0.5);
-
-    // ⏱️ Temps de base = 30s
-    let durance = 30;
-
-    // 💡 Si le joueur a l'item Bonus de Temps (+5s) en réserve :
-    if (stats.chronoBonus && stats.chronoBonus > 0) {
-        durance += stats.chronoBonus; // Ajoute les +5s (fait passer à 35s)
-        stats.chronoBonus = 0;        // Consomme le bonus pour cette partie
-        saveUserStats();               // Sauvegarde la consommation
-    }
-
-    startChronoTimer(durance);
-
-    show("quiz");
-    showQuestion();
-};
-// Remet l'avatar sauvegardé à l'écran s'il existe
-if (stats.avatar && document.getElementById("avatarImg")) {
-    document.getElementById("avatarImg").src = stats.avatar;
+// Clic sur "Jouer" (Menu Principal)
+const startBtn = document.getElementById("startBtn");
+if (startBtn) {
+    startBtn.onclick = () => {
+        show("modeSelection");
+        checkDailyStatus();
+    };
 }
 
-// Mode Quotidien (Corrigé : charge questionsData au lieu de dailyQuestions inexistant)
-document.getElementById("dailyMode").onclick = () => {
-    selectedMode = "Quotidien";
-    quizHistory = [];
-    score = 0;
-    current = 0;
-    
-    const timerBox = document.getElementById("timerContainer");
-    if (timerBox) timerBox.style.display = "none";
-    
-    currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 5);
+// Clic sur "Mode Chrono"
+const chronoBtn = document.getElementById("chronoMode");
+if (chronoBtn) {
+    chronoBtn.onclick = () => {
+        selectedMode = "Chrono";
+        quizHistory = [];
+        score = 0;
+        current = 0;
+        bonusSuccess = false;
+        
+        const timerBox = document.getElementById("timerContainer");
+        if (timerBox) timerBox.style.display = "block";
+        
+        currentQuestions = [...questionsData].sort(() => Math.random() - 0.5);
 
-    show("quiz");
-    showQuestion();
-};
+        // Temps de base + Bonus éventuel
+        let durance = 30;
+        if (stats.chronoBonus && stats.chronoBonus > 0) {
+            durance += stats.chronoBonus;
+            stats.chronoBonus = 0;
+            saveUserStats();
+        }
+
+        startChronoTimer(durance);
+        show("quiz");
+        showQuestion();
+    };
+}
+
+// Clic sur "Mode Quotidien"
+const dailyBtn = document.getElementById("dailyMode");
+if (dailyBtn) {
+    dailyBtn.onclick = () => {
+        const user = localStorage.getItem("brainflamme_user");
+        const todayStr = new Date().toISOString().split('T')[0];
+        const lastDone = stats.lastDailyDate || localStorage.getItem("daily_done_" + user);
+
+        // 🔒 Empêche le lancement si déjà complété aujourd'hui
+        if (lastDone === todayStr) {
+            alert("⏳ Tu as déjà fait ton quiz quotidien aujourd'hui ! Reviens demain.");
+            return;
+        }
+
+        selectedMode = "Quotidien";
+        quizHistory = [];
+        score = 0;
+        current = 0;
+        
+        const timerBox = document.getElementById("timerContainer");
+        if (timerBox) timerBox.style.display = "none";
+        
+        currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 5);
+
+        show("quiz");
+        showQuestion();
+    };
+}
 
 function updateTimerUI() {
     const bar = document.getElementById("timerBar");
@@ -497,37 +526,48 @@ function show(id) {
 
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
-    const lastDate = localStorage.getItem("daily_done_" + user);
-    const today = new Date().toLocaleDateString();
+    const todayStr = new Date().toISOString().split('T')[0];
+    
+    // Récupérer la date depuis les stats (Firebase) ou le localStorage
+    const lastDone = (stats && stats.lastDailyDate) 
+        ? stats.lastDailyDate 
+        : localStorage.getItem("daily_done_" + user);
+
     const btn = document.getElementById("dailyMode");
+    if (!btn) return;
 
     clearInterval(dailyTimerInterval);
 
-    if (lastDate === today) {
+    // Si le quiz a déjà été fait aujourd'hui
+    if (lastDone === todayStr) {
         btn.disabled = true;
         btn.style.opacity = "0.5";
-        
+        btn.style.cursor = "not-allowed";
+
         dailyTimerInterval = setInterval(() => {
             const now = new Date();
             const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0);
+            midnight.setHours(24, 0, 0, 0); // Minuit prochain
+
             const diff = midnight - now;
 
             if (diff <= 0) {
                 clearInterval(dailyTimerInterval);
                 btn.disabled = false;
                 btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
                 btn.innerText = "Mode Quotidien 📅";
             } else {
                 const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
                 const m = Math.floor((diff / (1000 * 60)) % 60);
                 const s = Math.floor((diff / 1000) % 60);
-                btn.innerText = `Reviens dans ${h}h ${m}m ${s}s`;
+                btn.innerText = `Disponible dans ${h}h ${m}m ${s}s`;
             }
         }, 1000);
     } else {
         btn.disabled = false;
         btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
         btn.innerText = "Mode Quotidien 📅";
     }
 }
@@ -657,21 +697,28 @@ if (typeof bonusSuccess !== "undefined" && bonusSuccess) {
         stats.level++;
     }
 
-    // --- DANS endQuiz() ---
+// À l'intérieur de endQuiz(), au moment d'accorder les récompenses :
 if (selectedMode === "Quotidien") {
-    const todayISO = new Date().toISOString().split('T')[0]; // Format standard YYYY-MM-DD
-    
-    stats.lastDailyDate = todayISO;
+    // 1. Obtenir la date du jour au format YYYY-MM-DD (indépendant du fuseau horaire local)
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // 2. Augmenter la flamme (+1)
     stats.streak = (stats.streak || 0) + 1;
-    
-    // Mise à jour du record historique (maxStreak)
+
+    // 3. Mettre à jour le record de flammes si nécessaire
     if (!stats.maxStreak || stats.streak > stats.maxStreak) {
         stats.maxStreak = stats.streak;
     }
 
+    // 4. Marquer le jour comme complété
+    stats.lastDailyDate = todayStr;
     const user = localStorage.getItem("brainflamme_user");
-    localStorage.setItem("daily_done_" + user, todayISO);
-    
+    if (user) {
+        localStorage.setItem("daily_done_" + user, todayStr);
+    }
+
+    // 5. Sauvegarder sur Firebase & bloquer le bouton quotidien
+    saveUserStats();
     checkDailyStatus();
 }
 
