@@ -643,7 +643,7 @@ function showQuestion() {
 // 2. DÉCOMPTE & VERROUILLAGE BOUTON QUOTIDIEN
 // ==========================================
 // Variable globale pour le timer du bouton
-let dailyTimerInterval = null;
+dailyTimerInterval = null;
 
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
