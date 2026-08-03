@@ -229,10 +229,25 @@ const questionsData = [
 
 const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torche 🔦", "Brasier 🔥", "Or 🏆", "Diamant 💎"]; // Ajout Or et Diamant
 
+// ==========================================
+// 📌 VARIABLES GLOBALES ET OBJET STATS INITIAL
+// ==========================================
+let stats = {
+    xp: 0,
+    progression: 0,
+    level: 1,
+    streak: 0,
+    maxStreak: 0,
+    lastDailyDate: "",
+    shields: 0,
+    friends: [],
+    hasAura: false
+};
+
 let current = 0;
 let score = 0;
 let timerInterval = null;
-let dailyTimerInterval = null; // 👈 Elle doit être déclarée ICI uniquement
+let dailyTimerInterval = null;
 let timeLeft = 0;
 let currentQuestions = [];
 let selectedMode = "";
@@ -284,14 +299,35 @@ function setupLogin() {
 }
 
 function chargerStatsLocales(username) {
-    const saved = localStorage.getItem("brainflamme_stats_" + username);
-    if (saved) {
-        stats = Object.assign({}, stats, JSON.parse(saved));
-    } else {
-        saveUserStats();
+    if (!username) return;
+
+    const localData = localStorage.getItem("brainflamme_stats_" + username);
+
+    if (localData) {
+        try {
+            const parsed = JSON.parse(localData);
+            // Fusionne proprement les données locales avec l'objet stats de base
+            stats = Object.assign({
+                xp: 0,
+                progression: 0,
+                level: 1,
+                streak: 0,
+                shields: 0,
+                friends: []
+            }, parsed);
+        } catch (e) {
+            console.error("Erreur de lecture des stats locales :", e);
+        }
     }
+
+    // Sécurités fondamentales
+    if (isNaN(stats.xp)) stats.xp = 0;
+    if (isNaN(stats.progression)) stats.progression = 0;
+    if (isNaN(stats.level) || !stats.level) stats.level = 1;
+
+    // Met à jour l'affichage et le statut du mode quotidien
     updateHome();
-    show("home-screen");
+    checkDailyStatus();
 }
 
 function saveUserStats() {
