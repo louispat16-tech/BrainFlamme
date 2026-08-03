@@ -796,7 +796,11 @@ function endQuiz() {
 
     // 📅 GESTION DU MODE QUOTIDIEN
     if (selectedMode === "Quotidien") {
-        const todayStr = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
 
         stats.streak = (stats.streak || 0) + 1;
 
@@ -827,6 +831,7 @@ function endQuiz() {
 
     continuerAffichageScore(gain);
 }
+
 // ==========================================
 // 3. AJOUT D'AMI AVEC VÉRIFICATION FIREBASE
 // ==========================================
@@ -915,14 +920,11 @@ function continuerAffichageScore(gain) {
 }
 
 function logout() {
-    // 1. Supprimer l'utilisateur de la session locale
     localStorage.removeItem("brainflamme_user");
     
-    // 2. Vider le champ de saisie du pseudo
     const userInput = document.getElementById("username-input");
     if (userInput) userInput.value = "";
 
-    // 3. Réinitialiser TOUTES les statistiques de l'objet global (y compris l'Aura et les Flammes)
     stats = { 
         xp: 0, 
         progression: 0,
@@ -932,17 +934,16 @@ function logout() {
         lastDailyDate: "",
         shields: 0,
         friends: [],
-        hasAura: false // 👈 Éteint l'effet brillant à la déconnexion
+        hasAura: false
     };
 
-    // 4. Stopper le chrono du bouton Quotidien s'il tournait
     if (typeof dailyTimerInterval !== "undefined" && dailyTimerInterval) {
         clearInterval(dailyTimerInterval);
     }
 
-    // 5. Rediriger vers l'écran de connexion
     show("login-screen");
 }
+
 function lancerConfettis() {
     var duration = 3 * 1000;
     var end = Date.now() + duration;
@@ -1052,48 +1053,7 @@ function buyItem(name, price) {
     }
 }
 
-function checkDailyStatus() {
-    const user = localStorage.getItem("brainflamme_user");
-    const lastDate = localStorage.getItem("daily_done_" + user);
-    const today = new Date().toLocaleDateString();
-    const btn = document.getElementById("dailyMode");
-
-    if (!btn) return;
-
-    clearInterval(dailyTimerInterval);
-
-    if (lastDate === today) {
-        btn.disabled = true;
-        btn.style.opacity = "0.5";
-        btn.style.cursor = "not-allowed";
-
-        dailyTimerInterval = setInterval(() => {
-            const now = new Date();
-            const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0);
-
-            const diff = midnight - now;
-
-            if (diff <= 0) {
-                clearInterval(dailyTimerInterval);
-                btn.disabled = false;
-                btn.style.opacity = "1";
-                btn.style.cursor = "pointer";
-                btn.innerText = "Mode Quotidien 📅";
-            } else {
-                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                const m = Math.floor((diff / (1000 * 60)) % 60);
-                const s = Math.floor((diff / 1000) % 60);
-                btn.innerText = `Disponible dans ${h}h ${m}m ${s}s`;
-            }
-        }, 1000);
-    } else {
-        btn.disabled = false;
-        btn.style.opacity = "1";
-        btn.style.cursor = "pointer";
-        btn.innerText = "Mode Quotidien 📅";
-    }
-}
+// 🛡️ REMPLACÉ ET SUPPRIMÉ LA RE-DÉCLARATION EN DOUBLON DE checkDailyStatus !
 
 function updateShopDisplay() {
     const shopXp = document.getElementById("shop-xp");
@@ -1119,8 +1079,13 @@ function updateHome() {
             welcomeElem.style.color = stats.nameColor;
         }
 
-        if (stats.hasAura) {
-            welcomeElem.style.textShadow = "0 0 15px #22d3ee, 0 0 5px #22d3ee";
+        // 🛡️ SEIN ET DÉSACTIVATION NETTE DE L'AURA
+        if (stats.hasAura === true) {
+            welcomeElem.style.textShadow = "0 0 15px #22d3ee, 0 0 25px #22d3ee";
+            if (!stats.nameColor) welcomeElem.style.color = "#22d3ee";
+        } else {
+            welcomeElem.style.textShadow = "none";
+            if (!stats.nameColor) welcomeElem.style.color = "inherit";
         }
     }
 
@@ -1131,7 +1096,6 @@ function updateHome() {
 
     if (streakElem) streakElem.textContent = stats.streak || 0;
 
-    // 🎯 Calcul propre et sécurisé de la barre de progression (0 à 100%)
     if (xpBar) {
         const currentXP = (stats.progression || 0) % 100;
         xpBar.style.width = Math.min(100, Math.max(0, currentXP)) + "%";
@@ -1149,11 +1113,11 @@ function proposerQuestionBonus() {
         updateHome();
     }
 }
+
 function lancerQuestionBonus() {
     const timerBox = document.getElementById("timerContainer");
     if (timerBox) timerBox.style.display = "none";
 
-    // Préparer la question bonus ultime
     let bonusQ = { ...questionsData[Math.floor(Math.random() * questionsData.length)] };
     bonusQ.isBonus = true;
 
@@ -1162,13 +1126,12 @@ function lancerQuestionBonus() {
 
     showQuestion();
 }
+
 // ==========================================
 // 👤 LOGIQUE DU PROFIL & DE LA PHOTO
 // ==========================================
 
-// 🔄 GESTION DES ONGLETS DE LA BARRE DU BAS
 function switchTab(screenId, clickedBtn) {
-    // 1. Liste de tous les écrans principaux à masquer
     const allScreens = [
         'login-screen', 
         'home-screen', 
@@ -1180,7 +1143,6 @@ function switchTab(screenId, clickedBtn) {
         'leaderboard-screen'
     ];
 
-    // 2. On masque tous les écrans
     allScreens.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -1188,20 +1150,17 @@ function switchTab(screenId, clickedBtn) {
         }
     });
 
-    // 3. On affiche UNIQUEMENT l'écran cliqué
     const target = document.getElementById(screenId);
     if (target) {
         target.style.display = 'block';
     }
 
-    // 4. On met à jour le bouton actif dans le menu du bas
     const buttons = document.querySelectorAll('.bottom-nav .nav-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
     if (clickedBtn) {
         clickedBtn.classList.add('active');
     }
 
-    // 5. Actions spécifiques selon l'onglet ouvert
     if (screenId === 'home-screen' && typeof updateHome === 'function') {
         updateHome();
     } else if (screenId === 'shop-screen' && typeof updateShopDisplay === 'function') {
@@ -1211,18 +1170,14 @@ function switchTab(screenId, clickedBtn) {
     }
 }
 
-// 👤 MISE À JOUR DYNAMIQUE DU PROFIL
 function renderProfile() {
-    // 1. Récupération du pseudo
     const currentUsername = localStorage.getItem("brainflamme_user") || "Joueur";
 
-    // Affichage Pseudo & Tag
     const nameEl = document.getElementById("profileUsername");
     const tagEl = document.querySelector(".user-tag");
     if (nameEl) nameEl.textContent = currentUsername;
     if (tagEl) tagEl.textContent = "@" + currentUsername.toLowerCase().replace(/\s+/g, '');
 
-    // 2. Mise à jour de la barre d'XP (basée sur l'objet stats)
     const currentXp = (stats && stats.xp) ? stats.xp : 0;
     const currentLevel = (stats && stats.level) ? stats.level : 1;
     const currentProgression = (stats && stats.progression) ? (stats.progression % 100) : (currentXp % 100);
@@ -1234,18 +1189,16 @@ function renderProfile() {
         document.getElementById("xpBarFill").style.width = currentProgression + "%";
     }
 
-    // 3. Stats (Flammes / Niveau)
     if (document.getElementById("profileCurrentFlame")) {
         document.getElementById("profileCurrentFlame").textContent = stats.streak || 0;
     }
     if (document.getElementById("profileMaxFlame")) {
-    document.getElementById("profileMaxFlame").textContent = "🔥 " + (stats.maxStreak || stats.streak || 0);
-}
+        document.getElementById("profileMaxFlame").textContent = "🔥 " + (stats.maxStreak || stats.streak || 0);
+    }
     if (document.getElementById("profileLevel")) {
         document.getElementById("profileLevel").textContent = "Niv. " + currentLevel;
     }
 
-    // 4. Charger l'avatar et les amis depuis les stats
     if (stats.avatar && document.getElementById("avatarImg")) {
         document.getElementById("avatarImg").src = stats.avatar;
     }
@@ -1262,7 +1215,6 @@ function updateAvatar(event) {
     reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
-            // Redimensionner l'image en 150x150 max pour Firebase Realtime DB
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
             canvas.width = 150;
@@ -1270,14 +1222,11 @@ function updateAvatar(event) {
 
             ctx.drawImage(img, 0, 0, 150, 150);
             
-            // Conversion en JPEG compressé
             const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
 
-            // 1. Affichage visuel immédiat
             const avatarElem = document.getElementById("avatarImg");
             if (avatarElem) avatarElem.src = compressedBase64;
 
-            // 2. Sauvegarde dans les stats et sur Firebase
             stats.avatar = compressedBase64;
             saveUserStats();
             console.log("🔥 Avatar compressé et synchronisé sur Firebase !");
@@ -1287,8 +1236,6 @@ function updateAvatar(event) {
     reader.readAsDataURL(file);
 }
 
-
-    
 function renderFriends(friendsList) {
     const list = document.getElementById("friendsList");
     if (!list) return;
@@ -1306,7 +1253,6 @@ function renderFriends(friendsList) {
         li.style.justify = "space-between";
         li.style.alignItems = "center";
         
-        // Clic sur l'ami pour voir son profil
         li.onclick = function() {
             showFriendProfile(friend);
         };
@@ -1315,26 +1261,7 @@ function renderFriends(friendsList) {
         list.appendChild(li);
     });
 }
-// Fonction pour mettre à jour la fonction show() d'origine
-const originalShow = window.show;
-window.show = function(screenId) {
-    // Liste de tous les écrans du jeu
-    const screens = ['login-screen', 'home-screen', 'shop-screen', 'modeSelection', 'quiz', 'profile', 'score', 'leaderboard-screen'];
-    
-    // On cache tous les écrans
-    screens.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
 
-    // On affiche uniquement l'écran demandé
-    const target = document.getElementById(screenId);
-    if (target) {
-        target.style.display = 'block';
-    }
-};
-
-// Gestion de la couleur orange sur le bouton de la barre active
 function setNavActive(clickedBtn) {
     const buttons = document.querySelectorAll('.bottom-nav .nav-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
@@ -1342,7 +1269,7 @@ function setNavActive(clickedBtn) {
         clickedBtn.classList.add('active');
     }
 }
-// 👤 AFFICHER LE PROFIL D'UN AMI
+
 function showFriendProfile(friendName) {
     const nameEl = document.getElementById("profileUsername");
     const tagEl = document.querySelector(".user-tag");
@@ -1350,13 +1277,11 @@ function showFriendProfile(friendName) {
     if (nameEl) nameEl.textContent = friendName;
     if (tagEl) tagEl.textContent = "@" + friendName.toLowerCase().replace(/\s+/g, '');
 
-    // 🔄 Téléchargement des VRAIES données de l'ami sur Firebase
     if (typeof database !== "undefined" && database) {
         database.ref('joueurs/' + friendName).once('value').then((snapshot) => {
             const friendStats = snapshot.val();
 
             if (friendStats) {
-                // 1. Mise à jour des flammes / niveau réels
                 if (document.getElementById("profileCurrentFlame")) {
                     document.getElementById("profileCurrentFlame").textContent = friendStats.streak || 0;
                 }
@@ -1367,7 +1292,6 @@ function showFriendProfile(friendName) {
                     document.getElementById("profileLevel").textContent = "Niv. " + (friendStats.level || 1);
                 }
 
-                // 2. Progression d'XP réelle
                 const currentProgression = (friendStats.progression !== undefined) ? (friendStats.progression % 100) : 0;
                 if (document.getElementById("xpText")) {
                     document.getElementById("xpText").textContent = currentProgression + " / 100 XP";
@@ -1376,7 +1300,6 @@ function showFriendProfile(friendName) {
                     document.getElementById("xpBarFill").style.width = currentProgression + "%";
                 }
 
-                // 3. Avatar réel de l'ami
                 if (document.getElementById("avatarImg")) {
                     document.getElementById("avatarImg").src = friendStats.avatar || "https://via.placeholder.com/100?text=" + friendName.charAt(0).toUpperCase();
                 }
@@ -1386,7 +1309,6 @@ function showFriendProfile(friendName) {
         }).catch(err => console.error("Erreur chargement ami :", err));
     }
 
-    // Bouton pour revenir à son propre profil
     const socialSec = document.querySelector(".social-section");
     if (socialSec) {
         socialSec.innerHTML = `
@@ -1397,7 +1319,6 @@ function showFriendProfile(friendName) {
     }
 }
 
-// Restaure la boîte d'ajout d'amis quand on revient sur son profil
 function restoreSocialSection() {
     const socialSec = document.querySelector(".social-section");
     if (socialSec) {
@@ -1409,7 +1330,6 @@ function restoreSocialSection() {
             </div>
             <ul id="friendsList" class="friends-list"></ul>
         `;
-        // Recharge la liste des amis
         if (typeof stats !== 'undefined' && stats.friends) {
             renderFriends(stats.friends);
         } else {
