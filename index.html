@@ -197,18 +197,43 @@
   </button>
 </nav>
 
-        <div id="score" class="screen" style="display:none;">
-    <h2 style="font-size:40px; margin-bottom:10px; color:white;">Résultat</h2>
-    <div class="final-score-box" style="background:#1e293b; padding:25px; border-radius:20px; border:2px solid #f97316; max-width:400px; margin:auto; color:white;">
+        <div id="chest-screen" class="screen" style="display:none; text-align: center;">
+    <div style="max-width:500px; margin: 10vh auto 40px auto; padding: 20px;">
+        
+        <h2 id="chest-title" style="color: #fbbf24; font-size: 2.5rem; margin-bottom: 50px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.6); font-weight: 900;">
+            🎁 RÉCOMPENSE DÉBLOQUÉE !
+        </h2>
+        
+        <div id="chest-box" onclick="ouvrirCoffre()" style="cursor: pointer; display: inline-block; margin: 20px 0;">
+            <div id="chest-icon" style="animation: pulseChest 1.5s infinite alternate;">
+                <img id="chest-img" src="" alt="Coffre" style="width: 320px; height: auto; filter: drop-shadow(0 0 35px rgba(251, 191, 36, 0.7)); display: block; margin: 0 auto; transition: transform 0.2s;">
+            </div>
+            
+            <p style="color: #a6adc8; font-size: 1.4rem; margin-top: 40px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                👉 CLIQUE POUR OUVRIR ! 👈
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="score" class="screen" style="display:none;">
+    <div class="final-score-box" style="background:#1e293b; padding:25px; border-radius:20px; border:2px solid #f97316; max-width:400px; margin:auto; color:white; text-align:center;">
+        <h2 style="font-size:35px; margin-bottom:15px; color:white;">Résultat</h2>
+        
         <p id="score-level" style="font-size:20px; font-weight:bold;"></p>
+        
         <div style="width:100%; height:15px; background:#334155; border-radius:10px; margin:15px 0; overflow:hidden;">
             <div id="anim-fill" style="width:0%; height:100%; background:#f97316; transition: width 1s ease-out;"></div>
         </div>
+        
         <p id="score-xp" style="font-size:24px; color:#22c55e; font-weight:bold;"></p>
+        
         <hr style="border:0; border-top:1px solid #334155; margin:20px 0;">
-        <h3 id="score-comment" style="font-size:35px; color:#f97316; margin-bottom:5px;"></h3>
+        
+        <h3 id="score-comment" style="font-size:30px; color:#f97316; margin-bottom:5px;"></h3>
         <p id="score-text" style="font-size:20px;"></p>
-        <div style="margin-top:20px;">
+
+        <div style="margin-top:25px;">
             <button class="mode-btn" style="width:100%; margin-bottom:10px; background:#334155; border:1px solid #f97316; color:white; padding:12px; border-radius:10px; cursor:pointer;" onclick="showRecap()">VOIR LE RÉCAPITULATIF 📋</button>
             <button class="play pulse-btn" style="width:100%; padding:15px; cursor:pointer;" onclick="show('home-screen'); updateHome();">RETOUR</button>
         </div>
