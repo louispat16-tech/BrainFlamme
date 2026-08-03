@@ -495,22 +495,32 @@ function startChronoTimer(seconds) {
 }
 
 function show(id) {
+    // 1. Masquer tous les écrans
     document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
     
+    // 2. Afficher l'écran cible
     const target = document.getElementById(id);
     if (target) {
         target.style.display = "block";
     }
 
+    // 🛍️ Si on ouvre la boutique, mettre à jour l'affichage
     if (id === "shop-screen" && typeof updateShopDisplay === "function") { 
         updateShopDisplay();
     }
 
-    const welcomeUser = document.getElementById("welcome-user");
-    if (welcomeUser) {
-        welcomeUser.style.textShadow = stats.hasAura ? "0 0 15px #22d3ee" : "none";
+    // 📅 SI ON OUVRE LA SÉLECTION DES MODES OU L'ACCUEIL : Met à jour le bouton quotidien (grisé / décompte)
+    if ((id === "modeSelection" || id === "home-screen") && typeof checkDailyStatus === "function") {
+        checkDailyStatus();
     }
 
+    // ✨ Gestion de l'aura autour du pseudo
+    const welcomeUser = document.getElementById("welcome-user");
+    if (welcomeUser) {
+        welcomeUser.style.textShadow = (stats && stats.hasAura) ? "0 0 15px #22d3ee" : "none";
+    }
+
+    // 🧭 Gestion de la barre de navigation
     const nav = document.getElementById("main-nav");
     if (nav) {
         if (id === "login-screen" || id === "quiz") {
@@ -519,66 +529,6 @@ function show(id) {
             const user = localStorage.getItem("brainflamme_user");
             nav.style.display = user ? "flex" : "none";
         }
-    }
-}
-
-// ==========================================
-// ⏱️ GESTION DU DÉCOMPTE QUOTIDIEN
-// ==========================================
-
-function checkDailyStatus() {
-    const user = localStorage.getItem("brainflamme_user");
-    const todayStr = new Date().toISOString().split('T')[0];
-    const lastDone = (stats && stats.lastDailyDate) ? stats.lastDailyDate : localStorage.getItem("daily_done_" + user);
-
-    const btn = document.getElementById("dailyMode");
-    if (!btn) return;
-
-    // Réinitialise l'intervalle s'il existe (sans redéclarer avec let)
-    if (typeof dailyTimerInterval !== "undefined" && dailyTimerInterval) {
-        clearInterval(dailyTimerInterval);
-    }
-
-    // Si le quiz a déjà été fait aujourd'hui
-    if (lastDone === todayStr) {
-        btn.disabled = true;
-        btn.style.opacity = "0.6";
-        btn.style.cursor = "not-allowed";
-
-        const updateTimer = () => {
-            const now = new Date();
-            const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0); // Prochain minuit
-
-            const diff = midnight - now;
-
-            if (diff <= 0) {
-                if (typeof dailyTimerInterval !== "undefined") clearInterval(dailyTimerInterval);
-                btn.disabled = false;
-                btn.style.opacity = "1";
-                btn.style.cursor = "pointer";
-                btn.innerText = "Mode Quotidien 📅";
-            } else {
-                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                const m = Math.floor((diff / (1000 * 60)) % 60);
-                const s = Math.floor((diff / 1000) % 60);
-                
-                const formatH = String(h).padStart(2, '0');
-                const formatM = String(m).padStart(2, '0');
-                const formatS = String(s).padStart(2, '0');
-
-                btn.innerText = `⏳ Dispo dans ${formatH}h ${formatM}m ${formatS}s`;
-            }
-        };
-
-        updateTimer();
-        dailyTimerInterval = setInterval(updateTimer, 1000);
-
-    } else {
-        btn.disabled = false;
-        btn.style.opacity = "1";
-        btn.style.cursor = "pointer";
-        btn.innerText = "Mode Quotidien 📅";
     }
 }
 
@@ -683,19 +633,19 @@ function showQuestion() {
     });
 }
 
+// ==========================================
+// 1. FIN DU QUIZ (Avec Confettis 5/5 & Sécurité Quotidien)
+// ==========================================
 function endQuiz() {
     clearInterval(timerInterval);
     if (typeof dailyTimerInterval !== "undefined") clearInterval(dailyTimerInterval);
 
-    // Sécurité sur les variables d'expérience
     if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
     if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
     if (isNaN(stats.level) || !stats.level) stats.level = 1;
 
-    // Calcul standard (10 XP par bonne réponse)
     let gain = score * 10; 
 
-    // AJOUT : +10 XP si la question bonus a été réussie
     if (typeof bonusSuccess !== "undefined" && bonusSuccess) {
         gain += 10; 
         bonusSuccess = false;
@@ -704,7 +654,6 @@ function endQuiz() {
     stats.xp += gain;
     stats.progression += gain;
 
-    // Passage de niveaux
     while (stats.progression >= stats.level * 100) {
         stats.level++;
     }
@@ -713,42 +662,38 @@ function endQuiz() {
     if (selectedMode === "Quotidien") {
         const todayStr = new Date().toISOString().split('T')[0];
 
-        // Augmentation de la flamme (+2 si Potion Double Flamme active, sinon +1)
         const streakGain = stats.hasDoubleFlame ? 2 : 1;
         stats.streak = (stats.streak || 0) + streakGain;
-        stats.hasDoubleFlame = false; // Consomme le boost s'il était actif
+        stats.hasDoubleFlame = false; 
 
-        // Record de flammes
         if (!stats.maxStreak || stats.streak > stats.maxStreak) {
             stats.maxStreak = stats.streak;
         }
 
-        // Marquer la date du jour
         stats.lastDailyDate = todayStr;
         const user = localStorage.getItem("brainflamme_user");
         if (user) {
             localStorage.setItem("daily_done_" + user, todayStr);
         }
 
-        // Sauvegarde Firebase + Grise immédiatement le bouton Quotidien
         saveUserStats();
-        checkDailyStatus();
+        checkDailyStatus(); // 🔥 Verrouille le bouton direct !
     } else {
         saveUserStats();
     }
 
-    // 🎉 DÉCLENCHEMENT DES CONFETTIS (Score parfait 5/5 ou équivalent)
-    if (score === currentQuestions.length && currentQuestions.length > 0) {
+    // 🎉 DÉCLENCHEMENT CERTAIN DES CONFETTIS (Si 5/5 ou score parfait)
+    if (score >= 5 || (currentQuestions && score === currentQuestions.length && score > 0)) {
         if (typeof confetti === "function") {
             confetti({
-                particleCount: 100,
-                spread: 70,
+                particleCount: 120,
+                spread: 80,
                 origin: { y: 0.6 }
             });
         }
     }
 
-    // 🎁 REDIRECTION (Coffres si Mode Quotidien, sinon Score classique)
+    // 🎁 REDIRECTION
     if (selectedMode === "Quotidien") {
         setTimeout(() => {
             if (typeof triggerChestReward === "function") {
@@ -759,6 +704,117 @@ function endQuiz() {
         }, 1200);
     } else {
         continuerAffichageScore(gain);
+    }
+}
+
+// ==========================================
+// 2. DÉCOMPTE & VERROUILLAGE BOUTON QUOTIDIEN
+// ==========================================
+function checkDailyStatus() {
+    const user = localStorage.getItem("brainflamme_user");
+    const todayStr = new Date().toISOString().split('T')[0];
+    const lastDone = (stats && stats.lastDailyDate) ? stats.lastDailyDate : localStorage.getItem("daily_done_" + user);
+
+    const btn = document.getElementById("dailyMode");
+    if (!btn) return;
+
+    if (typeof dailyTimerInterval !== "undefined" && dailyTimerInterval) {
+        clearInterval(dailyTimerInterval);
+    }
+
+    // Si le quiz a déjà été fait aujourd'hui
+    if (lastDone === todayStr) {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.pointerEvents = "none"; // Bloque tout clic physique
+        btn.style.cursor = "not-allowed";
+
+        const updateTimer = () => {
+            const now = new Date();
+            const midnight = new Date();
+            midnight.setHours(24, 0, 0, 0);
+
+            const diff = midnight - now;
+
+            if (diff <= 0) {
+                if (typeof dailyTimerInterval !== "undefined") clearInterval(dailyTimerInterval);
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.style.pointerEvents = "auto";
+                btn.style.cursor = "pointer";
+                btn.innerText = "Mode Quotidien 📅";
+            } else {
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const m = Math.floor((diff / (1000 * 60)) % 60);
+                const s = Math.floor((diff / 1000) % 60);
+                
+                const formatH = String(h).padStart(2, '0');
+                const formatM = String(m).padStart(2, '0');
+                const formatS = String(s).padStart(2, '0');
+
+                btn.innerText = `⏳ Dispo dans ${formatH}h ${formatM}m ${formatS}s`;
+            }
+        };
+
+        updateTimer();
+        dailyTimerInterval = setInterval(updateTimer, 1000);
+
+    } else {
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.style.pointerEvents = "auto";
+        btn.style.cursor = "pointer";
+        btn.innerText = "Mode Quotidien 📅";
+    }
+}
+
+// ==========================================
+// 3. AJOUT D'AMI AVEC VÉRIFICATION FIREBASE
+// ==========================================
+function addFriend() {
+    const friendInput = document.getElementById("friendInput");
+    if (!friendInput) return;
+
+    const friendName = friendInput.value.trim();
+    const currentUser = localStorage.getItem("brainflamme_user");
+
+    if (!friendName) {
+        alert("⚠️ Merci de saisir un pseudo.");
+        return;
+    }
+
+    if (currentUser && friendName.toLowerCase() === currentUser.toLowerCase()) {
+        alert("⚠️ Tu ne peux pas t'ajouter toi-même en ami !");
+        return;
+    }
+
+    if (!stats.friends) stats.friends = [];
+
+    if (stats.friends.includes(friendName)) {
+        alert("⚠️ Ce joueur est déjà dans ta liste d'amis.");
+        return;
+    }
+
+    // 🔍 VÉRIFICATION DANS FIREBASE REALTIME DB
+    if (typeof database !== "undefined" && database) {
+        database.ref('joueurs/' + friendName).once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                // ✅ LE JOUEUR EXISTE VRAIMENT !
+                stats.friends.push(friendName);
+                saveUserStats();
+                friendInput.value = "";
+                alert(`✅ ${friendName} a été ajouté à tes amis !`);
+                if (typeof renderFriendsList === "function") renderFriendsList();
+            } else {
+                // ❌ LE JOUEUR N'EXISTE PAS DANS LA BASE
+                alert(`❌ Le joueur "${friendName}" n'existe pas !`);
+            }
+        }).catch(err => {
+            console.error("Erreur Firebase Ami :", err);
+            alert("Erreur de recherche du joueur sur le serveur.");
+        });
+    } else {
+        alert("Erreur : Connexion à la base de données impossible.");
     }
 }
 
@@ -1150,54 +1206,7 @@ function updateAvatar(event) {
     reader.readAsDataURL(file);
 }
 
-function addFriend() {
-    const friendInput = document.getElementById("friendInput");
-    if (!friendInput) return;
 
-    const friendName = friendInput.value.trim();
-    const currentUser = localStorage.getItem("brainflamme_user");
-
-    // 1. Validation de base
-    if (!friendName) {
-        alert("⚠️ Merci d'entrer un nom d'utilisateur.");
-        return;
-    }
-
-    if (currentUser && friendName.toLowerCase() === currentUser.toLowerCase()) {
-        alert("⚠️ Tu ne peux pas t'ajouter toi-même en ami !");
-        return;
-    }
-
-    if (!stats.friends) stats.friends = [];
-
-    if (stats.friends.includes(friendName)) {
-        alert("⚠️ Ce joueur est déjà dans ta liste d'amis.");
-        return;
-    }
-
-    // 2. 🔍 Vérification sur Firebase pour voir si le joueur existe VRAIMENT
-    if (typeof database !== "undefined" && database) {
-        database.ref('joueurs/' + friendName).once('value').then((snapshot) => {
-            if (snapshot.exists()) {
-                // ✅ Le joueur existe sur Firebase !
-                stats.friends.push(friendName);
-                saveUserStats();
-                friendInput.value = "";
-                alert(`✅ ${friendName} a été ajouté à tes amis !`);
-                
-                if (typeof renderFriendsList === "function") renderFriendsList();
-            } else {
-                // ❌ Le joueur n'existe pas dans la base de données
-                alert(`❌ Le joueur "${friendName}" n'existe pas !`);
-            }
-        }).catch(err => {
-            console.error("Erreur vérification ami :", err);
-            alert("Erreur de connexion lors de la recherche du joueur.");
-        });
-    } else {
-        alert("Impossible de vérifier l'ami : BDD non connectée.");
-    }
-}
     
 function renderFriends(friendsList) {
     const list = document.getElementById("friendsList");
