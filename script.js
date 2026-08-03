@@ -882,12 +882,34 @@ function continuerAffichageScore(gain) {
 }
 
 function logout() {
+    // 1. Supprimer l'utilisateur de la session locale
     localStorage.removeItem("brainflamme_user");
-    document.getElementById("username-input").value = "";
-    stats = { xp: 0, level: 1, streak: 0 };
+    
+    // 2. Vider le champ de saisie du pseudo
+    const userInput = document.getElementById("username-input");
+    if (userInput) userInput.value = "";
+
+    // 3. Réinitialiser TOUTES les statistiques de l'objet global (y compris l'Aura et les Flammes)
+    stats = { 
+        xp: 0, 
+        progression: 0,
+        level: 1, 
+        streak: 0,
+        maxStreak: 0,
+        lastDailyDate: "",
+        shields: 0,
+        friends: [],
+        hasAura: false // 👈 Éteint l'effet brillant à la déconnexion
+    };
+
+    // 4. Stopper le chrono du bouton Quotidien s'il tournait
+    if (typeof dailyTimerInterval !== "undefined" && dailyTimerInterval) {
+        clearInterval(dailyTimerInterval);
+    }
+
+    // 5. Rediriger vers l'écran de connexion
     show("login-screen");
 }
-
 function lancerConfettis() {
     var duration = 3 * 1000;
     var end = Date.now() + duration;
