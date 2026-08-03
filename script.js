@@ -423,19 +423,16 @@ if (chronoBtn) {
     };
 }
 
+// ==========================================
+// 🎮 DÉMARRAGE DES MODES DE JEU
+// ==========================================
+
 // Clic sur "Mode Quotidien"
 const dailyBtn = document.getElementById("dailyMode");
 if (dailyBtn) {
     dailyBtn.onclick = () => {
-        const user = localStorage.getItem("brainflamme_user");
-        const todayStr = new Date().toISOString().split('T')[0];
-        const lastDone = stats.lastDailyDate || localStorage.getItem("daily_done_" + user);
-
-        // 🔒 Empêche le lancement si déjà complété aujourd'hui
-        if (lastDone === todayStr) {
-            alert("⏳ Tu as déjà fait ton quiz quotidien aujourd'hui ! Reviens demain.");
-            return;
-        }
+        // Si le bouton est grisé/désactivé, le clic est ignoré
+        if (dailyBtn.disabled) return;
 
         selectedMode = "Quotidien";
         quizHistory = [];
@@ -524,30 +521,30 @@ function show(id) {
     }
 }
 
+let dailyTimerInterval = null;
+
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
     const todayStr = new Date().toISOString().split('T')[0];
-    
-    // Récupérer la date depuis les stats (Firebase) ou le localStorage
-    const lastDone = (stats && stats.lastDailyDate) 
-        ? stats.lastDailyDate 
-        : localStorage.getItem("daily_done_" + user);
+    const lastDone = (stats && stats.lastDailyDate) ? stats.lastDailyDate : localStorage.getItem("daily_done_" + user);
 
     const btn = document.getElementById("dailyMode");
     if (!btn) return;
 
-    clearInterval(dailyTimerInterval);
+    // Réinitialise tout intervalle de temps existant
+    if (dailyTimerInterval) clearInterval(dailyTimerInterval);
 
     // Si le quiz a déjà été fait aujourd'hui
     if (lastDone === todayStr) {
         btn.disabled = true;
-        btn.style.opacity = "0.5";
+        btn.style.opacity = "0.6";
         btn.style.cursor = "not-allowed";
 
-        dailyTimerInterval = setInterval(() => {
+        // Mettre à jour le compte à rebours chaque seconde
+        const updateTimer = () => {
             const now = new Date();
             const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0); // Minuit prochain
+            midnight.setHours(24, 0, 0, 0); // Prochain minuit
 
             const diff = midnight - now;
 
@@ -561,10 +558,21 @@ function checkDailyStatus() {
                 const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
                 const m = Math.floor((diff / (1000 * 60)) % 60);
                 const s = Math.floor((diff / 1000) % 60);
-                btn.innerText = `Disponible dans ${h}h ${m}m ${s}s`;
+                
+                // Formate avec deux chiffres (ex: 05h 02m 09s)
+                const formatH = String(h).padStart(2, '0');
+                const formatM = String(m).padStart(2, '0');
+                const formatS = String(s).padStart(2, '0');
+
+                btn.innerText = `⏳ Dispo dans ${formatH}h ${formatM}m ${formatS}s`;
             }
-        }, 1000);
+        };
+
+        updateTimer(); // Premier affichage immédiat
+        dailyTimerInterval = setInterval(updateTimer, 1000); // Mise à jour toutes les secondes
+
     } else {
+        // Si le quiz est disponible
         btn.disabled = false;
         btn.style.opacity = "1";
         btn.style.cursor = "pointer";
