@@ -521,6 +521,10 @@ function show(id) {
     }
 }
 
+// ==========================================
+// ⏱️ GESTION DU DÉCOMPTE QUOTIDIEN
+// ==========================================
+
 function checkDailyStatus() {
     const user = localStorage.getItem("brainflamme_user");
     const todayStr = new Date().toISOString().split('T')[0];
@@ -529,8 +533,10 @@ function checkDailyStatus() {
     const btn = document.getElementById("dailyMode");
     if (!btn) return;
 
-    // Réinitialise tout intervalle de temps existant
-    if (dailyTimerInterval) clearInterval(dailyTimerInterval);
+    // Réinitialise l'intervalle s'il existe (sans redéclarer avec let)
+    if (typeof dailyTimerInterval !== "undefined" && dailyTimerInterval) {
+        clearInterval(dailyTimerInterval);
+    }
 
     // Si le quiz a déjà été fait aujourd'hui
     if (lastDone === todayStr) {
@@ -538,7 +544,6 @@ function checkDailyStatus() {
         btn.style.opacity = "0.6";
         btn.style.cursor = "not-allowed";
 
-        // Mettre à jour le compte à rebours chaque seconde
         const updateTimer = () => {
             const now = new Date();
             const midnight = new Date();
@@ -547,7 +552,7 @@ function checkDailyStatus() {
             const diff = midnight - now;
 
             if (diff <= 0) {
-                clearInterval(dailyTimerInterval);
+                if (typeof dailyTimerInterval !== "undefined") clearInterval(dailyTimerInterval);
                 btn.disabled = false;
                 btn.style.opacity = "1";
                 btn.style.cursor = "pointer";
@@ -557,7 +562,6 @@ function checkDailyStatus() {
                 const m = Math.floor((diff / (1000 * 60)) % 60);
                 const s = Math.floor((diff / 1000) % 60);
                 
-                // Formate avec deux chiffres (ex: 05h 02m 09s)
                 const formatH = String(h).padStart(2, '0');
                 const formatM = String(m).padStart(2, '0');
                 const formatS = String(s).padStart(2, '0');
@@ -566,11 +570,10 @@ function checkDailyStatus() {
             }
         };
 
-        updateTimer(); // Premier affichage immédiat
-        dailyTimerInterval = setInterval(updateTimer, 1000); // Mise à jour toutes les secondes
+        updateTimer();
+        dailyTimerInterval = setInterval(updateTimer, 1000);
 
     } else {
-        // Si le quiz est disponible
         btn.disabled = false;
         btn.style.opacity = "1";
         btn.style.cursor = "pointer";
