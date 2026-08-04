@@ -1542,29 +1542,39 @@ function loadRealLeaderboard() {
         let playersData = [];
 
         snapshot.forEach(childSnapshot => {
-            const player = childSnapshot.val() || {};
-            
-            // 1. Récupération du nom (vérifie toutes les clés possibles)
-            let cleanName = (player.username || player.pseudo || player.name || "").trim();
-            if (!cleanName) cleanName = "Joueur Anonyme";
+    const player = childSnapshot.val() || {};
+    
+    // 🔍 Recherche hyper large de toutes les clés possibles de pseudo dans Firebase
+    let cleanName = (
+        player.username || 
+        player.pseudo || 
+        player.name || 
+        player.displayName || 
+        player.user || 
+        player.prenom || 
+        ""
+    ).toString().trim();
 
-            const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
-            const xpVal = player.xp || 0;
-            const levelVal = player.level || 1;
-            
-            // 2. Récupération de l'avatar (Image URL, Emoji ou Lettre par défaut)
-            const customAvatar = player.avatar || player.photoURL || player.avatarUrl || "";
+    // Si Firebase n'a stocké AUCUN champ de nom, on utilise l'ID du joueur pour éviter le "Joueur Anonyme"
+    if (!cleanName || cleanName === "undefined" || cleanName === "null") {
+        const shortKey = childSnapshot.key ? childSnapshot.key.substring(0, 5) : "Anonyme";
+        cleanName = `Joueur #${shortKey}`;
+    }
 
-            playersData.push({
-                name: cleanName,
-                flames: parseInt(streakVal) || 0,
-                xp: parseInt(xpVal) || 0,
-                level: parseInt(levelVal) || 1,
-                avatar: customAvatar,
-                key: childSnapshot.key
-            });
-        });
+    const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
+    const xpVal = player.xp || 0;
+    const levelVal = player.level || 1;
+    const customAvatar = player.avatar || player.photoURL || player.avatarUrl || "";
 
+    playersData.push({
+        name: cleanName,
+        flames: parseInt(streakVal) || 0,
+        xp: parseInt(xpVal) || 0,
+        level: parseInt(levelVal) || 1,
+        avatar: customAvatar,
+        key: childSnapshot.key
+    });
+});
         // Tri selon la catégorie
         playersData.sort((a, b) => {
             if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') return b.xp - a.xp;
