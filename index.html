@@ -186,10 +186,10 @@
     <span class="nav-label">Boutique</span>
   </button>
   
-  <button class="nav-btn" onclick="show('leaderboard-screen'); setNavActive(this);">
+  <button class="nav-btn" onclick="show('leaderboard-screen'); loadRealLeaderboard(); setNavActive(this);">
     <span class="nav-icon">🏆</span>
     <span class="nav-label">Classement</span>
-  </button>
+</button>
   
   <button class="nav-btn" onclick="show('profile'); renderProfile(); setNavActive(this);">
     <span class="nav-icon">👤</span>
@@ -243,23 +243,30 @@
 </div>
 
         <div id="leaderboard-screen" class="screen" style="display:none;">
-            <h1 style="color: #f97316; text-align: center; margin-top: 40px;">Classement Mondial 🏆</h1>
-            
-            <div style="text-align: center; padding: 40px 20px;">
-                <div style="font-size: 60px; margin-bottom: 20px;">🚧</div>
-                <h2 style="color: white; margin-bottom: 15px;">Bientôt disponible...</h2>
-                <p style="color: #94a3b8; line-height: 1.6; font-size: 18px;">
-                    Nous préparons l'arène ! <br>
-                    Il faut encore un peu plus de joueurs pour que la compétition soit lancée.
-                </p>
-                
-                <div style="margin-top: 30px; padding: 40px; background: #1e293b; border-radius: 30px; border: 2px dashed #334155;">
-                    <p style="color: #f97316; font-weight: bold;">Ton rang actuel : En attente...</p>
-                </div>
-                
-                <button onclick="show('home-screen')" class="play" style="margin-top: 30px;">RETOUR</button>
+    <h1 style="color: #f97316; text-align: center; margin-top: 20px; font-size: 1.8rem;">Classement Mondial 🏆</h1>
+    
+    <div class="leaderboard-filters" style="display: flex; justify-content: center; gap: 8px; margin: 15px 0; flex-wrap: wrap;">
+        <button class="filter-btn active" onclick="switchLeaderboardCategory('flames', this)">🔥 Flammes</button>
+<button class="filter-btn" onclick="switchLeaderboardCategory('xp', this)">⚡ XP Total</button>
+<button class="filter-btn" onclick="switchLeaderboardCategory('level', this)">⭐ Niveau</button>
+    </div>
+
+    <div class="my-rank-card" style="background: rgba(30, 41, 59, 0.9); border: 2px solid #f97316; border-radius: 15px; padding: 12px 16px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="my-rank-position" style="font-weight: bold; font-size: 1.1rem; color: #fbbf24;">#--</span>
+            <div>
+                <span id="my-rank-name" style="font-weight: bold; color: white; display: block;">Moi</span>
+                <span style="font-size: 0.8rem; color: #94a3b8;">Ton rang actuel</span>
             </div>
         </div>
+        <span id="my-rank-value" style="font-size: 1.1rem; font-weight: bold; color: #f97316;">0 🔥</span>
+    </div>
+
+    <div id="leaderboard-list" class="leaderboard-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 50vh; overflow-y: auto; padding-right: 5px;">
+        </div>
+
+    <button onclick="show('home-screen')" class="play pulse-btn" style="margin-top: 20px; width: 100%;">RETOUR</button>
+</div>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 
