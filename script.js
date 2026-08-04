@@ -1582,7 +1582,7 @@ function switchLeaderboardCategory(category, element) {
     loadRealLeaderboard();
 }
 
-async function loadRealLeaderboard() {
+function loadRealLeaderboard() {
     const listContainer = document.getElementById('leaderboard-list');
     if (!listContainer) return;
 
@@ -1590,31 +1590,40 @@ async function loadRealLeaderboard() {
 
     const currentUsername = localStorage.getItem('username') || "Moi";
 
-    try {
-        // Champ de tri selon l'onglet (streak = flammes, xp = xp, level = niveau)
-        let fieldToOrder = 'streak';
-        if (currentLeaderboardCategory === 'xp') fieldToOrder = 'xp';
-        if (currentLeaderboardCategory === 'level') fieldToOrder = 'level';
-
-        // 🔍 REQUÊTE FIREBASE : On va chercher TOUS les vrais comptes de la collection 'users'
-        const snapshot = await db.collection('users')
-            .orderBy(fieldToOrder, 'desc')
-            .get();
-
-        if (snapshot.empty) {
-            listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Aucun joueur inscrit pour le moment.</p>';
-            document.getElementById('my-rank-position').innerText = "#--";
+    // 🔍 Connexion directe au nœud 'joueurs' de ta Realtime Database (vu sur la capture)
+    database.ref('joueurs').once('value').then(snapshot => {
+        if (!snapshot.exists()) {
+            listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Aucun joueur trouvé pour le moment.</p>';
             return;
         }
 
+        let playersData = [];
+
+        snapshot.forEach(childSnapshot => {
+            const player = childSnapshot.val();
+            playersData.push({
+                name: player.username || player.pseudo || "Joueur",
+                flames: player.streak || player.flammes || 0,
+                xp: player.xp || 0,
+                level: player.level || player.niveau || 1,
+                avatar: player.avatar || "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(player.username || player.pseudo || "Joueur"),
+                key: childSnapshot.key
+            });
+        });
+
+        // Tri selon la catégorie sélectionnée (Flammes, XP ou Niveau)
+        playersData.sort((a, b) => {
+            if (currentLeaderboardCategory === 'xp') return b.xp - a.xp;
+            if (currentLeaderboardCategory === 'level') return b.level - a.level;
+            return b.flames - a.flames;
+        });
+
+        // Affichage du classement
         listContainer.innerHTML = '';
         let rank = 1;
         let isMyRankSet = false;
 
-        snapshot.forEach(doc => {
-            const player = doc.data();
-            const playerUsername = player.username || "Joueur Anonyme";
-            
+        playersData.forEach(player => {
             let rankDisplay = `#${rank}`;
             let rankClass = '';
 
@@ -1623,31 +1632,29 @@ async function loadRealLeaderboard() {
             else if (rank === 3) { rankDisplay = '🥉'; rankClass = 'top-3'; }
 
             let valueDisplay = '';
-            if (currentLeaderboardCategory === 'flames') valueDisplay = `${player.streak || 0} 🔥`;
-            else if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp || 0} ⚡`;
-            else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level || 1}`;
+            if (currentLeaderboardCategory === 'flames') valueDisplay = `${player.flames} 🔥`;
+            else if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp} ⚡`;
+            else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level}`;
 
-            // Détection si c'est le joueur actuel
-            const isMe = (auth.currentUser && doc.id === auth.currentUser.uid) || playerUsername === currentUsername;
+            // Détection du joueur connecté
+            const isMe = (auth.currentUser && player.key === auth.currentUser.uid) || player.name === currentUsername;
 
             if (isMe) {
                 isMyRankSet = true;
                 document.getElementById('my-rank-position').innerText = rankDisplay;
-                document.getElementById('my-rank-name').innerText = playerUsername;
+                document.getElementById('my-rank-name').innerText = player.name;
                 document.getElementById('my-rank-value').innerText = valueDisplay;
             }
 
-            const avatarUrl = player.avatar || "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(playerUsername);
-
             const item = document.createElement('div');
             item.className = `leaderboard-item ${rankClass}`;
-            if (isMe) item.style.border = "2px solid #22c55e"; // Ligne verte pour ton profil
+            if (isMe) item.style.border = "2px solid #22c55e"; // Ligne verte pour ton rang
 
             item.innerHTML = `
                 <span class="rank-badge">${rankDisplay}</span>
                 <div class="player-info">
-                    <img src="${avatarUrl}" class="player-avatar" alt="avatar">
-                    <span class="player-name">${playerUsername} ${isMe ? '(Toi)' : ''}</span>
+                    <img src="${player.avatar}" class="player-avatar" alt="avatar">
+                    <span class="player-name">${player.name} ${isMe ? '(Toi)' : ''}</span>
                 </div>
                 <span class="score-tag">${valueDisplay}</span>
             `;
@@ -1658,17 +1665,12 @@ async function loadRealLeaderboard() {
 
         if (!isMyRankSet) {
             document.getElementById('my-rank-position').innerText = "#--";
+            document.getElementById('my-rank-name').innerText = currentUsername;
+            document.getElementById('my-rank-value').innerText = currentLeaderboardCategory === 'flames' ? `${parseInt(localStorage.getItem('streak')) || 0} 🔥` : `${parseInt(localStorage.getItem('xp')) || 0} ⚡`;
         }
 
-    } catch (error) {
-        console.error("Erreur Firebase Classement :", error);
-        
-        // Si Firebase refuse la connexion ou manque d'index
-        listContainer.innerHTML = `
-            <div style="text-align:center; padding: 20px; color: #ef4444;">
-                <p>⚠️ Impossible d'accéder aux données des joueurs.</p>
-                <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">Vérifie la console F12 ou les règles Firebase.</p>
-            </div>
-        `;
-    }
+    }).catch(error => {
+        console.error("Erreur Realtime Database :", error);
+        listContainer.innerHTML = '<p style="text-align:center; color:#ef4444; padding: 20px;">Impossible de charger le classement.</p>';
+    });
 }
