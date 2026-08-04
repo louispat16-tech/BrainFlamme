@@ -8,17 +8,22 @@ const firebaseConfig = {
     appId: "1:200853989780:web:94b21502105f8ae860c781"
 };
 
-// Initialisation Firebase
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const auth = firebase.auth(); // 👈 Assure-toi d'avoir aussi cette ligne pour l'authentification !
+// 1. Initialisation de Firebase d'abord
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-// --- ÉCOUTEUR DE CONNEXION (Point 3) ---
+// 2. Initialisation des services (Firestore, Database, Auth)
+const db = firebase.firestore();
+const database = firebase.database();
+const auth = firebase.auth();
+
+// --- ÉCOUTEUR DE CONNEXION ---
 auth.onAuthStateChanged(user => {
     if (user) {
         console.log("Utilisateur connecté :", user.displayName || user.uid);
-        // On charge et rafraîchit le profil dès que Firebase confirme la connexion du compte
-        renderProfile();
+        // On charge et rafraîchit le profil dès que Firebase confirme la connexion
+        if (typeof renderProfile === "function") renderProfile();
     } else {
         console.log("Aucun utilisateur connecté");
     }
