@@ -555,26 +555,37 @@ function startChronoTimer(seconds) {
 }
 
 function show(id) {
-    // 1. Masquer tous les écrans
-    document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
+    // 1. Masquer tous les écrans (gère la classe .hidden et style.display pour éviter tout conflit)
+    document.querySelectorAll(".screen").forEach(s => {
+        s.classList.add("hidden");
+        s.style.display = "none";
+    });
     
-    // 2. Afficher l'écran cible
-    const target = document.getElementById(id);
+    // 2. Recherche de l'écran cible (prend en compte "quiz" ou "screen-quiz")
+    let target = document.getElementById(id);
+    if (!target && !id.startsWith("screen-")) {
+        target = document.getElementById("screen-" + id);
+    }
+    
+    // 3. Afficher l'écran si trouvé
     if (target) {
+        target.classList.remove("hidden");
         target.style.display = "block";
+    } else {
+        console.warn(`L'écran avec l'ID "${id}" n'a pas été trouvé dans le DOM.`);
     }
 
-    // 🛍️ Si on ouvre la boutique, mettre à jour l'affichage
-    if (id === "shop-screen" && typeof updateShopDisplay === "function") { 
+    // 🛍️ Mettre à jour la boutique si ouverte
+    if ((id === "shop-screen" || id === "shop") && typeof updateShopDisplay === "function") { 
         updateShopDisplay();
     }
 
-    // 📅 SI ON OUVRE LA SÉLECTION DES MODES OU L'ACCUEIL : Met à jour le bouton quotidien
-    if ((id === "modeSelection" || id === "home-screen") && typeof checkDailyStatus === "function") {
+    // 📅 Mettre à jour le statut quotidien sur la sélection de mode ou l'accueil
+    if ((id === "modeSelection" || id === "home-screen" || id === "home") && typeof checkDailyStatus === "function") {
         checkDailyStatus();
     }
 
-    // ✨ Effet Aura sur le nom de l'utilisateur
+    // ✨ Effet Aura sur le pseudo de l'utilisateur
     const welcomeUser = document.getElementById("welcome-user");
     if (welcomeUser) {
         if (typeof stats !== "undefined" && stats && stats.hasAura === true) {
@@ -586,14 +597,24 @@ function show(id) {
         }
     }
 
-    // 🧭 Gestion de la barre de navigation du bas (.bottom-nav)
+    // 🧭 Gestion intelligente de la barre de navigation du bas (.bottom-nav)
     const nav = document.querySelector(".bottom-nav") || document.getElementById("main-nav");
     if (nav) {
-        // Cacher la barre pendant l'inscription/connexion et pendant un Quiz
-        if (id === "login-screen" || id === "quiz") {
+        // Liste complète des écrans où la navigation doit être masquée (jeu en cours, coffres, login)
+        const screensWithoutNav = [
+            "login-screen", "login", 
+            "quiz", "screen-quiz", 
+            "chrono", "screen-chrono", 
+            "game", "screen-game",
+            "chest-screen", "chest"
+        ];
+
+        if (screensWithoutNav.includes(id)) {
             nav.style.display = "none";
+            document.body.classList.add("game-active");
         } else {
             nav.style.display = "flex";
+            document.body.classList.remove("game-active");
         }
     }
 }
