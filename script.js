@@ -1588,7 +1588,6 @@ function loadRealLeaderboard() {
 
     listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement...</p>';
 
-    // Récupérer le pseudo local
     const localUsername = (localStorage.getItem('username') || "Moi").trim();
     const currentUserId = auth && auth.currentUser ? auth.currentUser.uid : null;
 
@@ -1603,24 +1602,27 @@ function loadRealLeaderboard() {
         snapshot.forEach(childSnapshot => {
             const player = childSnapshot.val() || {};
             
-            // Recherche du pseudo dans Firebase
-            let nameFound = player.username || player.pseudo || player.name || player.displayName || "";
-            
-            if (!nameFound || nameFound.trim() === "") {
-                nameFound = "Joueur " + childSnapshot.key.substring(0, 4);
+            // 1. Recherche du pseudo sans ajouter le mot "Joueur"
+            let cleanName = player.username || player.pseudo || player.name || player.displayName;
+
+            // Si vraiment aucun nom n'est renseigné dans Firebase, on utilise l'identifiant seul
+            if (!cleanName || cleanName.trim() === "") {
+                cleanName = childSnapshot.key.substring(0, 6); // Affiche juste le code (ex: "a1b2c3")
+            } else {
+                cleanName = cleanName.trim();
             }
 
-            const cleanName = nameFound.trim();
             const streakVal = player.streak !== undefined ? player.streak : (player.flammes || player.flames || 0);
             const xpVal = player.xp || 0;
             const levelVal = player.level || player.niveau || 1;
 
-            // Avatar avec l'initiale
-            const initial = cleanName.charAt(0).toUpperCase();
-            let avatarHtml = `<div class="player-avatar-initial">${initial}</div>`;
-
+            // 2. Gestion de l'Avatar (Image ou Badge Initiale)
+            let avatarHtml = '';
             if (player.avatar && typeof player.avatar === 'string' && player.avatar.startsWith('http')) {
-                avatarHtml = `<img src="${player.avatar}" class="player-avatar" alt="avatar">`;
+                avatarHtml = `<img src="${player.avatar}" class="player-avatar" alt="avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">`;
+            } else {
+                const initial = cleanName.charAt(0).toUpperCase();
+                avatarHtml = `<div style="width:36px; height:36px; border-radius:50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0;">${initial}</div>`;
             }
 
             playersData.push({
@@ -1633,7 +1635,7 @@ function loadRealLeaderboard() {
             });
         });
 
-        // Tri décroissant selon le filtre actif
+        // Tri décroissant
         playersData.sort((a, b) => {
             if (currentLeaderboardCategory === 'xp') return b.xp - a.xp;
             if (currentLeaderboardCategory === 'level') return b.level - a.level;
@@ -1657,7 +1659,6 @@ function loadRealLeaderboard() {
             else if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp} ⚡`;
             else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level}`;
 
-            // Détection si c'est le joueur actuel
             const isMe = (currentUserId && player.key === currentUserId) || 
                          (player.name.toLowerCase() === localUsername.toLowerCase());
 
@@ -1678,7 +1679,7 @@ function loadRealLeaderboard() {
 
             item.innerHTML = `
                 <span class="rank-badge">${rankDisplay}</span>
-                <div class="player-info">
+                <div class="player-info" style="display:flex; align-items:center; gap:10px;">
                     ${player.avatarHtml}
                     <span class="player-name">${player.name} ${isMe ? '<strong style="color:#22c55e;">(Toi)</strong>' : ''}</span>
                 </div>
