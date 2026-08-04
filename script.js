@@ -1356,20 +1356,24 @@ function preparerCoffre() {
     if (!chestScreen || !chestImg) return false;
 
     coffreDejaOuvert = false;
-    
-    // S'assurer que l'image est visible au départ
     chestImg.style.display = "block";
 
     if (selectedMode === "Quotidien") {
         currentChestType = "Quotidien";
         if (title) title.textContent = "🏆 COFFRE DORÉ QUOTIDIEN !";
-        chestImg.src = "coffre_or_flat.png?v=2"; // Force le nouveau fichier propre
+        
+        // 🎯 NOM EXACT GITHUB :
+        chestImg.src = "coffre_or_flat-removebg-preview.png";
+        
         show("chest-screen");
         return true; 
     } else if (selectedMode === "Chrono") {
         currentChestType = "Chrono";
         if (title) title.textContent = "📦 COFFRE EN BOIS CHRONO";
-        chestImg.src = "coffre_bois_flat.png?v=2"; // Force le nouveau fichier propre
+        
+        // 🎯 NOM EXACT GITHUB :
+        chestImg.src = "coffre_bois_flat-removebg-preview.png";
+        
         show("chest-screen");
         return true; 
     }
