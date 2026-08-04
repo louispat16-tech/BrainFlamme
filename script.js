@@ -1719,13 +1719,6 @@ const myStreak = parseInt(localStorage.getItem('streak')) || 0;
 const myXP = parseInt(localStorage.getItem('xp')) || 0;
 const myLevel = parseInt(localStorage.getItem('level')) || 1;
 
-// On sauvegarde dans Firebase !
-// Définition des 4 variables nécessaires
-const myPseudo = localStorage.getItem('username') || "Joueur";
-const myStreak = parseInt(localStorage.getItem('streak')) || 0;
-const myXP = parseInt(localStorage.getItem('xp')) || 0;
-const myLevel = parseInt(localStorage.getItem('level')) || 1;
-
 // Appel de la sauvegarde
 if (typeof saveUserProfileToFirebase === "function") {
     saveUserProfileToFirebase(myPseudo, myStreak, myXP, myLevel);
