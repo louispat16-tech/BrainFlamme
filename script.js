@@ -1590,8 +1590,8 @@ function loadRealLeaderboard() {
 
     // Récupération et nettoyage de ton pseudo local
    // Remplace le début de la fonction par ceci :
-const rawLocalUsername = localStorage.getItem('username') || localStorage.getItem('pseudo') || "Moi";
-const localStreak = localStorage.getItem('streak') || localStorage.getItem('flammes') || 0;
+const rawLocalUsername = localStorage.getItem('username') || "Moi";
+    const localUsername = rawLocalUsername.trim().toLowerCase();
     const currentUserId = auth && auth.currentUser ? auth.currentUser.uid : null;
 
     database.ref('joueurs').once('value').then(snapshot => {
