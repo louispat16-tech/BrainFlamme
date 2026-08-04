@@ -1720,4 +1720,43 @@ const myXP = parseInt(localStorage.getItem('xp')) || 0;
 const myLevel = parseInt(localStorage.getItem('level')) || 1;
 
 // On sauvegarde dans Firebase !
-saveUserProfileToFirebase(myPseudo, myStreak, myXP, myLevel);
+// Définition des 4 variables nécessaires
+const myPseudo = localStorage.getItem('username') || "Joueur";
+const myStreak = parseInt(localStorage.getItem('streak')) || 0;
+const myXP = parseInt(localStorage.getItem('xp')) || 0;
+const myLevel = parseInt(localStorage.getItem('level')) || 1;
+
+// Appel de la sauvegarde
+if (typeof saveUserProfileToFirebase === "function") {
+    saveUserProfileToFirebase(myPseudo, myStreak, myXP, myLevel);
+}
+// --- FONCTION DE SAUVEGARDE DE PROFIL DANS FIREBASE ---
+function saveUserProfileToFirebase(username, streak, xp, level) {
+    if (!database) return;
+
+    // Récupération de l'ID utilisateur (soit Firebase Auth, soit un identifiant local)
+    const userId = (auth && auth.currentUser) ? auth.currentUser.uid : (localStorage.getItem('brainflamme_uid') || ("user_" + Date.now()));
+    
+    // Sauvegarde de secours du UID s'il n'existe pas
+    if (!localStorage.getItem('brainflamme_uid')) {
+        localStorage.setItem('brainflamme_uid', userId);
+    }
+
+    const cleanUsername = username || localStorage.getItem('username') || "Joueur";
+
+    // Envoi des données vers Firebase Realtime Database
+    database.ref('joueurs/' + userId).update({
+        username: cleanUsername,
+        pseudo: cleanUsername,
+        name: cleanUsername,
+        streak: parseInt(streak) || 0,
+        flammes: parseInt(streak) || 0,
+        xp: parseInt(xp) || 0,
+        level: parseInt(level) || 1,
+        updatedAt: Date.now()
+    }).then(() => {
+        console.log("Profil sauvegardé sur Firebase avec succès !");
+    }).catch(err => {
+        console.error("Erreur lors de la sauvegarde Firebase :", err);
+    });
+}
