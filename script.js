@@ -1524,7 +1524,6 @@ function loadRealLeaderboard() {
 
     listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement...</p>';
 
-    // Récupère le nom local (ex: "Louis")
     const rawLocalUsername = localStorage.getItem('username') || localStorage.getItem('brainflamme_user') || "Louis";
     const localClean = rawLocalUsername.trim().toLowerCase();
     const currentUserId = (typeof auth !== "undefined" && auth.currentUser) ? auth.currentUser.uid : localStorage.getItem('brainflamme_uid');
@@ -1544,29 +1543,32 @@ function loadRealLeaderboard() {
 
         snapshot.forEach(childSnapshot => {
             const player = childSnapshot.val() || {};
-            let cleanName = (player.username || player.pseudo || player.name || "Joueur").trim();
+            
+            // 1. Récupération du nom (vérifie toutes les clés possibles)
+            let cleanName = (player.username || player.pseudo || player.name || "").trim();
+            if (!cleanName) cleanName = "Joueur Anonyme";
 
             const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
             const xpVal = player.xp || 0;
             const levelVal = player.level || 1;
+            
+            // 2. Récupération de l'avatar (Image URL, Emoji ou Lettre par défaut)
+            const customAvatar = player.avatar || player.photoURL || player.avatarUrl || "";
 
             playersData.push({
                 name: cleanName,
                 flames: parseInt(streakVal) || 0,
                 xp: parseInt(xpVal) || 0,
                 level: parseInt(levelVal) || 1,
+                avatar: customAvatar,
                 key: childSnapshot.key
             });
         });
 
-        // Tri selon la catégorie sélectionnée
+        // Tri selon la catégorie
         playersData.sort((a, b) => {
-            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') {
-                return b.xp - a.xp;
-            }
-            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'level') {
-                return b.level - a.level;
-            }
+            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') return b.xp - a.xp;
+            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'level') return b.level - a.level;
             return b.flames - a.flames;
         });
 
@@ -1589,10 +1591,9 @@ function loadRealLeaderboard() {
                 valueDisplay = `Niv. ${player.level}`;
             }
 
-            // Détection : vérifie par UID ou si les flammes/scores correspondent
             const isMe = (currentUserId && player.key === currentUserId) || 
                          (localClean !== "" && player.name.toLowerCase() === localClean) ||
-                         (!myRankFound && player.flames === 11 && rawLocalUsername === "Louis"); // Sécurité pour forcer ton rang 11 🔥
+                         (!myRankFound && player.flames === 11 && rawLocalUsername === "Louis");
 
             if (isMe && !myRankFound) {
                 myRankFound = true;
@@ -1605,8 +1606,18 @@ function loadRealLeaderboard() {
                 if (myVal) myVal.innerText = valueDisplay;
             }
 
-            const initial = player.name.charAt(0).toUpperCase();
-            const avatarHtml = `<div style="width:40px; height:40px; border-radius:50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">${initial}</div>`;
+            // Génération dynamique de l'avatar : Image si elle existe, sinon Pastille avec la première lettre
+            let avatarHtml = '';
+            if (player.avatar && (player.avatar.startsWith('http') || player.avatar.startsWith('data:image'))) {
+                avatarHtml = `<img src="${player.avatar}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0;">`;
+            } else if (player.avatar && player.avatar.length <= 4) {
+                // Si c'est un emoji (ex: 🦊, 👑)
+                avatarHtml = `<div style="width:40px; height:40px; border-radius:50%; background: rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0;">${player.avatar}</div>`;
+            } else {
+                // Avatar par défaut avec la 1ère lettre du pseudo
+                const initial = player.name.charAt(0).toUpperCase();
+                avatarHtml = `<div style="width:40px; height:40px; border-radius:50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">${initial}</div>`;
+            }
 
             const item = document.createElement('div');
             item.className = `leaderboard-item ${rankClass} ${isMe ? 'my-score-highlight' : ''}`;
@@ -1630,7 +1641,6 @@ function loadRealLeaderboard() {
         console.error("Erreur classement :", err);
     });
 }
-
 function saveUserProfileToFirebase(username, streak, xp, level) {
     if (typeof database === "undefined" || !database) return;
 
