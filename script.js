@@ -1501,17 +1501,15 @@ function genererEtAfficherRecompense() {
 // Variable globale pour suivre la catégorie active
 let currentLeaderboardCategory = 'flames';
 
-// Fonction pour changer la catégorie du classement
+// ==========================================
+// 🏆 LOGIQUE DU CLASSEMENT (LEADERBOARD)
+// ==========================================
 function switchLeaderboardCategory(category, element) {
     currentLeaderboardCategory = category;
 
-    // Mise à jour visuelle des boutons de filtre
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    if (element) {
-        element.classList.add('active');
-    }
+    if (element) element.classList.add('active');
 
-    // Charger le classement depuis Firebase
     loadRealLeaderboard();
 }
 
@@ -1521,10 +1519,10 @@ function loadRealLeaderboard() {
 
     listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement...</p>';
 
-    // Récupération dynamique du pseudo et de l'ID actuel
-    const rawLocalUsername = localStorage.getItem('username') || localStorage.getItem('brainflamme_user') || "Moi";
+    // Récupération dynamique du pseudo local et de l'ID courant
+    const rawLocalUsername = localStorage.getItem('username') || localStorage.getItem('brainflamme_user') || "Joueur";
     const localClean = rawLocalUsername.trim().toLowerCase();
-    const currentUserId = (typeof auth !== "undefined" && auth.currentUser) ? auth.currentUser.uid : localStorage.getItem('brainflamme_uid');
+    const currentUserId = (typeof auth !== "undefined" && auth && auth.currentUser) ? auth.currentUser.uid : localStorage.getItem('brainflamme_uid');
 
     if (typeof database === "undefined" || !database) {
         listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Firebase non connecté.</p>';
@@ -1541,11 +1539,12 @@ function loadRealLeaderboard() {
 
         snapshot.forEach(childSnapshot => {
             const player = childSnapshot.val() || {};
-            let cleanName = player.username || player.pseudo || player.name || "";
-            cleanName = cleanName.trim();
+            let cleanName = (player.username || player.pseudo || player.name || "").trim();
 
-            // Filtrer les comptes par défaut vides
-            if (!cleanName) return;
+            // 🚫 FILTRE : On ignore les comptes par défaut "Joueur1", "Joueur" et vides
+            if (!cleanName || cleanName.toLowerCase().startsWith("joueur1") || cleanName.toLowerCase() === "joueur") {
+                return;
+            }
 
             const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
             const xpVal = player.xp || 0;
@@ -1564,10 +1563,14 @@ function loadRealLeaderboard() {
             });
         });
 
-        // Tri selon la catégorie sélectionnée
+        // 📊 Tri selon la catégorie sélectionnée (Flammes, XP ou Niveau)
         playersData.sort((a, b) => {
-            if (currentLeaderboardCategory === 'xp') return b.xp - a.xp;
-            if (currentLeaderboardCategory === 'level') return b.level - a.level;
+            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') {
+                return b.xp - a.xp;
+            }
+            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'level') {
+                return b.level - a.level;
+            }
             return b.flames - a.flames;
         });
 
@@ -1584,10 +1587,13 @@ function loadRealLeaderboard() {
             else if (rank === 3) { rankDisplay = '🥉'; rankClass = 'top-3'; }
 
             let valueDisplay = `${player.flames} 🔥`;
-            if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp} ⚡`;
-            else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level}`;
+            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') {
+                valueDisplay = `${player.xp} ⚡`;
+            } else if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'level') {
+                valueDisplay = `Niv. ${player.level}`;
+            }
 
-            // Détection si c'est le joueur actuel
+            // 🎯 Identification blindée de l'utilisateur (par UID Firebase ou par Pseudo)
             const isMe = (currentUserId && player.key === currentUserId) || 
                          (localClean !== "" && player.name.toLowerCase() === localClean);
 
@@ -1598,7 +1604,7 @@ function loadRealLeaderboard() {
                 const myVal = document.getElementById('my-rank-value');
 
                 if (myPos) myPos.innerText = rankDisplay;
-                if (myName) myName.innerText = player.name;
+                if (myName) myName.innerText = rawLocalUsername; // Affiche ton pseudo propre
                 if (myVal) myVal.innerText = valueDisplay;
             }
 
@@ -1609,7 +1615,9 @@ function loadRealLeaderboard() {
                 <span class="rank-badge">${rankDisplay}</span>
                 <div class="player-info" style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
                     ${player.avatarHtml}
-                    <span class="player-name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">${player.name} ${isMe ? '<span style="color:#22c55e; font-size:0.8rem;">(Toi)</span>' : ''}</span>
+                    <span class="player-name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">
+                        ${isMe ? rawLocalUsername : player.name} ${isMe ? '<span style="color:#22c55e; font-size:0.8rem; font-weight:bold;">(Toi)</span>' : ''}
+                    </span>
                 </div>
                 <span class="score-tag">${valueDisplay}</span>
             `;
@@ -1618,29 +1626,45 @@ function loadRealLeaderboard() {
             rank++;
         });
 
-        // Si le joueur n'est pas encore trouvé dans la base
+        // 💡 Sécurité si ton profil n'est pas encore trouvé/enregistré dans Firebase
         if (!myRankFound) {
             const myPos = document.getElementById('my-rank-position');
             const myName = document.getElementById('my-rank-name');
             const myVal = document.getElementById('my-rank-value');
+
+            let myScore = "0 🔥";
+            if (typeof stats !== 'undefined') {
+                if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') {
+                    myScore = `${stats.xp || 0} ⚡`;
+                } else if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'level') {
+                    myScore = `Niv. ${stats.level || 1}`;
+                } else {
+                    myScore = `${stats.flammes || stats.streak || 0} 🔥`;
+                }
+            }
+
             if (myPos) myPos.innerText = "#--";
             if (myName) myName.innerText = rawLocalUsername;
-            if (myVal) myVal.innerText = (typeof stats !== 'undefined' ? stats.flammes || 0 : 0) + " 🔥";
+            if (myVal) myVal.innerText = myScore;
         }
 
     }).catch(err => {
         console.error("Erreur d'affichage du classement :", err);
+        listContainer.innerHTML = '<p style="text-align:center; color:#ef4444; padding: 20px;">Erreur de chargement du classement.</p>';
     });
 }
 
-// --- FONCTION DE SAUVEGARDE DE PROFIL DANS FIREBASE ---
+// ==========================================
+// 💾 SAUVEGARDE DE PROFIL DANS FIREBASE
+// ==========================================
 function saveUserProfileToFirebase(username, streak, xp, level) {
-    if (!database) return;
+    if (typeof database === "undefined" || !database) return;
 
-    // Récupération de l'ID utilisateur (soit Firebase Auth, soit un identifiant local)
-    const userId = (auth && auth.currentUser) ? auth.currentUser.uid : (localStorage.getItem('brainflamme_uid') || ("user_" + Date.now()));
-    
-    // Sauvegarde de secours du UID s'il n'existe pas
+    // Récupération sécurisée de l'ID utilisateur
+    const userId = (typeof auth !== "undefined" && auth && auth.currentUser) 
+        ? auth.currentUser.uid 
+        : (localStorage.getItem('brainflamme_uid') || ("user_" + Date.now()));
+
     if (!localStorage.getItem('brainflamme_uid')) {
         localStorage.setItem('brainflamme_uid', userId);
     }
