@@ -1360,7 +1360,7 @@ function preparerCoffre() {
 
     if (selectedMode === "Quotidien") {
         currentChestType = "Quotidien";
-        if (title) title.textContent = "COFFRE DORÉ QUOTIDIEN !";
+        if (title) title.textContent = "COFFRE DORÉ DÉBLOQUÉ !";
         
         // 🎯 NOM EXACT GITHUB :
         chestImg.src = "coffre_or_flat-removebg-preview.png";
@@ -1369,7 +1369,7 @@ function preparerCoffre() {
         return true; 
     } else if (selectedMode === "Chrono") {
         currentChestType = "Chrono";
-        if (title) title.textContent = "COFFRE EN BOIS CHRONO";
+        if (title) title.textContent = "COFFRE EN BOIS DÉBLOQUÉ !";
         
         // 🎯 NOM EXACT GITHUB :
         chestImg.src = "coffre_bois_flat-removebg-preview.png";
