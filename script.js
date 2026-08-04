@@ -1545,28 +1545,22 @@ function loadRealLeaderboard() {
     const player = childSnapshot.val() || {};
     const key = childSnapshot.key || "";
     
-    // 🔍 Recherche exhaustive de toutes les clés de nom possibles dans Firebase Realtime Database
-    let cleanName = (
+    // 1. Récupération directe du vrai pseudo dans Firebase
+    let rawName = (
         player.username || 
         player.pseudo || 
         player.name || 
         player.displayName || 
         player.user || 
-        player.prenom || 
-        player.nom || 
         ""
     ).toString().trim();
 
-    // 🚨 Si Firebase n'a stocké AUCUN nom pour ce joueur :
-    if (!cleanName || cleanName.toLowerCase() === "joueur" || cleanName === "undefined" || cleanName === "null") {
-        // Si c'est le compte local du joueur connecté
-        if (key === currentUserId && localUsername) {
-            cleanName = localUsername;
-        } else {
-            // Utilise un identifiant court unique au lieu du mot "Joueur" générique
-            const shortId = key ? key.substring(0, 4).toUpperCase() : "1";
-            cleanName = `Joueur #${shortId}`;
-        }
+    // 2. Nettoyage : Si "Joueur#" ou "Joueur #" s'est glissé devant, on le retire
+    let cleanName = rawName.replace(/^joueur\s*#?\s*/i, '').trim();
+
+    // 3. Secours : Si le joueur n'a VRAIMENT aucun pseudo enregistré
+    if (!cleanName) {
+        cleanName = "Anonyme";
     }
 
     const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
@@ -1575,7 +1569,7 @@ function loadRealLeaderboard() {
     const customAvatar = player.avatar || player.photoURL || player.avatarUrl || "";
 
     playersData.push({
-        name: cleanName,
+        name: cleanName, // Affiche uniquement le vrai pseudo !
         flames: parseInt(streakVal) || 0,
         xp: parseInt(xpVal) || 0,
         level: parseInt(levelVal) || 1,
