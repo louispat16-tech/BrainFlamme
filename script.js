@@ -1524,17 +1524,26 @@ function loadRealLeaderboard() {
 
     listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement...</p>';
 
-    const myName = localStorage.getItem('username') || "Louis";
-    const myCleanName = myName.trim().toLowerCase();
+    // Securisation anti-undefined des variables de base
+    const rawLocalUsername = localStorage.getItem('username') || localStorage.getItem('brainflamme_user') || "Louis";
+    const localClean = (rawLocalUsername || "").toString().trim().toLowerCase();
+    
+    let currentUserId = "";
+    if (typeof auth !== "undefined" && auth && auth.currentUser) {
+        currentUserId = auth.currentUser.uid;
+    } else {
+        currentUserId = localStorage.getItem('brainflamme_uid') || "";
+    }
 
+    // Si Firebase n'est pas prêt
     if (typeof database === "undefined" || !database) {
-        listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Firebase non connecté.</p>';
+        listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Firebase non disponible.</p>';
         return;
     }
 
     database.ref('joueurs').once('value').then(snapshot => {
         if (!snapshot.exists()) {
-            listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Aucun joueur enregistré.</p>';
+            listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Aucun joueur trouvé.</p>';
             return;
         }
 
@@ -1542,35 +1551,39 @@ function loadRealLeaderboard() {
 
         snapshot.forEach(childSnapshot => {
             const player = childSnapshot.val() || {};
-            let name = (player.username || player.pseudo || player.name || "").trim();
+            
+            // Récupération sécurisée du nom
+            let cleanName = (player.username || player.pseudo || player.name || "Joueur").toString().trim();
 
-            if (!name) return;
+            // Filtrer les entrées invalides
+            if (!cleanName || cleanName.toLowerCase().startsWith("joueur1")) return;
 
-            const streak = player.streak !== undefined ? player.streak : (player.flammes || 0);
-            const xp = player.xp || 0;
-            const level = player.level || 1;
+            const streakVal = Number(player.streak !== undefined ? player.streak : (player.flammes || 0)) || 0;
+            const xpVal = Number(player.xp) || 0;
+            const levelVal = Number(player.level) || 1;
 
             playersData.push({
-                name: name,
-                flames: parseInt(streak) || 0,
-                xp: parseInt(xp) || 0,
-                level: parseInt(level) || 1
+                name: cleanName,
+                flames: streakVal,
+                xp: xpVal,
+                level: levelVal,
+                key: childSnapshot.key || ""
             });
         });
 
-        // Tri classique selon la catégorie
+        // Catégorie active sécurisée
+        const category = (typeof currentLeaderboardCategory !== "undefined") ? currentLeaderboardCategory : "flames";
+
+        // Tri
         playersData.sort((a, b) => {
-            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') {
-                return b.xp - a.xp;
-            }
-            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'level') {
-                return b.level - a.level;
-            }
+            if (category === 'xp') return b.xp - a.xp;
+            if (category === 'level') return b.level - a.level;
             return b.flames - a.flames;
         });
 
         listContainer.innerHTML = '';
         let rank = 1;
+        let myRankFound = false;
 
         playersData.forEach(player => {
             let rankDisplay = `#${rank}`;
@@ -1579,37 +1592,34 @@ function loadRealLeaderboard() {
             else if (rank === 3) rankDisplay = '🥉';
 
             let valueDisplay = `${player.flames} 🔥`;
-            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') {
-                valueDisplay = `${player.xp} ⚡`;
-            } else if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'level') {
-                valueDisplay = `Niv. ${player.level}`;
-            }
+            if (category === 'xp') valueDisplay = `${player.xp} ⚡`;
+            else if (category === 'level') valueDisplay = `Niv. ${player.level}`;
 
-            const isMe = player.name.toLowerCase() === myCleanName;
+            const isMe = (currentUserId !== "" && player.key === currentUserId) || 
+                         (localClean !== "" && player.name.toLowerCase() === localClean);
 
-            // Met à jour la bannière du haut dès qu'on te trouve dans la liste !
-            if (isMe) {
-                const elPos = document.getElementById('my-rank-position');
-                const elName = document.getElementById('my-rank-name');
-                const elVal = document.getElementById('my-rank-value');
+            if (isMe && !myRankFound) {
+                myRankFound = true;
+                const myPos = document.getElementById('my-rank-position');
+                const myName = document.getElementById('my-rank-name');
+                const myVal = document.getElementById('my-rank-value');
 
-                if (elPos) elPos.innerText = rankDisplay;
-                if (elName) elName.innerText = myName;
-                if (elVal) elVal.innerText = valueDisplay;
+                if (myPos) myPos.innerText = rankDisplay;
+                if (myName) myName.innerText = rawLocalUsername;
+                if (myVal) myVal.innerText = valueDisplay;
             }
 
             const initial = player.name.charAt(0).toUpperCase();
-            const avatarHtml = `<div style="width:40px; height:40px; border-radius:50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">${initial}</div>`;
+            const avatarHtml = `<div style="width:36px; height:36px; border-radius:50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;">${initial}</div>`;
 
             const item = document.createElement('div');
-            item.className = `leaderboard-item ${isMe ? 'my-score-highlight' : ''}`;
-            item.style.cssText = "display: flex; align-items: center; justify-content: space-between; padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.05); border-radius: 12px;";
+            item.style.cssText = `display: flex; align-items: center; justify-content: space-between; padding: 12px; margin-bottom: 8px; background: ${isMe ? 'rgba(139, 92, 246, 0.3)' : 'rgba(30, 41, 59, 0.8)'}; border: ${isMe ? '1px solid #8b5cf6' : '1px solid rgba(255,255,255,0.1)'}; border-radius: 12px; color: white;`;
 
             item.innerHTML = `
-                <span style="font-weight:bold; width:30px;">${rankDisplay}</span>
-                <div style="display:flex; align-items:center; gap:12px; flex:1;">
+                <span style="font-weight:bold; width:35px; color:#fbbf24;">${rankDisplay}</span>
+                <div style="display:flex; align-items:center; gap:10px; flex:1;">
                     ${avatarHtml}
-                    <span style="color:white; font-weight:bold;">${player.name} ${isMe ? '<span style="color:#22c55e;">(Toi)</span>' : ''}</span>
+                    <span style="font-weight:bold;">${player.name} ${isMe ? '<span style="color:#22c55e; font-size:0.8rem;">(Toi)</span>' : ''}</span>
                 </div>
                 <span style="font-weight:bold; color:#f97316;">${valueDisplay}</span>
             `;
@@ -1618,8 +1628,20 @@ function loadRealLeaderboard() {
             rank++;
         });
 
+        // Secours si tu n'es pas encore dans la liste Firebase
+        if (!myRankFound) {
+            const myPos = document.getElementById('my-rank-position');
+            const myName = document.getElementById('my-rank-name');
+            const myVal = document.getElementById('my-rank-value');
+            
+            if (myPos) myPos.innerText = "#--";
+            if (myName) myName.innerText = rawLocalUsername;
+            if (myVal) myVal.innerText = (typeof stats !== 'undefined' ? (stats.flammes || stats.streak || 0) : 0) + " 🔥";
+        }
+
     }).catch(err => {
         console.error("Erreur classement :", err);
+        listContainer.innerHTML = '<p style="text-align:center; color:#ef4444; padding: 20px;">Erreur de chargement.</p>';
     });
 }
 
