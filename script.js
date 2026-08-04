@@ -1602,12 +1602,12 @@ function loadRealLeaderboard() {
         snapshot.forEach(childSnapshot => {
             const player = childSnapshot.val() || {};
             
-            // 1. Recherche du pseudo sans ajouter le mot "Joueur"
+            // 1. Récupération complète du pseudo sans le couper
             let cleanName = player.username || player.pseudo || player.name || player.displayName;
 
-            // Si vraiment aucun nom n'est renseigné dans Firebase, on utilise l'identifiant seul
             if (!cleanName || cleanName.trim() === "") {
-                cleanName = childSnapshot.key.substring(0, 6); // Affiche juste le code (ex: "a1b2c3")
+                // On utilise la clé complète au lieu de la couper à 6 caractères
+                cleanName = childSnapshot.key;
             } else {
                 cleanName = cleanName.trim();
             }
@@ -1616,13 +1616,15 @@ function loadRealLeaderboard() {
             const xpVal = player.xp || 0;
             const levelVal = player.level || player.niveau || 1;
 
-            // 2. Gestion de l'Avatar (Image ou Badge Initiale)
+            // 2. Récupération de l'avatar s'il existe (Image / Lien URL ou badge par défaut)
             let avatarHtml = '';
-            if (player.avatar && typeof player.avatar === 'string' && player.avatar.startsWith('http')) {
-                avatarHtml = `<img src="${player.avatar}" class="player-avatar" alt="avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">`;
+            const avatarUrl = player.avatar || player.photoURL || player.avatarUrl;
+
+            if (avatarUrl && typeof avatarUrl === 'string' && (avatarUrl.startsWith('http') || avatarUrl.startsWith('data:image'))) {
+                avatarHtml = `<img src="${avatarUrl}" class="player-avatar" alt="avatar" style="width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0;">`;
             } else {
                 const initial = cleanName.charAt(0).toUpperCase();
-                avatarHtml = `<div style="width:36px; height:36px; border-radius:50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0;">${initial}</div>`;
+                avatarHtml = `<div style="width:40px; height:40px; border-radius:50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">${initial}</div>`;
             }
 
             playersData.push({
@@ -1635,7 +1637,7 @@ function loadRealLeaderboard() {
             });
         });
 
-        // Tri décroissant
+        // Tri par ordre décroissant
         playersData.sort((a, b) => {
             if (currentLeaderboardCategory === 'xp') return b.xp - a.xp;
             if (currentLeaderboardCategory === 'level') return b.level - a.level;
@@ -1679,9 +1681,9 @@ function loadRealLeaderboard() {
 
             item.innerHTML = `
                 <span class="rank-badge">${rankDisplay}</span>
-                <div class="player-info" style="display:flex; align-items:center; gap:10px;">
+                <div class="player-info" style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
                     ${player.avatarHtml}
-                    <span class="player-name">${player.name} ${isMe ? '<strong style="color:#22c55e;">(Toi)</strong>' : ''}</span>
+                    <span class="player-name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">${player.name} ${isMe ? '<strong style="color:#22c55e;">(Toi)</strong>' : ''}</span>
                 </div>
                 <span class="score-tag">${valueDisplay}</span>
             `;
