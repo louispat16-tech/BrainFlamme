@@ -1230,4 +1230,84 @@ body {
     color: #a78bfa; /* Une légère teinte violette pour le bois */
 }
 
-/* Reste du CSS (shake-chest, reward-modal, etc.) identique au message précédent */
+/* Boutons de filtres */
+.filter-btn {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+    background: #f97316;
+    color: white;
+    border-color: #ea580c;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
+}
+
+/* Éléments de la liste du classement */
+.leaderboard-item {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #334155;
+    transition: transform 0.15s ease;
+}
+
+.leaderboard-item.top-1 {
+    border: 2px solid #fbbf24;
+    background: linear-gradient(135deg, #1e293b, rgba(251, 191, 36, 0.15));
+}
+
+.leaderboard-item.top-2 {
+    border: 2px solid #94a3b8;
+    background: linear-gradient(135deg, #1e293b, rgba(148, 163, 184, 0.15));
+}
+
+.leaderboard-item.top-3 {
+    border: 2px solid #b45309;
+    background: linear-gradient(135deg, #1e293b, rgba(180, 83, 9, 0.15));
+}
+
+.rank-badge {
+    font-weight: bold;
+    font-size: 1.1rem;
+    width: 30px;
+    text-align: center;
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+.player-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f97316;
+}
+
+.player-name {
+    font-weight: bold;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.score-tag {
+    font-weight: bold;
+    color: #f97316;
+    font-size: 1rem;
+}
