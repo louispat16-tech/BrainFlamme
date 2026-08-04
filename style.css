@@ -1324,3 +1324,11 @@ body {
     font-size: 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
+
+/* Masquer la barre de navigation du bas lorsqu'une partie est en cours */
+#screen-quiz:not(.hidden) ~ .bottom-nav,
+#screen-chrono:not(.hidden) ~ .bottom-nav,
+#screen-game:not(.hidden) ~ .bottom-nav,
+.game-active .bottom-nav {
+    display: none !important;
+}
