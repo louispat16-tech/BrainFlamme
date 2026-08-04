@@ -1588,9 +1588,8 @@ function loadRealLeaderboard() {
 
     listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement en direct...</p>';
 
-    // Récupération de ton pseudo local ou Firebase
     const localUsername = localStorage.getItem('username') || "Moi";
-    const currentUserId = auth.currentUser ? auth.currentUser.uid : null;
+    const currentUserId = auth && auth.currentUser ? auth.currentUser.uid : null;
 
     database.ref('joueurs').once('value').then(snapshot => {
         if (!snapshot.exists()) {
@@ -1601,21 +1600,38 @@ function loadRealLeaderboard() {
         let playersData = [];
 
         snapshot.forEach(childSnapshot => {
-            const player = childSnapshot.val();
-            // On vérifie tous les noms de clés possibles (username, pseudo, name)
-            const playerName = player.username || player.pseudo || player.name || "Joueur";
+            const player = childSnapshot.val() || {};
+            
+            // 🔍 Recherche du vrai pseudo à travers tous les champs possibles dans Firebase
+            let playerName = player.username || player.pseudo || player.name || player.displayName;
+            
+            // On ignore les comptes de test vides ou sans nom valide
+            if (!playerName || playerName.trim() === "") {
+                playerName = "Joueur Anonyme";
+            }
+
+            // 🎨 Gestion de l'avatar :
+            // Si le joueur a une image (commençant par http), on l'affiche.
+            // Sinon, on génère un badge couleur avec son initiale !
+            let avatarElement = '';
+            if (player.avatar && typeof player.avatar === 'string' && player.avatar.startsWith('http')) {
+                avatarElement = `<img src="${player.avatar}" class="player-avatar" alt="avatar">`;
+            } else {
+                const initial = playerName.charAt(0).toUpperCase();
+                avatarElement = `<div class="player-avatar-initial">${initial}</div>`;
+            }
 
             playersData.push({
                 name: playerName,
                 flames: player.streak || player.flammes || player.flames || 0,
                 xp: player.xp || 0,
                 level: player.level || player.niveau || 1,
-                avatar: player.avatar || "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(playerName),
+                avatarHtml: avatarElement,
                 key: childSnapshot.key
             });
         });
 
-        // Tri dynamique selon le filtre (Flammes, XP, Niveau)
+        // Tri dynamique (Flammes, XP, Niveau)
         playersData.sort((a, b) => {
             if (currentLeaderboardCategory === 'xp') return b.xp - a.xp;
             if (currentLeaderboardCategory === 'level') return b.level - a.level;
@@ -1639,25 +1655,29 @@ function loadRealLeaderboard() {
             else if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp} ⚡`;
             else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level}`;
 
-            // Détection si c'est ton compte
+            // Détection du joueur actuel
             const isMe = (currentUserId && player.key === currentUserId) || 
                          player.name.toLowerCase() === localUsername.toLowerCase();
 
             if (isMe) {
                 isMyRankSet = true;
-                document.getElementById('my-rank-position').innerText = rankDisplay;
-                document.getElementById('my-rank-name').innerText = player.name;
-                document.getElementById('my-rank-value').innerText = valueDisplay;
+                const myRankPos = document.getElementById('my-rank-position');
+                const myRankName = document.getElementById('my-rank-name');
+                const myRankVal = document.getElementById('my-rank-value');
+
+                if (myRankPos) myRankPos.innerText = rankDisplay;
+                if (myRankName) myRankName.innerText = player.name;
+                if (myRankVal) myRankVal.innerText = valueDisplay;
             }
 
             const item = document.createElement('div');
             item.className = `leaderboard-item ${rankClass}`;
-            if (isMe) item.style.border = "2px solid #22c55e"; // Bordure verte pour mettre en valeur ton rang
+            if (isMe) item.style.border = "2px solid #22c55e"; // Contour vert pour te repérer !
 
             item.innerHTML = `
                 <span class="rank-badge">${rankDisplay}</span>
                 <div class="player-info">
-                    <img src="${player.avatar}" class="player-avatar" alt="avatar">
+                    ${player.avatarHtml}
                     <span class="player-name">${player.name} ${isMe ? '(Toi)' : ''}</span>
                 </div>
                 <span class="score-tag">${valueDisplay}</span>
@@ -1667,11 +1687,15 @@ function loadRealLeaderboard() {
             rank++;
         });
 
-        // Si le joueur n'est pas trouvé dans la liste
+        // Si ton rang n'est pas trouvé dans la liste
         if (!isMyRankSet) {
-            document.getElementById('my-rank-position').innerText = "#--";
-            document.getElementById('my-rank-name').innerText = localUsername;
-            document.getElementById('my-rank-value').innerText = currentLeaderboardCategory === 'flames' ? `${parseInt(localStorage.getItem('streak')) || 0} 🔥` : `${parseInt(localStorage.getItem('xp')) || 0} ⚡`;
+            const myRankPos = document.getElementById('my-rank-position');
+            const myRankName = document.getElementById('my-rank-name');
+            const myRankVal = document.getElementById('my-rank-value');
+
+            if (myRankPos) myRankPos.innerText = "#--";
+            if (myRankName) myRankName.innerText = localUsername;
+            if (myRankVal) myRankVal.innerText = currentLeaderboardCategory === 'flames' ? `${parseInt(localStorage.getItem('streak')) || 0} 🔥` : `${parseInt(localStorage.getItem('xp')) || 0} ⚡`;
         }
 
     }).catch(error => {
