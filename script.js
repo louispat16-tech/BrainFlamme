@@ -1560,3 +1560,99 @@ function genererEtAfficherRecompense() {
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
+// Variable globale pour suivre la catégorie active
+let currentLeaderboardCategory = 'flames';
+
+// Fonction pour changer la catégorie du classement
+function switchLeaderboardCategory(category, element) {
+    currentLeaderboardCategory = category;
+
+    // Mise à jour visuelle des boutons de filtre
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    if (element) {
+        element.classList.add('active');
+    }
+
+    // Charger le classement depuis Firebase
+    loadRealLeaderboard();
+}
+
+// Fonction pour récupérer et afficher les VRAIS joueurs depuis Firestore
+async function loadRealLeaderboard() {
+    const listContainer = document.getElementById('leaderboard-list');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement des meilleurs joueurs...</p>';
+
+    try {
+        // Déterminer le champ de tri dans Firestore selon la catégorie choisie
+        let fieldToOrder = 'streak'; // Par défaut les flammes / séries
+        if (currentLeaderboardCategory === 'xp') fieldToOrder = 'xp';
+        if (currentLeaderboardCategory === 'level') fieldToOrder = 'level';
+
+        // Requête Firebase Firestore : Récupère les 20 meilleurs joueurs triés par ordre décroissant
+        const snapshot = await db.collection('users')
+            .orderBy(fieldToOrder, 'desc')
+            .limit(20)
+            .get();
+
+        if (snapshot.empty) {
+            listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Aucun joueur trouvé pour le moment.</p>';
+            return;
+        }
+
+        listContainer.innerHTML = '';
+        let rank = 1;
+
+        snapshot.forEach(doc => {
+            const player = doc.data();
+            
+            // Format du numéro de rang
+            let rankDisplay = `#${rank}`;
+            let rankClass = '';
+            if (rank === 1) { rankDisplay = '🥇'; rankClass = 'top-1'; }
+            else if (rank === 2) { rankDisplay = '🥈'; rankClass = 'top-2'; }
+            else if (rank === 3) { rankDisplay = '🥉'; rankClass = 'top-3'; }
+
+            // Valeur affichée selon le filtre sélectionné
+            let valueDisplay = '';
+            if (currentLeaderboardCategory === 'flames') {
+                valueDisplay = `${player.streak || 0} 🔥`;
+            } else if (currentLeaderboardCategory === 'xp') {
+                valueDisplay = `${player.xp || 0} ⚡`;
+            } else if (currentLeaderboardCategory === 'level') {
+                valueDisplay = `Niv. ${player.level || 1}`;
+            }
+
+            // Photo de profil ou avatar par défaut
+            const avatarUrl = player.avatar || "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(player.username || "Joueur");
+            const usernameDisplay = player.username || "Joueur Anonyme";
+
+            // Création de la ligne
+            const item = document.createElement('div');
+            item.className = `leaderboard-item ${rankClass}`;
+            item.innerHTML = `
+                <span class="rank-badge">${rankDisplay}</span>
+                <div class="player-info">
+                    <img src="${avatarUrl}" class="player-avatar" alt="avatar">
+                    <span class="player-name">${usernameDisplay}</span>
+                </div>
+                <span class="score-tag">${valueDisplay}</span>
+            `;
+            listContainer.appendChild(item);
+
+            // Mise à jour de la carte du rang personnel si c'est l'utilisateur connecté
+            if (auth.currentUser && doc.id === auth.currentUser.uid) {
+                document.getElementById('my-rank-position').innerText = `#${rank}`;
+                document.getElementById('my-rank-name').innerText = usernameDisplay;
+                document.getElementById('my-rank-value').innerText = valueDisplay;
+            }
+
+            rank++;
+        });
+
+    } catch (error) {
+        console.error("Erreur lors du chargement du classement :", error);
+        listContainer.innerHTML = '<p style="text-align:center; color:#ef4444; padding: 20px;">Impossible de charger le classement.</p>';
+    }
+}
