@@ -580,6 +580,11 @@ function show(id) {
         updateShopDisplay();
     }
 
+    // 🏆 Si on ouvre le classement, charger les vrais joueurs Firebase
+if ((id === "leaderboard" || id === "leaderboard-screen") && typeof loadRealLeaderboard === "function") {
+    loadRealLeaderboard();
+}
+
     // 📅 Mettre à jour le statut quotidien sur la sélection de mode ou l'accueil
     if ((id === "modeSelection" || id === "home-screen" || id === "home") && typeof checkDailyStatus === "function") {
         checkDailyStatus();
