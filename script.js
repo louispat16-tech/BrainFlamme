@@ -1588,8 +1588,13 @@ function loadRealLeaderboard() {
 
     listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement...</p>';
 
-    const rawLocalUsername = localStorage.getItem('username') || localStorage.getItem('pseudo') || localStorage.getItem('brainflamme_user') || "Moi";
-    const localUsernameClean = rawLocalUsername.trim().toLowerCase();
+    // 🔍 Récupération du VRAI pseudo stocké dans le navigateur
+    const localUsername = localStorage.getItem('username') || 
+                          localStorage.getItem('brainflamme_user') || 
+                          localStorage.getItem('pseudo') || 
+                          "";
+    
+    const localClean = localUsername.trim().toLowerCase();
     const currentUserId = (auth && auth.currentUser) ? auth.currentUser.uid : localStorage.getItem('brainflamme_uid');
 
     database.ref('joueurs').once('value').then(snapshot => {
@@ -1603,13 +1608,9 @@ function loadRealLeaderboard() {
         snapshot.forEach(childSnapshot => {
             const player = childSnapshot.val() || {};
             
-            let cleanName = player.username || player.pseudo || player.name || player.displayName;
-
-            if (!cleanName || cleanName.trim() === "") {
-                cleanName = "Joueur " + childSnapshot.key.substring(0, 4);
-            } else {
-                cleanName = cleanName.trim();
-            }
+            // 🏷️ Récupération propre du nom SANS ajouter "Joueur" systématiquement
+            let cleanName = player.username || player.pseudo || player.name || player.displayName || childSnapshot.key;
+            cleanName = cleanName.trim();
 
             const streakVal = player.streak !== undefined ? player.streak : (player.flammes || player.flames || 0);
             const xpVal = player.xp || 0;
@@ -1635,15 +1636,16 @@ function loadRealLeaderboard() {
             });
         });
 
-        // Tri décroissant
+        // 🏆 Tri selon la catégorie sélectionnée
         playersData.sort((a, b) => {
-            if (currentLeaderboardCategory === 'xp') return b.xp - a.xp;
-            if (currentLeaderboardCategory === 'level') return b.level - a.level;
+            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') return b.xp - a.xp;
+            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'level') return b.level - a.level;
             return b.flames - a.flames;
         });
 
         listContainer.innerHTML = '';
         let rank = 1;
+        let myRankFound = false;
 
         playersData.forEach(player => {
             let rankDisplay = `#${rank}`;
@@ -1653,13 +1655,27 @@ function loadRealLeaderboard() {
             else if (rank === 2) { rankDisplay = '🥈'; rankClass = 'top-2'; }
             else if (rank === 3) { rankDisplay = '🥉'; rankClass = 'top-3'; }
 
-            let valueDisplay = '';
-            if (currentLeaderboardCategory === 'flames') valueDisplay = `${player.flames} 🔥`;
-            else if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp} ⚡`;
-            else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level}`;
+            let valueDisplay = `${player.flames} 🔥`;
+            if (typeof currentLeaderboardCategory !== 'undefined') {
+                if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp} ⚡`;
+                else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level}`;
+            }
 
+            // 🎯 Comparaison pour trouver le joueur actuel
             const isMe = (currentUserId && player.key === currentUserId) || 
-                         (player.name.toLowerCase() === localUsernameClean);
+                         (localClean !== "" && player.name.toLowerCase() === localClean);
+
+            // 🎯 Mise à jour de l'encadré "Moi" du haut avec tes VRAIES infos
+            if (isMe && !myRankFound) {
+                myRankFound = true;
+                const myPos = document.getElementById('my-rank-position');
+                const myName = document.getElementById('my-rank-name');
+                const myVal = document.getElementById('my-rank-value');
+
+                if (myPos) myPos.innerText = rankDisplay;
+                if (myName) myName.innerText = player.name;
+                if (myVal) myVal.innerText = valueDisplay;
+            }
 
             const item = document.createElement('div');
             item.className = `leaderboard-item ${rankClass}`;
@@ -1678,10 +1694,17 @@ function loadRealLeaderboard() {
             rank++;
         });
 
+        // Si ton profil n'a pas encore été trouvé dans Firebase
+        if (!myRankFound && localUsername !== "") {
+            const myName = document.getElementById('my-rank-name');
+            if (myName) myName.innerText = localUsername;
+        }
+
     }).catch(err => {
         console.error("Erreur d'affichage du classement :", err);
     });
 }
+
 // Exemple d'appel quand la partie s'achève :
 const myPseudo = localStorage.getItem('username') || "Joueur1";
 const myStreak = parseInt(localStorage.getItem('streak')) || 0;
