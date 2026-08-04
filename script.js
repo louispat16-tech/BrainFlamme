@@ -1544,7 +1544,7 @@ function loadRealLeaderboard() {
         snapshot.forEach(childSnapshot => {
     const player = childSnapshot.val() || {};
     
-    // 🔍 Recherche hyper large de toutes les clés possibles de pseudo dans Firebase
+    // 🔍 Récupération propre du vrai pseudo sans ajouter "Joueur #" devant
     let cleanName = (
         player.username || 
         player.pseudo || 
@@ -1555,10 +1555,9 @@ function loadRealLeaderboard() {
         ""
     ).toString().trim();
 
-    // Si Firebase n'a stocké AUCUN champ de nom, on utilise l'ID du joueur pour éviter le "Joueur Anonyme"
+    // Si vraiment AUCUN nom n'est trouvé dans la base de données
     if (!cleanName || cleanName === "undefined" || cleanName === "null") {
-        const shortKey = childSnapshot.key ? childSnapshot.key.substring(0, 5) : "Anonyme";
-        cleanName = `Joueur #${shortKey}`;
+        cleanName = "Anonyme";
     }
 
     const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
@@ -1567,7 +1566,7 @@ function loadRealLeaderboard() {
     const customAvatar = player.avatar || player.photoURL || player.avatarUrl || "";
 
     playersData.push({
-        name: cleanName,
+        name: cleanName, // Affiche uniquement "LEUR PSEUDO"
         flames: parseInt(streakVal) || 0,
         xp: parseInt(xpVal) || 0,
         level: parseInt(levelVal) || 1,
