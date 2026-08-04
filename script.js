@@ -1545,8 +1545,8 @@ function loadRealLeaderboard() {
     const player = childSnapshot.val() || {};
     const key = childSnapshot.key || "";
     
-    // 1. Récupération directe du vrai pseudo dans Firebase
-    let rawName = (
+    // 1. On cherche s'il y a un vrai nom dans Firebase
+    let cleanName = (
         player.username || 
         player.pseudo || 
         player.name || 
@@ -1555,12 +1555,10 @@ function loadRealLeaderboard() {
         ""
     ).toString().trim();
 
-    // 2. Nettoyage : Si "Joueur#" ou "Joueur #" s'est glissé devant, on le retire
-    let cleanName = rawName.replace(/^joueur\s*#?\s*/i, '').trim();
-
-    // 3. Secours : Si le joueur n'a VRAIMENT aucun pseudo enregistré
-    if (!cleanName) {
-        cleanName = "Anonyme";
+    // 2. S'IL N'Y A AUCUN NOM EN BASE : 
+    // Au lieu d'écrire "Anonyme", on prend la clé du joueur (ex: "Louis", "User_12", "Player3")
+    if (!cleanName || cleanName.toLowerCase() === "anonyme") {
+        cleanName = key; // Affiche directement le nom du dossier Firebase !
     }
 
     const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
@@ -1569,7 +1567,7 @@ function loadRealLeaderboard() {
     const customAvatar = player.avatar || player.photoURL || player.avatarUrl || "";
 
     playersData.push({
-        name: cleanName, // Affiche uniquement le vrai pseudo !
+        name: cleanName,
         flames: parseInt(streakVal) || 0,
         xp: parseInt(xpVal) || 0,
         level: parseInt(levelVal) || 1,
