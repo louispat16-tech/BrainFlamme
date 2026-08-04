@@ -1542,28 +1542,47 @@ function loadRealLeaderboard() {
         let playersData = [];
 
         snapshot.forEach(childSnapshot => {
-            const player = childSnapshot.val() || {};
-            
-            // On cherche le vrai pseudo stocké dans la base
-            let cleanName = (player.username || player.pseudo || player.name || player.displayName || "").trim();
-            
-            // Si pas de nom enregistré dans Firebase, on affiche "Joueur" sans bêtises
-            if (!cleanName) cleanName = "Joueur";
+    const player = childSnapshot.val() || {};
+    const key = childSnapshot.key || "";
+    
+    // 🔍 Recherche exhaustive de toutes les clés de nom possibles dans Firebase Realtime Database
+    let cleanName = (
+        player.username || 
+        player.pseudo || 
+        player.name || 
+        player.displayName || 
+        player.user || 
+        player.prenom || 
+        player.nom || 
+        ""
+    ).toString().trim();
 
-            const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
-            const xpVal = player.xp || 0;
-            const levelVal = player.level || 1;
-            const customAvatar = player.avatar || player.photoURL || player.avatarUrl || "";
+    // 🚨 Si Firebase n'a stocké AUCUN nom pour ce joueur :
+    if (!cleanName || cleanName.toLowerCase() === "joueur" || cleanName === "undefined" || cleanName === "null") {
+        // Si c'est le compte local du joueur connecté
+        if (key === currentUserId && localUsername) {
+            cleanName = localUsername;
+        } else {
+            // Utilise un identifiant court unique au lieu du mot "Joueur" générique
+            const shortId = key ? key.substring(0, 4).toUpperCase() : "1";
+            cleanName = `Joueur #${shortId}`;
+        }
+    }
 
-            playersData.push({
-                name: cleanName,
-                flames: parseInt(streakVal) || 0,
-                xp: parseInt(xpVal) || 0,
-                level: parseInt(levelVal) || 1,
-                avatar: customAvatar,
-                key: childSnapshot.key
-            });
-        });
+    const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
+    const xpVal = player.xp || 0;
+    const levelVal = player.level || 1;
+    const customAvatar = player.avatar || player.photoURL || player.avatarUrl || "";
+
+    playersData.push({
+        name: cleanName,
+        flames: parseInt(streakVal) || 0,
+        xp: parseInt(xpVal) || 0,
+        level: parseInt(levelVal) || 1,
+        avatar: customAvatar,
+        key: key
+    });
+});
 
         // Tri par Flammes, XP ou Niveau
         const category = typeof currentLeaderboardCategory !== 'undefined' ? currentLeaderboardCategory : 'flames';
@@ -1655,8 +1674,10 @@ function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
         ? auth.currentUser.uid 
         : (localStorage.getItem('brainflamme_uid') || ("user_" + Date.now()));
 
-    // On récupère le pseudo saisi par le joueur
-    const actualName = username || localStorage.getItem('username') || "Joueur";
+    // Récupère le vrai pseudo saisi (priorité au localStorage si username n'est pas passé)
+    const actualName = username || localStorage.getItem('username') || localStorage.getItem('brainflamme_user');
+
+    if (!actualName) return; // Ne sauvegarde pas si pas de nom
 
     database.ref('joueurs/' + userId).update({
         username: actualName,
@@ -1668,6 +1689,6 @@ function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
         xp: parseInt(xp) || 0,
         level: parseInt(level) || 1,
         avatar: avatar || localStorage.getItem('avatar') || "",
-        updatedAt: Date.now()
+        lastSeen: Date.now()
     });
 }
