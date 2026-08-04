@@ -1586,14 +1586,15 @@ function loadRealLeaderboard() {
     const listContainer = document.getElementById('leaderboard-list');
     if (!listContainer) return;
 
-    listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement en direct...</p>';
+    listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement...</p>';
 
-    const localUsername = localStorage.getItem('username') || "Moi";
+    // Récupérer le pseudo local
+    const localUsername = (localStorage.getItem('username') || "Moi").trim();
     const currentUserId = auth && auth.currentUser ? auth.currentUser.uid : null;
 
     database.ref('joueurs').once('value').then(snapshot => {
         if (!snapshot.exists()) {
-            listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Aucun joueur trouvé pour le moment.</p>';
+            listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Aucun joueur enregistré.</p>';
             return;
         }
 
@@ -1602,36 +1603,37 @@ function loadRealLeaderboard() {
         snapshot.forEach(childSnapshot => {
             const player = childSnapshot.val() || {};
             
-            // 🔍 Recherche du vrai pseudo à travers tous les champs possibles dans Firebase
-            let playerName = player.username || player.pseudo || player.name || player.displayName;
+            // Recherche du pseudo dans Firebase
+            let nameFound = player.username || player.pseudo || player.name || player.displayName || "";
             
-            // On ignore les comptes de test vides ou sans nom valide
-            if (!playerName || playerName.trim() === "") {
-                playerName = "Joueur Anonyme";
+            if (!nameFound || nameFound.trim() === "") {
+                nameFound = "Joueur " + childSnapshot.key.substring(0, 4);
             }
 
-            // 🎨 Gestion de l'avatar :
-            // Si le joueur a une image (commençant par http), on l'affiche.
-            // Sinon, on génère un badge couleur avec son initiale !
-            let avatarElement = '';
+            const cleanName = nameFound.trim();
+            const streakVal = player.streak !== undefined ? player.streak : (player.flammes || player.flames || 0);
+            const xpVal = player.xp || 0;
+            const levelVal = player.level || player.niveau || 1;
+
+            // Avatar avec l'initiale
+            const initial = cleanName.charAt(0).toUpperCase();
+            let avatarHtml = `<div class="player-avatar-initial">${initial}</div>`;
+
             if (player.avatar && typeof player.avatar === 'string' && player.avatar.startsWith('http')) {
-                avatarElement = `<img src="${player.avatar}" class="player-avatar" alt="avatar">`;
-            } else {
-                const initial = playerName.charAt(0).toUpperCase();
-                avatarElement = `<div class="player-avatar-initial">${initial}</div>`;
+                avatarHtml = `<img src="${player.avatar}" class="player-avatar" alt="avatar">`;
             }
 
             playersData.push({
-                name: playerName,
-                flames: player.streak || player.flammes || player.flames || 0,
-                xp: player.xp || 0,
-                level: player.level || player.niveau || 1,
-                avatarHtml: avatarElement,
+                name: cleanName,
+                flames: parseInt(streakVal) || 0,
+                xp: parseInt(xpVal) || 0,
+                level: parseInt(levelVal) || 1,
+                avatarHtml: avatarHtml,
                 key: childSnapshot.key
             });
         });
 
-        // Tri dynamique (Flammes, XP, Niveau)
+        // Tri décroissant selon le filtre actif
         playersData.sort((a, b) => {
             if (currentLeaderboardCategory === 'xp') return b.xp - a.xp;
             if (currentLeaderboardCategory === 'level') return b.level - a.level;
@@ -1640,7 +1642,7 @@ function loadRealLeaderboard() {
 
         listContainer.innerHTML = '';
         let rank = 1;
-        let isMyRankSet = false;
+        let myRankFound = false;
 
         playersData.forEach(player => {
             let rankDisplay = `#${rank}`;
@@ -1655,30 +1657,30 @@ function loadRealLeaderboard() {
             else if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp} ⚡`;
             else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level}`;
 
-            // Détection du joueur actuel
+            // Détection si c'est le joueur actuel
             const isMe = (currentUserId && player.key === currentUserId) || 
-                         player.name.toLowerCase() === localUsername.toLowerCase();
+                         (player.name.toLowerCase() === localUsername.toLowerCase());
 
             if (isMe) {
-                isMyRankSet = true;
-                const myRankPos = document.getElementById('my-rank-position');
-                const myRankName = document.getElementById('my-rank-name');
-                const myRankVal = document.getElementById('my-rank-value');
+                myRankFound = true;
+                const myPos = document.getElementById('my-rank-position');
+                const myName = document.getElementById('my-rank-name');
+                const myVal = document.getElementById('my-rank-value');
 
-                if (myRankPos) myRankPos.innerText = rankDisplay;
-                if (myRankName) myRankName.innerText = player.name;
-                if (myRankVal) myRankVal.innerText = valueDisplay;
+                if (myPos) myPos.innerText = rankDisplay;
+                if (myName) myName.innerText = player.name;
+                if (myVal) myVal.innerText = valueDisplay;
             }
 
             const item = document.createElement('div');
             item.className = `leaderboard-item ${rankClass}`;
-            if (isMe) item.style.border = "2px solid #22c55e"; // Contour vert pour te repérer !
+            if (isMe) item.style.border = "2px solid #22c55e";
 
             item.innerHTML = `
                 <span class="rank-badge">${rankDisplay}</span>
                 <div class="player-info">
                     ${player.avatarHtml}
-                    <span class="player-name">${player.name} ${isMe ? '(Toi)' : ''}</span>
+                    <span class="player-name">${player.name} ${isMe ? '<strong style="color:#22c55e;">(Toi)</strong>' : ''}</span>
                 </div>
                 <span class="score-tag">${valueDisplay}</span>
             `;
@@ -1687,18 +1689,25 @@ function loadRealLeaderboard() {
             rank++;
         });
 
-        // Si ton rang n'est pas trouvé dans la liste
-        if (!isMyRankSet) {
-            const myRankPos = document.getElementById('my-rank-position');
-            const myRankName = document.getElementById('my-rank-name');
-            const myRankVal = document.getElementById('my-rank-value');
+        if (!myRankFound) {
+            const myPos = document.getElementById('my-rank-position');
+            const myName = document.getElementById('my-rank-name');
+            const myVal = document.getElementById('my-rank-value');
 
-            if (myRankPos) myRankPos.innerText = "#--";
-            if (myRankName) myRankName.innerText = localUsername;
-            if (myRankVal) myRankVal.innerText = currentLeaderboardCategory === 'flames' ? `${parseInt(localStorage.getItem('streak')) || 0} 🔥` : `${parseInt(localStorage.getItem('xp')) || 0} ⚡`;
+            if (myPos) myPos.innerText = "#--";
+            if (myName) myName.innerText = localUsername;
+            if (myVal) myVal.innerText = `${parseInt(localStorage.getItem('streak')) || 0} 🔥`;
         }
 
-    }).catch(error => {
-        console.error("Erreur Classement :", error);
+    }).catch(err => {
+        console.error("Erreur Firebase :", err);
     });
 }
+// Exemple d'appel quand la partie s'achève :
+const myPseudo = localStorage.getItem('username') || "Joueur1";
+const myStreak = parseInt(localStorage.getItem('streak')) || 0;
+const myXP = parseInt(localStorage.getItem('xp')) || 0;
+const myLevel = parseInt(localStorage.getItem('level')) || 1;
+
+// On sauvegarde dans Firebase !
+saveUserProfileToFirebase(myPseudo, myStreak, myXP, myLevel);
