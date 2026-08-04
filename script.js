@@ -1581,110 +1581,89 @@ async function loadRealLeaderboard() {
     const listContainer = document.getElementById('leaderboard-list');
     if (!listContainer) return;
 
-    listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement...</p>';
+    listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement en direct...</p>';
 
-    // Récupérer les infos locales du joueur connecté
     const currentUsername = localStorage.getItem('username') || "Moi";
-    const currentStreak = parseInt(localStorage.getItem('streak')) || 0;
-    const currentXP = parseInt(localStorage.getItem('xp')) || 0;
-    const currentLevel = parseInt(localStorage.getItem('level')) || 1;
 
-    let playersData = [];
-
-    // 1. Tenter de charger depuis Firebase
     try {
+        // Champ de tri selon l'onglet (streak = flammes, xp = xp, level = niveau)
         let fieldToOrder = 'streak';
         if (currentLeaderboardCategory === 'xp') fieldToOrder = 'xp';
         if (currentLeaderboardCategory === 'level') fieldToOrder = 'level';
 
-        if (typeof db !== 'undefined' && db) {
-            const snapshot = await db.collection('users')
-                .orderBy(fieldToOrder, 'desc')
-                .limit(20)
-                .get();
+        // 🔍 REQUÊTE FIREBASE : On va chercher TOUS les vrais comptes de la collection 'users'
+        const snapshot = await db.collection('users')
+            .orderBy(fieldToOrder, 'desc')
+            .get();
 
-            if (!snapshot.empty) {
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    playersData.push({
-                        name: data.username || "Joueur",
-                        flames: data.streak || 0,
-                        xp: data.xp || 0,
-                        level: data.level || 1,
-                        avatar: data.avatar || "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(data.username || "Joueur"),
-                        id: doc.id
-                    });
-                });
+        if (snapshot.empty) {
+            listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Aucun joueur inscrit pour le moment.</p>';
+            document.getElementById('my-rank-position').innerText = "#--";
+            return;
+        }
+
+        listContainer.innerHTML = '';
+        let rank = 1;
+        let isMyRankSet = false;
+
+        snapshot.forEach(doc => {
+            const player = doc.data();
+            const playerUsername = player.username || "Joueur Anonyme";
+            
+            let rankDisplay = `#${rank}`;
+            let rankClass = '';
+
+            if (rank === 1) { rankDisplay = '🥇'; rankClass = 'top-1'; }
+            else if (rank === 2) { rankDisplay = '🥈'; rankClass = 'top-2'; }
+            else if (rank === 3) { rankDisplay = '🥉'; rankClass = 'top-3'; }
+
+            let valueDisplay = '';
+            if (currentLeaderboardCategory === 'flames') valueDisplay = `${player.streak || 0} 🔥`;
+            else if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp || 0} ⚡`;
+            else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level || 1}`;
+
+            // Détection si c'est le joueur actuel
+            const isMe = (auth.currentUser && doc.id === auth.currentUser.uid) || playerUsername === currentUsername;
+
+            if (isMe) {
+                isMyRankSet = true;
+                document.getElementById('my-rank-position').innerText = rankDisplay;
+                document.getElementById('my-rank-name').innerText = playerUsername;
+                document.getElementById('my-rank-value').innerText = valueDisplay;
             }
-        }
-    } catch (error) {
-        console.log("Fiabilisation : passage au classement local.", error);
-    }
 
-    // 2. Si Firebase n'a pas renvoyé de données ou a bloqué, charger la liste locale avec le joueur
-    if (playersData.length === 0) {
-        playersData = [
-            { name: "AlexQuiz 👑", flames: 25, xp: 2100, level: 10, avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Alex" },
-            { name: "SarahBrain", flames: 18, xp: 1400, level: 7, avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Sarah" },
-            { name: currentUsername + " (Toi)", flames: currentStreak, xp: currentXP, level: currentLevel, avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(currentUsername) },
-            { name: "MimiCulture", flames: 5, xp: 450, level: 3, avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Mimi" }
-        ];
+            const avatarUrl = player.avatar || "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(playerUsername);
 
-        // Tri selon le filtre actif
-        playersData.sort((a, b) => {
-            if (currentLeaderboardCategory === 'xp') return b.xp - a.xp;
-            if (currentLeaderboardCategory === 'level') return b.level - a.level;
-            return b.flames - a.flames;
+            const item = document.createElement('div');
+            item.className = `leaderboard-item ${rankClass}`;
+            if (isMe) item.style.border = "2px solid #22c55e"; // Ligne verte pour ton profil
+
+            item.innerHTML = `
+                <span class="rank-badge">${rankDisplay}</span>
+                <div class="player-info">
+                    <img src="${avatarUrl}" class="player-avatar" alt="avatar">
+                    <span class="player-name">${playerUsername} ${isMe ? '(Toi)' : ''}</span>
+                </div>
+                <span class="score-tag">${valueDisplay}</span>
+            `;
+            listContainer.appendChild(item);
+
+            rank++;
         });
-    }
 
-    // 3. Affichage de la liste
-    listContainer.innerHTML = '';
-    let myRankFound = false;
-
-    playersData.forEach((player, index) => {
-        const rank = index + 1;
-        let rankDisplay = `#${rank}`;
-        let rankClass = '';
-
-        if (rank === 1) { rankDisplay = '🥇'; rankClass = 'top-1'; }
-        else if (rank === 2) { rankDisplay = '🥈'; rankClass = 'top-2'; }
-        else if (rank === 3) { rankDisplay = '🥉'; rankClass = 'top-3'; }
-
-        let valueDisplay = '';
-        if (currentLeaderboardCategory === 'flames') valueDisplay = `${player.flames} 🔥`;
-        else if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp} ⚡`;
-        else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level}`;
-
-        // Est-ce le profil du joueur actuel ?
-        const isMe = player.name.includes(currentUsername) || (auth && auth.currentUser && player.id === auth.currentUser.uid);
-
-        if (isMe) {
-            myRankFound = true;
-            document.getElementById('my-rank-position').innerText = rankDisplay;
-            document.getElementById('my-rank-name').innerText = currentUsername;
-            document.getElementById('my-rank-value').innerText = valueDisplay;
+        if (!isMyRankSet) {
+            document.getElementById('my-rank-position').innerText = "#--";
         }
 
-        const item = document.createElement('div');
-        item.className = `leaderboard-item ${rankClass}`;
-        if (isMe) item.style.border = "2px solid #22c55e"; // Contour vert pour ton propre rang !
-
-        item.innerHTML = `
-            <span class="rank-badge">${rankDisplay}</span>
-            <div class="player-info">
-                <img src="${player.avatar}" class="player-avatar" alt="avatar">
-                <span class="player-name">${player.name}</span>
+    } catch (error) {
+        console.error("Erreur Firebase Classement :", error);
+        
+        // Si Firebase refuse la connexion ou manque d'index
+        listContainer.innerHTML = `
+            <div style="text-align:center; padding: 20px; color: #ef4444;">
+                <p>⚠️ Impossible d'accéder aux données des joueurs.</p>
+                <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">Vérifie la console F12 ou les règles Firebase.</p>
             </div>
-            <span class="score-tag">${valueDisplay}</span>
         `;
-        listContainer.appendChild(item);
-    });
-
-    // Si le joueur n'est pas dans le top 20
-    if (!myRankFound) {
-        document.getElementById('my-rank-position').innerText = "#--";
-        document.getElementById('my-rank-name').innerText = currentUsername;
-        document.getElementById('my-rank-value').innerText = currentLeaderboardCategory === 'flames' ? `${currentStreak} 🔥` : `${currentXP} ⚡`;
     }
 }
