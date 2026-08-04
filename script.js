@@ -570,30 +570,31 @@ function show(id) {
         updateShopDisplay();
     }
 
-    // 📅 SI ON OUVRE LA SÉLECTION DES MODES OU L'ACCUEIL : Met à jour le bouton quotidien (grisé / décompte)
+    // 📅 SI ON OUVRE LA SÉLECTION DES MODES OU L'ACCUEIL : Met à jour le bouton quotidien
     if ((id === "modeSelection" || id === "home-screen") && typeof checkDailyStatus === "function") {
         checkDailyStatus();
     }
 
-  const welcomeUser = document.getElementById("welcome-user");
-if (welcomeUser) {
-    if (stats && stats.hasAura === true) {
-        welcomeUser.style.textShadow = "0 0 15px #22d3ee, 0 0 25px #22d3ee";
-        welcomeUser.style.color = "#22d3ee";
-    } else {
-        // ❌ Désactivation explicite pour tous les autres comptes
-        welcomeUser.style.textShadow = "none";
-        welcomeUser.style.color = "inherit"; // Couleur par défaut
+    // ✨ Effet Aura sur le nom de l'utilisateur
+    const welcomeUser = document.getElementById("welcome-user");
+    if (welcomeUser) {
+        if (typeof stats !== "undefined" && stats && stats.hasAura === true) {
+            welcomeUser.style.textShadow = "0 0 15px #22d3ee, 0 0 25px #22d3ee";
+            welcomeUser.style.color = "#22d3ee";
+        } else {
+            welcomeUser.style.textShadow = "none";
+            welcomeUser.style.color = "inherit";
+        }
     }
-}
-    // 🧭 Gestion de la barre de navigation
-    const nav = document.getElementById("main-nav");
+
+    // 🧭 Gestion de la barre de navigation du bas (.bottom-nav)
+    const nav = document.querySelector(".bottom-nav") || document.getElementById("main-nav");
     if (nav) {
+        // Cacher la barre pendant l'inscription/connexion et pendant un Quiz
         if (id === "login-screen" || id === "quiz") {
             nav.style.display = "none";
         } else {
-            const user = localStorage.getItem("brainflamme_user");
-            nav.style.display = user ? "flex" : "none";
+            nav.style.display = "flex";
         }
     }
 }
