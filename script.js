@@ -1522,11 +1522,11 @@ function loadRealLeaderboard() {
     const listContainer = document.getElementById('leaderboard-list');
     if (!listContainer) return;
 
-    listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement...</p>';
+    listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement...</p>';
 
-    const rawLocalUsername = localStorage.getItem('username') || localStorage.getItem('brainflamme_user') || "Louis";
-    const localClean = rawLocalUsername.trim().toLowerCase();
-    const currentUserId = (typeof auth !== "undefined" && auth.currentUser) ? auth.currentUser.uid : localStorage.getItem('brainflamme_uid');
+    // Récupération dynamique de l'utilisateur connecté (LOCAL OU FIREBASE AUTH)
+    const localUsername = localStorage.getItem('username') || localStorage.getItem('brainflamme_user') || "";
+    const currentUserId = (typeof auth !== "undefined" && auth && auth.currentUser) ? auth.currentUser.uid : localStorage.getItem('brainflamme_uid');
 
     if (typeof database === "undefined" || !database) {
         listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Firebase non connecté.</p>';
@@ -1542,42 +1542,34 @@ function loadRealLeaderboard() {
         let playersData = [];
 
         snapshot.forEach(childSnapshot => {
-    const player = childSnapshot.val() || {};
-    
-    // 🔍 Récupération propre du vrai pseudo sans ajouter "Joueur #" devant
-    let cleanName = (
-        player.username || 
-        player.pseudo || 
-        player.name || 
-        player.displayName || 
-        player.user || 
-        player.prenom || 
-        ""
-    ).toString().trim();
+            const player = childSnapshot.val() || {};
+            
+            // On cherche le vrai pseudo stocké dans la base
+            let cleanName = (player.username || player.pseudo || player.name || player.displayName || "").trim();
+            
+            // Si pas de nom enregistré dans Firebase, on affiche "Joueur" sans bêtises
+            if (!cleanName) cleanName = "Joueur";
 
-    // Si vraiment AUCUN nom n'est trouvé dans la base de données
-    if (!cleanName || cleanName === "undefined" || cleanName === "null") {
-        cleanName = "Anonyme";
-    }
+            const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
+            const xpVal = player.xp || 0;
+            const levelVal = player.level || 1;
+            const customAvatar = player.avatar || player.photoURL || player.avatarUrl || "";
 
-    const streakVal = player.streak !== undefined ? player.streak : (player.flammes || 0);
-    const xpVal = player.xp || 0;
-    const levelVal = player.level || 1;
-    const customAvatar = player.avatar || player.photoURL || player.avatarUrl || "";
+            playersData.push({
+                name: cleanName,
+                flames: parseInt(streakVal) || 0,
+                xp: parseInt(xpVal) || 0,
+                level: parseInt(levelVal) || 1,
+                avatar: customAvatar,
+                key: childSnapshot.key
+            });
+        });
 
-    playersData.push({
-        name: cleanName, // Affiche uniquement "LEUR PSEUDO"
-        flames: parseInt(streakVal) || 0,
-        xp: parseInt(xpVal) || 0,
-        level: parseInt(levelVal) || 1,
-        avatar: customAvatar,
-        key: childSnapshot.key
-    });
-});
-        // Tri selon la catégorie
+        // Tri par Flammes, XP ou Niveau
+        const category = typeof currentLeaderboardCategory !== 'undefined' ? currentLeaderboardCategory : 'flames';
         playersData.sort((a, b) => {
-            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') return b.xp - a.xp;
-            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'level') return b.level - a.level;
+            if (category === 'xp') return b.xp - a.xp;
+            if (category === 'level') return b.level - a.level;
             return b.flames - a.flames;
         });
 
@@ -1594,15 +1586,12 @@ function loadRealLeaderboard() {
             else if (rank === 3) { rankDisplay = '🥉'; rankClass = 'top-3'; }
 
             let valueDisplay = `${player.flames} 🔥`;
-            if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'xp') {
-                valueDisplay = `${player.xp} ⚡`;
-            } else if (typeof currentLeaderboardCategory !== 'undefined' && currentLeaderboardCategory === 'level') {
-                valueDisplay = `Niv. ${player.level}`;
-            }
+            if (category === 'xp') valueDisplay = `${player.xp} ⚡`;
+            else if (category === 'level') valueDisplay = `Niv. ${player.level}`;
 
+            // Détection du joueur connecté
             const isMe = (currentUserId && player.key === currentUserId) || 
-                         (localClean !== "" && player.name.toLowerCase() === localClean) ||
-                         (!myRankFound && player.flames === 11 && rawLocalUsername === "Louis");
+                         (localUsername !== "" && player.name.toLowerCase() === localUsername.trim().toLowerCase());
 
             if (isMe && !myRankFound) {
                 myRankFound = true;
@@ -1611,19 +1600,17 @@ function loadRealLeaderboard() {
                 const myVal = document.getElementById('my-rank-value');
 
                 if (myPos) myPos.innerText = rankDisplay;
-                if (myName) myName.innerText = rawLocalUsername;
+                if (myName) myName.innerText = player.name; // Affiche le VRAI nom du compte connecté
                 if (myVal) myVal.innerText = valueDisplay;
             }
 
-            // Génération dynamique de l'avatar : Image si elle existe, sinon Pastille avec la première lettre
+            // Gestion Avatar (Image URL, Emoji ou Initiale)
             let avatarHtml = '';
             if (player.avatar && (player.avatar.startsWith('http') || player.avatar.startsWith('data:image'))) {
                 avatarHtml = `<img src="${player.avatar}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0;">`;
             } else if (player.avatar && player.avatar.length <= 4) {
-                // Si c'est un emoji (ex: 🦊, 👑)
                 avatarHtml = `<div style="width:40px; height:40px; border-radius:50%; background: rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0;">${player.avatar}</div>`;
             } else {
-                // Avatar par défaut avec la 1ère lettre du pseudo
                 const initial = player.name.charAt(0).toUpperCase();
                 avatarHtml = `<div style="width:40px; height:40px; border-radius:50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">${initial}</div>`;
             }
@@ -1636,7 +1623,7 @@ function loadRealLeaderboard() {
                 <div class="player-info" style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
                     ${avatarHtml}
                     <span class="player-name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">
-                        ${isMe ? rawLocalUsername : player.name} ${isMe ? '<span style="color:#22c55e; font-size:0.8rem; font-weight:bold;">(Toi)</span>' : ''}
+                        ${player.name} ${isMe ? '<span style="color:#22c55e; font-size:0.8rem; font-weight:bold;">(Toi)</span>' : ''}
                     </span>
                 </div>
                 <span class="score-tag">${valueDisplay}</span>
@@ -1646,25 +1633,41 @@ function loadRealLeaderboard() {
             rank++;
         });
 
+        // Si le joueur local n'est pas encore dans la liste Firebase
+        if (!myRankFound) {
+            const myPos = document.getElementById('my-rank-position');
+            const myName = document.getElementById('my-rank-name');
+            const myVal = document.getElementById('my-rank-value');
+            if (myPos) myPos.innerText = "#--";
+            if (myName) myName.innerText = localUsername || "Moi";
+            if (myVal) myVal.innerText = (typeof stats !== 'undefined' ? (stats.flammes || stats.streak || 0) : 0) + " 🔥";
+        }
+
     }).catch(err => {
         console.error("Erreur classement :", err);
     });
 }
-function saveUserProfileToFirebase(username, streak, xp, level) {
+
+function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
     if (typeof database === "undefined" || !database) return;
 
-    const userId = localStorage.getItem('brainflamme_uid') || ("user_" + Date.now());
-    localStorage.setItem('brainflamme_uid', userId);
+    const userId = (typeof auth !== "undefined" && auth && auth.currentUser) 
+        ? auth.currentUser.uid 
+        : (localStorage.getItem('brainflamme_uid') || ("user_" + Date.now()));
 
-    const cleanUsername = username || localStorage.getItem('username') || "Louis";
+    // On récupère le pseudo saisi par le joueur
+    const actualName = username || localStorage.getItem('username') || "Joueur";
 
-    database.ref('joueurs/' + userId).set({
-        username: cleanUsername,
-        pseudo: cleanUsername,
-        name: cleanUsername,
+    database.ref('joueurs/' + userId).update({
+        username: actualName,
+        pseudo: actualName,
+        name: actualName,
+        displayName: actualName,
         streak: parseInt(streak) || 0,
         flammes: parseInt(streak) || 0,
         xp: parseInt(xp) || 0,
-        level: parseInt(level) || 1
+        level: parseInt(level) || 1,
+        avatar: avatar || localStorage.getItem('avatar') || "",
+        updatedAt: Date.now()
     });
 }
