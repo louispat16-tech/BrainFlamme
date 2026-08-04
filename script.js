@@ -1588,7 +1588,9 @@ function loadRealLeaderboard() {
 
     listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement...</p>';
 
-    const localUsername = (localStorage.getItem('username') || "Moi").trim();
+    // Récupération et nettoyage de ton pseudo local
+    const rawLocalUsername = localStorage.getItem('username') || "Moi";
+    const localUsername = rawLocalUsername.trim().toLowerCase();
     const currentUserId = auth && auth.currentUser ? auth.currentUser.uid : null;
 
     database.ref('joueurs').once('value').then(snapshot => {
@@ -1602,11 +1604,9 @@ function loadRealLeaderboard() {
         snapshot.forEach(childSnapshot => {
             const player = childSnapshot.val() || {};
             
-            // 1. Récupération complète du pseudo sans le couper
             let cleanName = player.username || player.pseudo || player.name || player.displayName;
 
             if (!cleanName || cleanName.trim() === "") {
-                // On utilise la clé complète au lieu de la couper à 6 caractères
                 cleanName = childSnapshot.key;
             } else {
                 cleanName = cleanName.trim();
@@ -1616,7 +1616,7 @@ function loadRealLeaderboard() {
             const xpVal = player.xp || 0;
             const levelVal = player.level || player.niveau || 1;
 
-            // 2. Récupération de l'avatar s'il existe (Image / Lien URL ou badge par défaut)
+            // Détection de l'avatar
             let avatarHtml = '';
             const avatarUrl = player.avatar || player.photoURL || player.avatarUrl;
 
@@ -1637,7 +1637,7 @@ function loadRealLeaderboard() {
             });
         });
 
-        // Tri par ordre décroissant
+        // Tri par score (Flammes, XP, ou Niveau)
         playersData.sort((a, b) => {
             if (currentLeaderboardCategory === 'xp') return b.xp - a.xp;
             if (currentLeaderboardCategory === 'level') return b.level - a.level;
@@ -1661,10 +1661,12 @@ function loadRealLeaderboard() {
             else if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp} ⚡`;
             else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level}`;
 
+            // Comparaison intelligente pour trouver si c'est "Toi"
             const isMe = (currentUserId && player.key === currentUserId) || 
-                         (player.name.toLowerCase() === localUsername.toLowerCase());
+                         (player.name.toLowerCase() === localUsername);
 
-            if (isMe) {
+            // 🎯 MISE À JOUR DU CADRE HAUT "MOI"
+            if (isMe && !myRankFound) {
                 myRankFound = true;
                 const myPos = document.getElementById('my-rank-position');
                 const myName = document.getElementById('my-rank-name');
@@ -1677,7 +1679,7 @@ function loadRealLeaderboard() {
 
             const item = document.createElement('div');
             item.className = `leaderboard-item ${rankClass}`;
-            if (isMe) item.style.border = "2px solid #22c55e";
+            if (isMe) item.style.border = "2px solid #22c55e"; // Contour vert dans la liste
 
             item.innerHTML = `
                 <span class="rank-badge">${rankDisplay}</span>
@@ -1692,14 +1694,18 @@ function loadRealLeaderboard() {
             rank++;
         });
 
+        // Sécurité si ton profil n'est pas trouvé dans la base de données
         if (!myRankFound) {
             const myPos = document.getElementById('my-rank-position');
             const myName = document.getElementById('my-rank-name');
             const myVal = document.getElementById('my-rank-value');
 
+            const localStreak = parseInt(localStorage.getItem('streak')) || 0;
+            const localXP = parseInt(localStorage.getItem('xp')) || 0;
+
             if (myPos) myPos.innerText = "#--";
-            if (myName) myName.innerText = localUsername;
-            if (myVal) myVal.innerText = `${parseInt(localStorage.getItem('streak')) || 0} 🔥`;
+            if (myName) myName.innerText = rawLocalUsername;
+            if (myVal) myVal.innerText = currentLeaderboardCategory === 'flames' ? `${localStreak} 🔥` : `${localXP} ⚡`;
         }
 
     }).catch(err => {
