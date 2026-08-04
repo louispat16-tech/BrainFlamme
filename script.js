@@ -1588,11 +1588,9 @@ function loadRealLeaderboard() {
 
     listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 20px;">Chargement du classement...</p>';
 
-    // Récupération et nettoyage de ton pseudo local
-   // Remplace le début de la fonction par ceci :
-const rawLocalUsername = localStorage.getItem('username') || "Moi";
-    const localUsername = rawLocalUsername.trim().toLowerCase();
-    const currentUserId = auth && auth.currentUser ? auth.currentUser.uid : null;
+    const rawLocalUsername = localStorage.getItem('username') || localStorage.getItem('pseudo') || localStorage.getItem('brainflamme_user') || "Moi";
+    const localUsernameClean = rawLocalUsername.trim().toLowerCase();
+    const currentUserId = (auth && auth.currentUser) ? auth.currentUser.uid : localStorage.getItem('brainflamme_uid');
 
     database.ref('joueurs').once('value').then(snapshot => {
         if (!snapshot.exists()) {
@@ -1608,7 +1606,7 @@ const rawLocalUsername = localStorage.getItem('username') || "Moi";
             let cleanName = player.username || player.pseudo || player.name || player.displayName;
 
             if (!cleanName || cleanName.trim() === "") {
-                cleanName = childSnapshot.key;
+                cleanName = "Joueur " + childSnapshot.key.substring(0, 4);
             } else {
                 cleanName = cleanName.trim();
             }
@@ -1617,14 +1615,13 @@ const rawLocalUsername = localStorage.getItem('username') || "Moi";
             const xpVal = player.xp || 0;
             const levelVal = player.level || player.niveau || 1;
 
-            // Détection de l'avatar
+            const initial = cleanName.charAt(0).toUpperCase();
             let avatarHtml = '';
             const avatarUrl = player.avatar || player.photoURL || player.avatarUrl;
 
             if (avatarUrl && typeof avatarUrl === 'string' && (avatarUrl.startsWith('http') || avatarUrl.startsWith('data:image'))) {
                 avatarHtml = `<img src="${avatarUrl}" class="player-avatar" alt="avatar" style="width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0;">`;
             } else {
-                const initial = cleanName.charAt(0).toUpperCase();
                 avatarHtml = `<div style="width:40px; height:40px; border-radius:50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">${initial}</div>`;
             }
 
@@ -1638,7 +1635,7 @@ const rawLocalUsername = localStorage.getItem('username') || "Moi";
             });
         });
 
-        // Tri par score (Flammes, XP, ou Niveau)
+        // Tri décroissant
         playersData.sort((a, b) => {
             if (currentLeaderboardCategory === 'xp') return b.xp - a.xp;
             if (currentLeaderboardCategory === 'level') return b.level - a.level;
@@ -1647,7 +1644,6 @@ const rawLocalUsername = localStorage.getItem('username') || "Moi";
 
         listContainer.innerHTML = '';
         let rank = 1;
-        let myRankFound = false;
 
         playersData.forEach(player => {
             let rankDisplay = `#${rank}`;
@@ -1662,25 +1658,12 @@ const rawLocalUsername = localStorage.getItem('username') || "Moi";
             else if (currentLeaderboardCategory === 'xp') valueDisplay = `${player.xp} ⚡`;
             else if (currentLeaderboardCategory === 'level') valueDisplay = `Niv. ${player.level}`;
 
-            // Comparaison intelligente pour trouver si c'est "Toi"
             const isMe = (currentUserId && player.key === currentUserId) || 
-                         (player.name.toLowerCase() === localUsername);
-
-            // 🎯 MISE À JOUR DU CADRE HAUT "MOI"
-            if (isMe && !myRankFound) {
-                myRankFound = true;
-                const myPos = document.getElementById('my-rank-position');
-                const myName = document.getElementById('my-rank-name');
-                const myVal = document.getElementById('my-rank-value');
-
-                if (myPos) myPos.innerText = rankDisplay;
-                if (myName) myName.innerText = player.name;
-                if (myVal) myVal.innerText = valueDisplay;
-            }
+                         (player.name.toLowerCase() === localUsernameClean);
 
             const item = document.createElement('div');
             item.className = `leaderboard-item ${rankClass}`;
-            if (isMe) item.style.border = "2px solid #22c55e"; // Contour vert dans la liste
+            if (isMe) item.style.border = "2px solid #22c55e";
 
             item.innerHTML = `
                 <span class="rank-badge">${rankDisplay}</span>
@@ -1695,22 +1678,8 @@ const rawLocalUsername = localStorage.getItem('username') || "Moi";
             rank++;
         });
 
-        // Sécurité si ton profil n'est pas trouvé dans la base de données
-        if (!myRankFound) {
-            const myPos = document.getElementById('my-rank-position');
-            const myName = document.getElementById('my-rank-name');
-            const myVal = document.getElementById('my-rank-value');
-
-            const localStreak = parseInt(localStorage.getItem('streak')) || 0;
-            const localXP = parseInt(localStorage.getItem('xp')) || 0;
-
-            if (myPos) myPos.innerText = "#--";
-            if (myName) myName.innerText = rawLocalUsername;
-            if (myVal) myVal.innerText = currentLeaderboardCategory === 'flames' ? `${localStreak} 🔥` : `${localXP} ⚡`;
-        }
-
     }).catch(err => {
-        console.error("Erreur Firebase :", err);
+        console.error("Erreur d'affichage du classement :", err);
     });
 }
 // Exemple d'appel quand la partie s'achève :
