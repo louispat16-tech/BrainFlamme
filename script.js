@@ -10,7 +10,7 @@ const firebaseConfig = {
 
 // 1. Initialisation de Firebase d'abord
 if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig); 
 }
 
 // 2. Initialisation des services (Firestore, Database, Auth)
