@@ -381,6 +381,10 @@ let quizHistory = [];
 
 // --- INITIALISATION AU CHARGEMENT ---
 window.onload = () => {
+    // 🔔 DEMANDER LA PERMISSION
+    if (typeof demanderPermissionNotification === "function") {
+        demanderPermissionNotification();
+    }
     setupLogin(); // On prépare le bouton quoi qu'il arrive
     
     const savedUser = localStorage.getItem("brainflamme_user");
@@ -473,6 +477,12 @@ function chargerStatsLocales(username) {
     // Met à jour l'affichage et le statut du mode quotidien
     updateHome();
     checkDailyStatus();
+// 🔔 PROGRAMMER SELON L'ÉTAT DU JOUEUR AU CHARGEMENT
+    const aujourdhuiStr = new Date().toISOString().split('T')[0];
+    const aJoueAujourdhui = (stats.lastDailyDate === aujourdhuiStr);
+    if (typeof programmerNotifications === "function") {
+        programmerNotifications(stats.streak || 0, aJoueAujourdhui);
+    }
 }
 
 function saveUserStats() {
@@ -960,6 +970,10 @@ function endQuiz() {
         if (!stats.maxStreak || stats.streak > stats.maxStreak) {
             stats.maxStreak = stats.streak;
         }
+        // 🔔 ANNULER LE SOIR ET PROGRAMMER DEMAIN
+    if (typeof programmerNotifications === "function") {
+        programmerNotifications(stats.streak, true);
+    }
 
         stats.lastDailyDate = todayStr;
         const user = localStorage.getItem("brainflamme_user");
