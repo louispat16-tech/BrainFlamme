@@ -17,7 +17,7 @@ function demanderPermissionNotification() {
         // 2. Demander la permission
         Notification.requestPermission().then(permission => {
             if (permission === 'granted') {
-                console.log("🔔 Notifications autorisées !");
+                console.log("🔔 Notifications autorisées !"); 
             }
         });
     }
