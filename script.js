@@ -1304,6 +1304,7 @@ function lancerQuestionBonus() {
 // ==========================================
 
 function switchTab(screenId, clickedBtn) {
+    playSFX('click'); // 🔊 Son de changement d'onglet
     const allScreens = [
         'login-screen', 
         'home-screen', 
@@ -1553,6 +1554,7 @@ function ouvrirCoffre() {
     if (coffreDejaOuvert) return;
     coffreDejaOuvert = true;
 
+    playSFX('chestOpen'); // 🧰 SON D'OUVERTURE DU COFFRE EN BOIS / OR
     const box = document.getElementById("chest-box");
     box.classList.add("shake-chest"); // Déclenche la secousse
 
@@ -1569,6 +1571,8 @@ function genererEtAfficherRecompense() {
     let itemIcone = "";
     let itemName = "";
 
+   playSFX('reward'); // 💎 SON DE PIÈCES / RÉCOMPENSE
+    
     const tirageRarete = Math.random();
 
     if (currentChestType === "Quotidien") {
@@ -1598,6 +1602,7 @@ function genererEtAfficherRecompense() {
     
     while (stats.progression >= stats.level * 100) {
         stats.level++;
+    playSFX('levelUp'); // 🏆 LEVEL UP GRÂCE AU COFFRE !
     }
 
     if (typeof saveUserStats === "function") saveUserStats();
