@@ -13,14 +13,14 @@ const soundEffects = {
     tick: new Audio('tick.mp3.mp3')
 };
 
-// 🔉 VOLUMES
-soundEffects.correct.volume = 0.15;   
-soundEffects.wrong.volume = 0.15;     
-soundEffects.chestOpen.volume = 0.20; 
-soundEffects.reward.volume = 0.20;    
-soundEffects.levelUp.volume = 0.25;   
-soundEffects.click.volume = 0.30;     
-soundEffects.tick.volume = 0.25;      
+// 🔉 RÉGLAGE DES VOLUMES
+soundEffects.correct.volume = 0.15;   // Volume réponse juste
+soundEffects.wrong.volume = 0.15;     // Volume réponse fausse
+soundEffects.chestOpen.volume = 0.20; // Volume coffre
+soundEffects.reward.volume = 0.20;    // Volume récompense
+soundEffects.levelUp.volume = 0.25;   // Volume niveau supérieur
+soundEffects.click.volume = 0.30;     // Volume clic (si appelé manuellement)
+soundEffects.tick.volume = 0.25;      // Volume chrono
 
 const backgroundMusics = {
     bgMusic: new Audio('bg-music.mp3.mp3'),
@@ -28,6 +28,7 @@ const backgroundMusics = {
     bonusMusic: new Audio('bonus-music.mp3.mp3')
 };
 
+// Configuration des musiques de fond
 Object.values(backgroundMusics).forEach(music => {
     music.loop = true;
     music.volume = 0.25;
@@ -54,30 +55,15 @@ function playMusic(name) {
 }
 
 // ==========================================
-// 🎵 DÉMARRAGE MUSIQUE (Au 1er clic obligatoire)
+// 🎵 DÉMARRAGE DE LA MUSIQUE AU PREMIER CLIC
 // ==========================================
+
 function startBgMusicOnFirstInteraction() {
     playMusic('bgMusic');
     document.removeEventListener('click', startBgMusicOnFirstInteraction);
     document.removeEventListener('touchstart', startBgMusicOnFirstInteraction);
 }
 
+// Active la musique au tout premier clic/tap du joueur
 document.addEventListener('click', startBgMusicOnFirstInteraction);
 document.addEventListener('touchstart', startBgMusicOnFirstInteraction);
-
-// ==========================================
-// 🎯 EFFET SONORE DES BOUTONS (EXCLUT LE QUIZ)
-// ==========================================
-document.addEventListener('click', (event) => {
-    // 🛑 1. Si le clic est à l'intérieur de l'écran ou de la zone de Quiz : ON NE JOUE PAS "click"
-    const isInsideQuiz = event.target.closest('#quiz, .quiz-container, #options-container, .options-grid, #quiz-screen');
-    if (isInsideQuiz) {
-        return; 
-    }
-
-    // 🟢 2. On joue "click" uniquement si c'est un bouton de menu / navigation
-    const isMenuButton = event.target.closest('button, .nav-btn, .bottom-nav, .shop-btn, .menu-btn');
-    if (isMenuButton) {
-        playSFX('click');
-    }
-});
