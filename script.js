@@ -816,8 +816,6 @@ function showQuestion() {
                 isCorrect: answerObj.isCorrect
             });
             
-            playSFX('click'); // 🔊 Bruit de clic sur le bouton
-            
             // Vérification de la réponse
             if (answerObj.isCorrect) { 
                 b.classList.add("correct"); 
