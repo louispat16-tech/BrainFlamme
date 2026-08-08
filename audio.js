@@ -14,13 +14,13 @@ const soundEffects = {
 };
 
 // 🔉 RÉGLAGE DES VOLUMES DES EFFETS SONORES (de 0.0 à 1.0)
-soundEffects.correct.volume = 0.08;   // 🔉 Très doux pour les bonnes réponses (8%)
-soundEffects.wrong.volume = 0.08;     // 🔉 Très doux pour les mauvaises réponses (8%)
-soundEffects.chestOpen.volume = 0.25; // 🔉 Baissé pour l'ouverture du coffre (25%)
-soundEffects.reward.volume = 0.25;    // 🔉 Baissé pour la musique/effet de récompense (25%)
-soundEffects.levelUp.volume = 0.3;    // 🔉 Niveau supérieur (30%)
-soundEffects.click.volume = 0.4;      // Clics boutons (40%)
-soundEffects.tick.volume = 0.3;       // Tic-tac chrono (30%)
+soundEffects.correct.volume = 0.015;  // 🔉 Ajusté à 1.5% (très doux)
+soundEffects.wrong.volume = 0.015;    // 🔉 Ajusté à 1.5% (très doux)
+soundEffects.chestOpen.volume = 0.20; // 🔉 Baissé à 20%
+soundEffects.reward.volume = 0.20;    // 🔉 Baissé à 20%
+soundEffects.levelUp.volume = 0.25;   // 🔉 Baissé à 25%
+soundEffects.click.volume = 0.3;      // Clics boutons (30%)
+soundEffects.tick.volume = 0.25;      // Tic-tac chrono (25%)
 
 const backgroundMusics = {
     bgMusic: new Audio('bg-music.mp3.mp3'),
@@ -60,8 +60,6 @@ function playMusic(name) {
 // 🎵 DÉMARRAGE AUTOMATIQUE DE LA MUSIQUE
 // ==========================================
 
-// Les navigateurs exigent un premier clic/interaction pour lancer l'audio.
-// Ce listener lance la musique dès le tout premier clic sur la page !
 function startBgMusicOnFirstInteraction() {
     playMusic('bgMusic');
     document.removeEventListener('click', startBgMusicOnFirstInteraction);
