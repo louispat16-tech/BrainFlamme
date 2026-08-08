@@ -656,16 +656,27 @@ function updateTimerUI() {
 }
 
 let maxChronoTime = 30;
+let maxChronoTime = 30;
+let lastTickSecond = -1; // 👈 Variable pour éviter la répétition en boucle
+
 function startChronoTimer(seconds) {
     clearInterval(timerInterval);
     timeLeft = seconds;
     maxChronoTime = seconds;
+    lastTickSecond = -1; // Réinitialisation
     
     updateTimerUI();
 
     timerInterval = setInterval(() => {
         timeLeft -= 0.1;
         updateTimerUI();
+
+        // ⏱️ 🔊 JOUER LE SON TICK TOUTES LES SECONDES SI <= 5
+        const currentSecond = Math.ceil(timeLeft);
+        if (currentSecond <= 5 && currentSecond > 0 && currentSecond !== lastTickSecond) {
+            playSFX('tick');
+            lastTickSecond = currentSecond; // On retient la seconde jouée
+        }
 
         // ⏱️ Quand le temps est écoulé :
         if (timeLeft <= 0) {
