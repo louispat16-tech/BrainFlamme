@@ -948,6 +948,7 @@ function checkDailyStatus() {
 }
 
 function endQuiz() {
+    playMusic('bgMusic'); // 🎵 On remet la musique principale !
     clearInterval(timerInterval);
 
     if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
@@ -1315,6 +1316,13 @@ function lancerQuestionBonus() {
 
 function switchTab(screenId, clickedBtn) {
     playSFX('click'); // 🔊 Son de changement d'onglet
+
+    // 🎵 Si on quitte le jeu/quiz pour revenir sur un menu, on remet la musique de fond !
+    const menuScreens = ['home-screen', 'shop-screen', 'modeSelection', 'profile', 'leaderboard-screen', 'score'];
+    if (menuScreens.includes(screenId) && typeof playMusic === 'function') {
+        playMusic('bgMusic');
+    }
+
     const allScreens = [
         'login-screen', 
         'home-screen', 
