@@ -67,20 +67,20 @@ function startBgMusicOnFirstInteraction() {
 }
 
 // ==========================================
-// 🎯 EFFET SONORE AUTOMATIQUE POUR LES BOUTONS (HORS RÉPONSES)
+// 🎯 EFFET SONORE AUTOMATIQUE (SANS LES RÉPONSES)
 // ==========================================
 document.addEventListener('click', (event) => {
-    // On cherche si l'élément cliqué est un bouton
+    // 1. On cherche l'élément cliqué
     const target = event.target.closest('button, .nav-btn, [onclick]');
+    if (!target) return;
+
+    // 2. ✋ SI le bouton se trouve DANS l'écran de quiz ou le conteneur des options
+    const isInsideQuizOptions = target.closest('#quiz, .quiz-container, #options-container, .options-grid, .option-btn, .btn-option');
     
-    // ✋ SI c'est un bouton de réponse du quiz, ON NE JOUE PAS le son "click"
-    // (pour laisser le son "correct" ou "wrong" jouer tout seul)
-    if (target && (target.classList.contains('option-btn') || target.classList.contains('btn-option'))) {
-        return; 
+    if (isInsideQuizOptions) {
+        return; // 🛑 On stoppe ! Ne joue PAS le son 'click' pour les réponses
     }
 
-    // Pour tous les autres boutons de l'application : on joue le son "click"
-    if (target) {
-        playSFX('click');
-    }
+    // 3. Pour tous les AUTRES boutons (menus, navigation, shop, coffre...) :
+    playSFX('click');
 });
