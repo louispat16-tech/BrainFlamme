@@ -67,20 +67,23 @@ function startBgMusicOnFirstInteraction() {
 }
 
 // ==========================================
-// 🎯 EFFET SONORE AUTOMATIQUE (SANS LES RÉPONSES)
+// 🎯 EFFET SONORE AUTOMATIQUE POUR TOUS LES BOUTONS
 // ==========================================
 document.addEventListener('click', (event) => {
-    // 1. On cherche l'élément cliqué
     const target = event.target.closest('button, .nav-btn, [onclick]');
     if (!target) return;
 
-    // 2. ✋ SI le bouton se trouve DANS l'écran de quiz ou le conteneur des options
-    const isInsideQuizOptions = target.closest('#quiz, .quiz-container, #options-container, .options-grid, .option-btn, .btn-option');
-    
-    if (isInsideQuizOptions) {
-        return; // 🛑 On stoppe ! Ne joue PAS le son 'click' pour les réponses
+    // 🛑 VÉRIFICATION PAR DÉTECTION LARGE DES RÉPONSES
+    // Si l'élément cliqué ou son parent contient un de ces termes :
+    const isAnswerBtn = target.closest(
+        '#quiz, .quiz-screen, #options, #answers, .option, .answer, [class*="option"], [class*="btn-option"], [id*="option"]'
+    );
+
+    // Si c'est un bouton de réponse -> On NE JOUE PAS "click"
+    if (isAnswerBtn) {
+        return; 
     }
 
-    // 3. Pour tous les AUTRES boutons (menus, navigation, shop, coffre...) :
+    // Sinon -> C'est un bouton de menu/navigation/shop, on joue "click"
     playSFX('click');
 });
