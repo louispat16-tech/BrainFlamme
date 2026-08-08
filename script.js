@@ -687,6 +687,8 @@ function startChronoTimer(seconds) {
                 saveUserStats();
                 lancerQuestionBonus(); // 👈 On lance la prolongation bonus !
             } else {
+                // 🎵 Le temps est fini, retour à la musique de fond
+        if (typeof playMusic === 'function') playMusic('bgMusic');
                 endQuiz();
             }
         }
