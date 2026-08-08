@@ -948,7 +948,10 @@ function checkDailyStatus() {
 }
 
 function endQuiz() {
-    playMusic('bgMusic'); // 🎵 On remet la musique principale !
+    // 🎵 On stoppe la musique du chrono et on remet la musique de fond !
+    if (typeof playMusic === 'function') {
+        playMusic('bgMusic');
+    }
     clearInterval(timerInterval);
 
     if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
