@@ -656,7 +656,6 @@ function updateTimerUI() {
 }
 
 let maxChronoTime = 30;
-let maxChronoTime = 30;
 let lastTickSecond = -1; // 👈 Variable pour éviter la répétition en boucle
 
 function startChronoTimer(seconds) {
