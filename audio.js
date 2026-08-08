@@ -66,12 +66,20 @@ function startBgMusicOnFirstInteraction() {
     document.removeEventListener('touchstart', startBgMusicOnFirstInteraction);
 }
 
-document.addEventListener('click', startBgMusicOnFirstInteraction);
-document.addEventListener('touchstart', startBgMusicOnFirstInteraction);
-
-// Effet sonore automatique pour tous les boutons
+// ==========================================
+// 🎯 EFFET SONORE AUTOMATIQUE POUR LES BOUTONS (HORS RÉPONSES)
+// ==========================================
 document.addEventListener('click', (event) => {
-    const target = event.target.closest('button, .nav-btn, .option-btn, [onclick]');
+    // On cherche si l'élément cliqué est un bouton
+    const target = event.target.closest('button, .nav-btn, [onclick]');
+    
+    // ✋ SI c'est un bouton de réponse du quiz, ON NE JOUE PAS le son "click"
+    // (pour laisser le son "correct" ou "wrong" jouer tout seul)
+    if (target && (target.classList.contains('option-btn') || target.classList.contains('btn-option'))) {
+        return; 
+    }
+
+    // Pour tous les autres boutons de l'application : on joue le son "click"
     if (target) {
         playSFX('click');
     }
