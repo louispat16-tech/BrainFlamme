@@ -14,8 +14,8 @@ const soundEffects = {
 };
 
 // 🔉 RÉGLAGE DES VOLUMES DES EFFETS SONORES (de 0.0 à 1.0)
-soundEffects.correct.volume = 0.015;  // 🔉 Ajusté à 1.5% (très doux)
-soundEffects.wrong.volume = 0.015;    // 🔉 Ajusté à 1.5% (très doux)
+soundEffects.correct.volume = 0.06;  // 🔉 Ajusté à 1.5% (très doux)
+soundEffects.wrong.volume = 0.06;    // 🔉 Ajusté à 1.5% (très doux)
 soundEffects.chestOpen.volume = 0.20; // 🔉 Baissé à 20%
 soundEffects.reward.volume = 0.20;    // 🔉 Baissé à 20%
 soundEffects.levelUp.volume = 0.25;   // 🔉 Baissé à 25%
@@ -67,23 +67,14 @@ function startBgMusicOnFirstInteraction() {
 }
 
 // ==========================================
-// 🎯 EFFET SONORE AUTOMATIQUE POUR TOUS LES BOUTONS
+// 🎯 EFFET SONORE DES BOUTONS DE NAVIGATION
 // ==========================================
 document.addEventListener('click', (event) => {
-    const target = event.target.closest('button, .nav-btn, [onclick]');
-    if (!target) return;
-
-    // 🛑 VÉRIFICATION PAR DÉTECTION LARGE DES RÉPONSES
-    // Si l'élément cliqué ou son parent contient un de ces termes :
-    const isAnswerBtn = target.closest(
-        '#quiz, .quiz-screen, #options, #answers, .option, .answer, [class*="option"], [class*="btn-option"], [id*="option"]'
-    );
-
-    // Si c'est un bouton de réponse -> On NE JOUE PAS "click"
-    if (isAnswerBtn) {
-        return; 
+    // On cible seulement les éléments de menu, de navigation ou explicitement marqués
+    const navButton = event.target.closest('.nav-btn, .bottom-nav button, .shop-btn, .menu-btn');
+    
+    // Si c'est un bouton de menu/navigation : on joue 'click'
+    if (navButton) {
+        playSFX('click');
     }
-
-    // Sinon -> C'est un bouton de menu/navigation/shop, on joue "click"
-    playSFX('click');
 });
