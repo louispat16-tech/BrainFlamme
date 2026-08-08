@@ -381,7 +381,6 @@ let quizHistory = [];
 
 // --- INITIALISATION AU CHARGEMENT ---
 window.onload = () => {
-
     setupLogin(); // On prépare le bouton quoi qu'il arrive
     
     const savedUser = localStorage.getItem("brainflamme_user");
@@ -390,6 +389,11 @@ window.onload = () => {
     } else {
         show("login-screen");
     }
+    
+    // 🎵 Lance la musique de fond au premier clic de l'utilisateur (contourne la restriction navigateur)
+    document.body.addEventListener('click', () => {
+        playMusic('bgMusic');
+    }, { once: true });
 };
 
 function setupLogin() {
@@ -576,6 +580,7 @@ if (startBtn) {
 const chronoBtn = document.getElementById("chronoMode");
 if (chronoBtn) {
     chronoBtn.onclick = () => {
+        playMusic('chronoMusic'); // 🎵 LANCE LA MUSIQUE INTENSE DU CHRONO
         selectedMode = "Chrono";
         quizHistory = [];
         score = 0;
@@ -619,6 +624,7 @@ if (dailyBtn) {
         }
 
         selectedMode = "Quotidien";
+        playMusic('bgMusic'); // 🎵 MUSIQUE CALME DU QUOTIDIEN
         quizHistory = [];
         score = 0;
         current = 0;
@@ -798,9 +804,12 @@ function showQuestion() {
                 isCorrect: answerObj.isCorrect
             });
             
+            playSFX('click'); // 🔊 Bruit de clic sur le bouton
+            
             // Vérification de la réponse
             if (answerObj.isCorrect) { 
                 b.classList.add("correct"); 
+                playSFX('correct'); // 🎉 SON BONNE RÉPONSE
                 score += 1;
                 
                 if (q.isBonus) {
@@ -808,6 +817,7 @@ function showQuestion() {
                 }
             } else { 
                 b.classList.add("wrong");
+                playSFX('wrong'); // ❌ SON MAUVAISE RÉPONSE
                 allBtns.forEach(btn => {
                     const originalCorrectText = q.answers[q.correct];
                     if (btn.textContent === originalCorrectText) btn.classList.add("correct");
@@ -946,6 +956,7 @@ function endQuiz() {
 
     while (stats.progression >= stats.level * 100) {
         stats.level++;
+    playSFX('levelUp'); // 🏆 FANFARE POUR MONTER DE NIVEAU
     }
 
     // 📅 GESTION DU MODE QUOTIDIEN
@@ -1168,6 +1179,7 @@ function showRecap() {
 function buyItem(name, price) {
     if (stats.xp >= price) {
         stats.xp -= price;
+    playSFX('buy'); // 🪙 SON D'ACHAT (BOUTIQUE)
         
         if (name === 'chrono_bonus') {
             stats.chronoBonus = (stats.chronoBonus || 0) + 5;
@@ -1274,6 +1286,7 @@ function proposerQuestionBonus() {
 }
 
 function lancerQuestionBonus() {
+    playMusic('bonusMusic'); // ⚡ MUSIQUE DE LA QUESTION BONUS
     const timerBox = document.getElementById("timerContainer");
     if (timerBox) timerBox.style.display = "none";
 
