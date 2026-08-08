@@ -10,17 +10,17 @@ const soundEffects = {
     levelUp: new Audio('level-up.mp3.mp3'),
     chestOpen: new Audio('chest-open.mp3.mp3'),
     reward: new Audio('reward.mp3.mp3'),
-    tick: new Audio('tick.mp3.mp3') // ou tick.mp3 selon ton fichier sur GitHub
+    tick: new Audio('tick.mp3.mp3')
 };
 
-// 🔉 RÉGLAGE DES VOLUMES DES EFFETS SONORES (de 0.0 à 1.0)
-soundEffects.correct.volume = 0.6;   // 🔊 Réaugmenté à 6% (bien audible)
-soundEffects.wrong.volume = 0.6;     // 🔊 Réaugmenté à 6% (bien audible)
-soundEffects.chestOpen.volume = 0.20; // Baissé à 20%
-soundEffects.reward.volume = 0.20;    // Baissé à 20%
-soundEffects.levelUp.volume = 0.25;   // Baissé à 25%
-soundEffects.click.volume = 0.30;     // Clics boutons (30%)
-soundEffects.tick.volume = 0.25;      // Tic-tac chrono (25%)
+// 🔉 VOLUMES
+soundEffects.correct.volume = 0.15;   
+soundEffects.wrong.volume = 0.15;     
+soundEffects.chestOpen.volume = 0.20; 
+soundEffects.reward.volume = 0.20;    
+soundEffects.levelUp.volume = 0.25;   
+soundEffects.click.volume = 0.30;     
+soundEffects.tick.volume = 0.25;      
 
 const backgroundMusics = {
     bgMusic: new Audio('bg-music.mp3.mp3'),
@@ -28,10 +28,9 @@ const backgroundMusics = {
     bonusMusic: new Audio('bonus-music.mp3.mp3')
 };
 
-// Configuration des musiques de fond en boucle
 Object.values(backgroundMusics).forEach(music => {
     music.loop = true;
-    music.volume = 0.25; // Volume global de la musique de fond à 25%
+    music.volume = 0.25;
 });
 
 let currentMusic = null;
@@ -39,9 +38,7 @@ let currentMusic = null;
 function playSFX(name) {
     if (soundEffects[name]) {
         soundEffects[name].currentTime = 0;
-        soundEffects[name].play().catch(e => {
-            console.log("Lecture du son bloquée ou fichier introuvable:", name, e);
-        });
+        soundEffects[name].play().catch(e => console.log("Son bloqué:", name));
     }
 }
 
@@ -57,27 +54,30 @@ function playMusic(name) {
 }
 
 // ==========================================
-// 🎵 DÉMARRAGE AUTOMATIQUE DE LA MUSIQUE
+// 🎵 DÉMARRAGE MUSIQUE (Au 1er clic obligatoire)
 // ==========================================
-
 function startBgMusicOnFirstInteraction() {
     playMusic('bgMusic');
     document.removeEventListener('click', startBgMusicOnFirstInteraction);
     document.removeEventListener('touchstart', startBgMusicOnFirstInteraction);
 }
 
-// 🟢 ÉCOUTEURS DÉCLENCHEURS AJOUTÉS ICI :
 document.addEventListener('click', startBgMusicOnFirstInteraction);
 document.addEventListener('touchstart', startBgMusicOnFirstInteraction);
 
 // ==========================================
-// 🎯 EFFET SONORE DES BOUTONS DE NAVIGATION
+// 🎯 EFFET SONORE DES BOUTONS (EXCLUT LE QUIZ)
 // ==========================================
 document.addEventListener('click', (event) => {
-    // On cible seulement les éléments de menu/navigation
-    const navButton = event.target.closest('.nav-btn, .bottom-nav button, .shop-btn, .menu-btn');
-    
-    if (navButton) {
+    // 🛑 1. Si le clic est à l'intérieur de l'écran ou de la zone de Quiz : ON NE JOUE PAS "click"
+    const isInsideQuiz = event.target.closest('#quiz, .quiz-container, #options-container, .options-grid, #quiz-screen');
+    if (isInsideQuiz) {
+        return; 
+    }
+
+    // 🟢 2. On joue "click" uniquement si c'est un bouton de menu / navigation
+    const isMenuButton = event.target.closest('button, .nav-btn, .bottom-nav, .shop-btn, .menu-btn');
+    if (isMenuButton) {
         playSFX('click');
     }
 });
