@@ -1,40 +1,40 @@
 // ==========================================
-// 🔔 GESTION DES NOTIFICATIONS PUSH CLOUD (FCM)
+// 🔔 GESTION DE LA BANNIÈRE & PERMISSIONS FCM
 // ==========================================
 
-function demanderPermissionNotification() {
+// Vérifie si l'utilisateur doit voir le message au chargement
+window.addEventListener('DOMContentLoaded', () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+        // L'utilisateur n'a ni accepté ni refusé : on montre le message !
+        document.getElementById('notif-banner').style.display = 'block';
+    }
+});
+
+// Appelée quand le joueur clique sur "Activer les rappels"
+function accepterNotifsViaBanniere() {
+    fermerBanniereNotif();
+
     if ('serviceWorker' in navigator && 'Notification' in window) {
-        
-        // 1. Enregistrer le Service Worker sw.js
         navigator.serviceWorker.register('sw.js')
             .then((registration) => {
-                console.log('✅ Service Worker enregistré avec succès !', registration);
-
-                // 2. Demander la permission à l'utilisateur
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
                         console.log("🔔 Notifications autorisées !");
-
-                        // 3. Obtenir le Token FCM pour Firebase
+                        
+                        // Obtenir le Token FCM
                         const messaging = firebase.messaging();
                         messaging.getToken({ serviceWorkerRegistration: registration })
                             .then((currentToken) => {
                                 if (currentToken) {
-                                    console.log('🔑 Ton Token FCM appareil :', currentToken);
-                                } else {
-                                    console.log('⚠️ Aucun token disponible.');
+                                    console.log('🔑 Token FCM enregistre avec succes !');
                                 }
-                            }).catch((err) => {
-                                console.error('❌ Erreur récupération Token :', err);
                             });
                     }
                 });
-            })
-            .catch((err) => {
-                console.error("❌ Erreur d'enregistrement du Service Worker :", err);
             });
     }
 }
 
-// Lancer automatiquement au chargement
-demanderPermissionNotification();
+function fermerBanniereNotif() {
+    document.getElementById('notif-banner').style.display = 'none';
+}
