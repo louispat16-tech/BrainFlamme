@@ -1,17 +1,26 @@
 // ==========================================
-// 🔊 GESTIONNAIRE D'AUDIO
+// 🔊 GESTIONNAIRE D'AUDIO ET VOLUMES
 // ==========================================
 
 const soundEffects = {
     click: new Audio('click.mp3.mp3'),
     correct: new Audio('correct.mp3.mp3'),
-    wrong: new Audio('wrong.mp3.mp3'), // pense à uploader wrong.mp3 sur github
+    wrong: new Audio('wrong.mp3.mp3'),
     buy: new Audio('buy.mp3.mp3'),
     levelUp: new Audio('level-up.mp3.mp3'),
     chestOpen: new Audio('chest-open.mp3.mp3'),
     reward: new Audio('reward.mp3.mp3'),
-    tick: new Audio('tick.mp3') // ou tick.mp3.mp3 selon comment tu l'envoies
+    tick: new Audio('tick.mp3.mp3') // ou tick.mp3 selon ton fichier
 };
+
+// 🔉 RÉGLAGE DES VOLUMES DES EFFETS SONORES (de 0.0 à 1.0)
+soundEffects.correct.volume = 0.08;   // 🔉 Très doux pour les bonnes réponses (8%)
+soundEffects.wrong.volume = 0.08;     // 🔉 Très doux pour les mauvaises réponses (8%)
+soundEffects.chestOpen.volume = 0.25; // 🔉 Baissé pour l'ouverture du coffre (25%)
+soundEffects.reward.volume = 0.25;    // 🔉 Baissé pour la musique/effet de récompense (25%)
+soundEffects.levelUp.volume = 0.3;    // 🔉 Niveau supérieur (30%)
+soundEffects.click.volume = 0.4;      // Clics boutons (40%)
+soundEffects.tick.volume = 0.3;       // Tic-tac chrono (30%)
 
 const backgroundMusics = {
     bgMusic: new Audio('bg-music.mp3.mp3'),
@@ -19,10 +28,10 @@ const backgroundMusics = {
     bonusMusic: new Audio('bonus-music.mp3.mp3')
 };
 
-// Configuration des musiques en boucle
+// Configuration des musiques de fond en boucle
 Object.values(backgroundMusics).forEach(music => {
     music.loop = true;
-    music.volume = 0.4;
+    music.volume = 0.25; // Volume global de la musique de fond à 25%
 });
 
 let currentMusic = null;
@@ -30,7 +39,9 @@ let currentMusic = null;
 function playSFX(name) {
     if (soundEffects[name]) {
         soundEffects[name].currentTime = 0;
-        soundEffects[name].play().catch(e => console.log("Audio bloqué ou introuvable:", e));
+        soundEffects[name].play().catch(e => {
+            console.log("Lecture du son bloquée ou fichier introuvable:", name, e);
+        });
     }
 }
 
@@ -44,3 +55,26 @@ function playMusic(name) {
         currentMusic.play().catch(e => console.log("Musique bloquée:", e));
     }
 }
+
+// ==========================================
+// 🎵 DÉMARRAGE AUTOMATIQUE DE LA MUSIQUE
+// ==========================================
+
+// Les navigateurs exigent un premier clic/interaction pour lancer l'audio.
+// Ce listener lance la musique dès le tout premier clic sur la page !
+function startBgMusicOnFirstInteraction() {
+    playMusic('bgMusic');
+    document.removeEventListener('click', startBgMusicOnFirstInteraction);
+    document.removeEventListener('touchstart', startBgMusicOnFirstInteraction);
+}
+
+document.addEventListener('click', startBgMusicOnFirstInteraction);
+document.addEventListener('touchstart', startBgMusicOnFirstInteraction);
+
+// Effet sonore automatique pour tous les boutons
+document.addEventListener('click', (event) => {
+    const target = event.target.closest('button, .nav-btn, .option-btn, [onclick]');
+    if (target) {
+        playSFX('click');
+    }
+});
