@@ -10,16 +10,16 @@ const soundEffects = {
     levelUp: new Audio('level-up.mp3.mp3'),
     chestOpen: new Audio('chest-open.mp3.mp3'),
     reward: new Audio('reward.mp3.mp3'),
-    tick: new Audio('tick.mp3.mp3') // ou tick.mp3 selon ton fichier
+    tick: new Audio('tick.mp3.mp3') // ou tick.mp3 selon ton fichier sur GitHub
 };
 
 // 🔉 RÉGLAGE DES VOLUMES DES EFFETS SONORES (de 0.0 à 1.0)
-soundEffects.correct.volume = 0.06;  // 🔉 Ajusté à 1.5% (très doux)
-soundEffects.wrong.volume = 0.06;    // 🔉 Ajusté à 1.5% (très doux)
-soundEffects.chestOpen.volume = 0.20; // 🔉 Baissé à 20%
-soundEffects.reward.volume = 0.20;    // 🔉 Baissé à 20%
-soundEffects.levelUp.volume = 0.25;   // 🔉 Baissé à 25%
-soundEffects.click.volume = 0.3;      // Clics boutons (30%)
+soundEffects.correct.volume = 0.6;   // 🔊 Réaugmenté à 6% (bien audible)
+soundEffects.wrong.volume = 0.6;     // 🔊 Réaugmenté à 6% (bien audible)
+soundEffects.chestOpen.volume = 0.20; // Baissé à 20%
+soundEffects.reward.volume = 0.20;    // Baissé à 20%
+soundEffects.levelUp.volume = 0.25;   // Baissé à 25%
+soundEffects.click.volume = 0.30;     // Clics boutons (30%)
 soundEffects.tick.volume = 0.25;      // Tic-tac chrono (25%)
 
 const backgroundMusics = {
@@ -66,14 +66,17 @@ function startBgMusicOnFirstInteraction() {
     document.removeEventListener('touchstart', startBgMusicOnFirstInteraction);
 }
 
+// 🟢 ÉCOUTEURS DÉCLENCHEURS AJOUTÉS ICI :
+document.addEventListener('click', startBgMusicOnFirstInteraction);
+document.addEventListener('touchstart', startBgMusicOnFirstInteraction);
+
 // ==========================================
 // 🎯 EFFET SONORE DES BOUTONS DE NAVIGATION
 // ==========================================
 document.addEventListener('click', (event) => {
-    // On cible seulement les éléments de menu, de navigation ou explicitement marqués
+    // On cible seulement les éléments de menu/navigation
     const navButton = event.target.closest('.nav-btn, .bottom-nav button, .shop-btn, .menu-btn');
     
-    // Si c'est un bouton de menu/navigation : on joue 'click'
     if (navButton) {
         playSFX('click');
     }
