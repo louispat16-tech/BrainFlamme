@@ -14,8 +14,8 @@ const soundEffects = {
 };
 
 // 🔉 RÉGLAGE DES VOLUMES
-soundEffects.correct.volume = 0.15;   // Volume réponse juste
-soundEffects.wrong.volume = 0.15;     // Volume réponse fausse
+soundEffects.correct.volume = 0.10;   // Volume réponse juste
+soundEffects.wrong.volume = 0.10;     // Volume réponse fausse
 soundEffects.chestOpen.volume = 0.20; // Volume coffre
 soundEffects.reward.volume = 0.20;    // Volume récompense
 soundEffects.levelUp.volume = 0.25;   // Volume niveau supérieur
@@ -31,7 +31,7 @@ const backgroundMusics = {
 // Configuration des musiques de fond
 Object.values(backgroundMusics).forEach(music => {
     music.loop = true;
-    music.volume = 0.25;
+    music.volume = 0.20>;
 });
 
 let currentMusic = null;
