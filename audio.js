@@ -3,12 +3,13 @@
 // ==========================================
 
 const soundEffects = {
-    click: new Audio('click.mp3.mp3'),
+    click: null, // 🔇 Son de clic désactivé (fichier supprimé)
     correct: new Audio('correct.mp3.mp3'),
     wrong: new Audio('wrong.mp3.mp3'),
     buy: new Audio('buy.mp3.mp3'),
     levelUp: new Audio('level-up.mp3.mp3'),
-    chestOpen: new Audio('chest-open.mp3.mp3'),
+    // 🎺 Ta nouvelle fanfare épique pour le coffre ! (met le vrai nom de ton fichier GitHub)
+    chestOpen: new Audio('freesound_community-success-fanfare-trumpets-6185.mp3'),
     reward: new Audio('reward.mp3.mp3'),
     tick: new Audio('tick.mp3.mp3')
 };
@@ -16,10 +17,9 @@ const soundEffects = {
 // 🔉 RÉGLAGE ULTRA-DOUX POUR NE PAS DÉCONCENTRER
 soundEffects.correct.volume = 0.05;   // 🔉 Baissé à 5% (très discret mais audible)
 soundEffects.wrong.volume = 0.05;     // 🔉 Baissé à 5% (très discret mais audible)
-soundEffects.chestOpen.volume = 0.15; // Baissé à 15%
+soundEffects.chestOpen.volume = 0.20; // 🎺 Volume parfait pour la fanfare !
 soundEffects.reward.volume = 0.15;    // Baissé à 15%
 soundEffects.levelUp.volume = 0.20;   
-soundEffects.click.volume = 0.20;     
 soundEffects.tick.volume = 0.15;      
 
 const backgroundMusics = {
@@ -31,7 +31,7 @@ const backgroundMusics = {
 // Configuration des musiques de fond
 Object.values(backgroundMusics).forEach(music => {
     music.loop = true;
-    music.volume = 0.10; // 🎵 Baissé de 25% à 10% pour rester un vrai fond sonore doux !
+    music.volume = 0.10; // 🎵 Fond sonore doux à 10%
 });
 
 let currentMusic = null;
