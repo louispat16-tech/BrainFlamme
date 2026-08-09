@@ -632,7 +632,7 @@ if (dailyBtn) {
         const timerBox = document.getElementById("timerContainer");
         if (timerBox) timerBox.style.display = "none";
         
-        currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 5);
+        currentQuestions = [...questionsData].sort(() => Math.random() - 0.5).slice(0, 8);
 
         show("quiz");
         showQuestion();
@@ -1000,7 +1000,7 @@ function endQuiz() {
     }
 
     // 🎉 CONFETTIS (Uniquement si 5/5 à la fin du quiz)
-    if (score === 5 && typeof confetti === "function") {
+    if (score === 8 && typeof confetti === "function") {
         confetti({
             particleCount: 100,
             spread: 70,
