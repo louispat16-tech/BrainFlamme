@@ -9,7 +9,7 @@ const soundEffects = {
     buy: new Audio('buy.mp3.mp3'),
     levelUp: new Audio('level-up.mp3.mp3'),
     // 🎺 Ta nouvelle fanfare épique pour le coffre ! (met le vrai nom de ton fichier GitHub)
-    chestOpen: new Audio('freesound_community-success-fanfare-trumpets-6185.mp3'),
+    chestOpen: new Audio('chest-open.mp3.mp3'),
     reward: new Audio('reward.mp3.mp3'),
     tick: new Audio('tick.mp3.mp3')
 };
