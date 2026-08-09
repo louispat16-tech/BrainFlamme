@@ -1568,7 +1568,7 @@ function ouvrirCoffre() {
     if (coffreDejaOuvert) return;
     coffreDejaOuvert = true;
 
-    playSFX('chestOpen'); // 🧰 SON D'OUVERTURE DU COFFRE EN BOIS / OR
+    playSFX('chest-open');
     const box = document.getElementById("chest-box");
     box.classList.add("shake-chest"); // Déclenche la secousse
 
