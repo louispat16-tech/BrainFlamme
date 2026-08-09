@@ -13,14 +13,14 @@ const soundEffects = {
     tick: new Audio('tick.mp3.mp3')
 };
 
-// 🔉 RÉGLAGE DES VOLUMES
-soundEffects.correct.volume = 0.10;   // Volume réponse juste
-soundEffects.wrong.volume = 0.10;     // Volume réponse fausse
-soundEffects.chestOpen.volume = 0.20; // Volume coffre
-soundEffects.reward.volume = 0.20;    // Volume récompense
-soundEffects.levelUp.volume = 0.25;   // Volume niveau supérieur
-soundEffects.click.volume = 0.30;     // Volume clic (si appelé manuellement)
-soundEffects.tick.volume = 0.25;      // Volume chrono
+// 🔉 RÉGLAGE ULTRA-DOUX POUR NE PAS DÉCONCENTRER
+soundEffects.correct.volume = 0.05;   // 🔉 Baissé à 5% (très discret mais audible)
+soundEffects.wrong.volume = 0.05;     // 🔉 Baissé à 5% (très discret mais audible)
+soundEffects.chestOpen.volume = 0.15; // Baissé à 15%
+soundEffects.reward.volume = 0.15;    // Baissé à 15%
+soundEffects.levelUp.volume = 0.20;   
+soundEffects.click.volume = 0.20;     
+soundEffects.tick.volume = 0.15;      
 
 const backgroundMusics = {
     bgMusic: new Audio('bg-music.mp3.mp3'),
@@ -31,7 +31,7 @@ const backgroundMusics = {
 // Configuration des musiques de fond
 Object.values(backgroundMusics).forEach(music => {
     music.loop = true;
-    music.volume = 0.20>;
+    music.volume = 0.10; // 🎵 Baissé de 25% à 10% pour rester un vrai fond sonore doux !
 });
 
 let currentMusic = null;
