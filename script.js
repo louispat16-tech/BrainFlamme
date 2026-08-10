@@ -406,8 +406,21 @@ function setupLogin() {
                 return;
             }
 
-            // Nettoyage de la clé pour Firebase (évite les bugs avec certains caractères)
-            const cleanKey = username.toLowerCase().replace(/[.#$\[\]]/g, "_");
+           // Remplace le bloc de la saisie par ceci :
+const username = userInput.value.trim();
+const password = passInput.value;
+
+if (!username || !password) {
+    alert("Entre un pseudo et un mot de passe ! 🔥");
+    return;
+}
+
+// ➔ On utilise directement le pseudo sans .toLowerCase() pour garder les majuscules d'origine
+const targetKey = username;
+
+// Et plus bas dans la requête Firebase, tu utilises targetKey :
+database.ref('joueurs/' + targetKey).once('value').then((snapshot) => {
+    // ... le reste de ta fonction
 
             // 🧹 RESET CRUCIAL : On remet l'objet stats à zéro
             stats = {
