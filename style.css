@@ -1386,3 +1386,15 @@ body {
 #password-input::placeholder {
     color: #64748b; /* Couleur du texte indicatif */
 }
+input[type="text"], input[type="password"] { 
+    padding: 15px; 
+    border-radius: 12px; 
+    border: 2px solid #334155; 
+    background: #1e293b; 
+    color: white; 
+    font-size: 18px; 
+    width: 80%; 
+    max-width: 250px; 
+    outline: none; 
+    box-sizing: border-box; /* Évite que le padding ne dépasse de la largeur */
+}
