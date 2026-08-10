@@ -1900,3 +1900,5 @@ function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
         lastSeen: Date.now()
     });
 }
+}
+} // 👈 Rajoute celle-ci tout à la fin de tout ton fichier script.js
