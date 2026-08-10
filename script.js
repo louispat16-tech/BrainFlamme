@@ -458,7 +458,7 @@ function setupLogin() {
                     if (typeof switchTab === 'function') {
                         switchTab('home-screen');
                     } else if (typeof show === 'function') {
-                        show('home-screen');
+                        switchTab('home-screen');
                     }
 
                     // ➔ Force l'affichage de la barre du bas DIRECTEMENT ICI dans le succès
