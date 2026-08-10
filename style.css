@@ -1349,3 +1349,30 @@ body {
 #passwordInput:focus {
     border-color: #ff6b6b; /* Utilise la couleur principale de ton thème BrainFlamme */
 }
+/* Conteneur pour aligner l'input et l'icône */
+.password-container {
+    position: relative;
+    width: 100%;
+    max-width: 300px; /* À adapter selon la largeur de ton input pseudo */
+    margin: 0 auto 10px auto; /* Centre le bloc si ton formulaire est centré */
+}
+
+/* Même style que ton input pseudo */
+.password-container input {
+    width: 100%;
+    padding: 12px 40px 12px 15px; /* Espace à droite pour ne pas que le texte passe sous l'œil */
+    font-size: 16px;
+    box-sizing: border-box;
+    /* Reprends ici les bordures, radius et background de ton input de pseudo (#username-input) */
+}
+
+/* Style et position de l'œil */
+.eye-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    user-select: none;
+}
