@@ -460,6 +460,10 @@ function setupLogin() {
                     } else if (typeof show === 'function') {
                         show('home-screen');
                     }
+                // ➔ COLLE LA LIGNE ICI :
+                    const bottomNav = document.querySelector('.bottom-nav');
+                    if (bottomNav) { bottomNav.style.display = 'flex'; }
+                    
 
                 }).catch(err => {
                     console.error("Erreur Firebase:", err);
