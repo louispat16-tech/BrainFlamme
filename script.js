@@ -1150,9 +1150,12 @@ function continuerAffichageScore(gain) {
 function logout() {
     localStorage.removeItem("brainflamme_user");
     
-    const userInput = document.getElementById("username-input");
-    if (userInput) userInput.value = "";
-
+   // Vide les cases de l'écran de connexion
+const userInput = document.getElementById("username-input");
+const passwordInput = document.getElementById("password-input");
+if (userInput) userInput.value = "";
+if (passwordInput) passwordInput.value = "";
+    
     stats = { 
         xp: 0, 
         progression: 0,
