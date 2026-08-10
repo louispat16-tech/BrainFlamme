@@ -376,6 +376,7 @@ let quizHistory = [];
 // --- INITIALISATION AU CHARGEMENT ---
 window.onload = () => {
     setupLogin(); // On prépare le bouton quoi qu'il arrive
+    setupPasswordToggle(); // 👈 Ajoute l'appel ici
     
     const savedUser = localStorage.getItem("brainflamme_user");
     if (savedUser) { 
