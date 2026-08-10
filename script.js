@@ -468,13 +468,26 @@ function setupLogin() {
 
 function setupPasswordToggle() {
     const passwordInput = document.getElementById("password-input");
+    const userInput = document.getElementById("username-input"); // La case du pseudo
     const togglePassword = document.getElementById("togglePassword");
 
     if (passwordInput && togglePassword) {
         togglePassword.onclick = () => {
+            // 1. Gestion de l'affichage du mot de passe
             const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
             passwordInput.setAttribute("type", type);
             togglePassword.textContent = type === "password" ? "👁️" : "👁️‍🗨️";
+
+            // 2. Contraction / Décontraction de la case pseudo
+            if (userInput) {
+                // Si la case est déjà rétrécie, on la remet normale, sinon on la réduit
+                if (userInput.style.width === "150px") {
+                    userInput.style.width = ""; // Revient à la taille d'origine (100% ou CSS initial)
+                } else {
+                    userInput.style.width = "150px"; // Se contracte
+                    userInput.style.transition = "width 0.3s ease"; // Animation fluide
+                }
+            }
         };
     }
 }
