@@ -223,15 +223,14 @@ input[type="text"] {
     bottom: 0;
     left: 0;
     width: 100%;
-    display: none; /* Cachée par défaut, gérée par le JS */
+    display: flex; /* ➔ ON MET FLEX PAR DÉFAUT ICI */
     justify-content: space-around;
     align-items: center;
-    background: #1e293b; /* Adapte selon ton thème */
+    background: #1e293b;
     border-top: 1px solid #334155;
-    z-index: 1000; /* Pour qu'elle soit toujours au premier plan */
+    z-index: 9999;
     padding: 10px 0;
 }
-
 .nav-item {
     text-align: center;
     color: #94a3b8;
