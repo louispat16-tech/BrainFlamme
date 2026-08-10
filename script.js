@@ -1367,7 +1367,6 @@ function lancerQuestionBonus() {
 // ==========================================
 
 function switchTab(screenId, clickedBtn) {
-
     // 🎵 Si on quitte le jeu/quiz pour revenir sur un menu, on remet la musique de fond !
     const menuScreens = ['home-screen', 'shop-screen', 'modeSelection', 'profile', 'leaderboard-screen', 'score'];
     if (menuScreens.includes(screenId) && typeof playMusic === 'function') {
@@ -1411,7 +1410,7 @@ function switchTab(screenId, clickedBtn) {
         renderProfile();
     }
 
-   // ➔ GESTION SÉCURISÉE DE LA BARRE DU BAS
+    // ➔ GESTION SÉCURISÉE DE LA BARRE DU BAS
     const bottomNav = document.querySelector('.bottom-nav');
     if (bottomNav) {
         // Liste exacte des écrans où la barre a le droit d'être affichée
@@ -1423,6 +1422,7 @@ function switchTab(screenId, clickedBtn) {
             bottomNav.style.setProperty('display', 'none', 'important');
         }
     }
+}
 
 function renderProfile() {
     const currentUsername = localStorage.getItem("brainflamme_user") || "Joueur";
