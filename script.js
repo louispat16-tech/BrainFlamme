@@ -460,13 +460,16 @@ function setupLogin() {
                     } else if (typeof show === 'function') {
                         switchTab('home-screen');
                     }
-
-                    // ➔ Force l'affichage de la barre du bas DIRECTEMENT ICI dans le succès
-                    const bottomNav = document.querySelector('.bottom-nav');
-                    if (bottomNav) {
-                        bottomNav.style.display = 'flex';
-                    }
-
+                // ➔ GESTION AUTOMATIQUE FORCÉE DE LA BARRE DU BAS
+                const bottomNav = document.querySelector('.bottom-nav');
+                if (bottomNav) {
+                    if (screenId === 'login-screen') {
+                        bottomNav.style.display = 'none';
+                    } else {
+                    // On force l'affichage en flex et on s'assure qu'elle est visible
+                    bottomNav.style.setProperty('display', 'flex', 'important');
+                }
+            }
                 }).catch(err => {
                     console.error("Erreur Firebase:", err);
                     alert("Erreur de connexion avec le serveur.");
