@@ -1427,12 +1427,21 @@ input[type="text"], input[type="password"] {
 /* L'icône de l'œil (Positionnée à l'intérieur à droite) */
 .eye-icon {
     position: absolute;
-    right: 15px; /* Position à droite */
-    top: 50%; /* Centre verticalement */
-    transform: translateY(-50%); /* Ajuste le centrage */
-    cursor: pointer;
-    color: #94a3b8; /* Couleur de l'icône (gris) */
-    font-size: 18px; /* Taille de l'icône */
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    /* ➔ Couleur très sombre, presque ton sur ton */
+    color: #334155; /* Utilise la même couleur que tes bordures d'input */
+    font-size: 18px;
     user-select: none;
-    z-index: 10; /* Pour être au-dessus de l'input */
+    z-index: 10;
+    /* ➔ Curseur par défaut (flèche) au lieu de la main */
+    cursor: default;
+    /* Ajoute une petite transition pour adoucir le changement de couleur au clic */
+    transition: color 0.3s ease;
+}
+
+/* Quand on passe la souris dessus, on change quand même un peu la couleur pour l'utilisateur */
+.eye-icon:hover {
+    color: #475569; /* Un gris un peu plus clair au survol */
 }
