@@ -471,6 +471,7 @@ function setupLogin() {
         };
     }
 }
+
 function setupPasswordToggle() {
     const passwordInput = document.getElementById("password-input");
     const togglePassword = document.getElementById("togglePassword");
@@ -481,8 +482,8 @@ function setupPasswordToggle() {
             const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
             passwordInput.setAttribute("type", type);
             
-            // ➔ Icônes ultra-simples : Un tiret pour le texte, deux points pour le mot de passe masqué
-            togglePassword.textContent = type === "password" ? ".." : "-";
+            // Change l'icône de l'œil sans faire disparaître quoi que ce soit
+            togglePassword.textContent = type === "password" ? "👁️" : "👁️‍🗨️";
         };
     }
 }
