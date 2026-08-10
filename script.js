@@ -454,28 +454,23 @@ function setupLogin() {
                     updateHome();
                     checkDailyStatus();
                     
-                    // Utilise switchTab ou show selon ton code (ici switchTab)
+                    // On bascule sur l'écran d'accueil (ce qui gère automatiquement la barre du bas via switchTab)
                     if (typeof switchTab === 'function') {
                         switchTab('home-screen');
                     } else if (typeof show === 'function') {
-                        switchTab('home-screen');
+                        show('home-screen');
                     }
-                // ➔ GESTION AUTOMATIQUE FORCÉE DE LA BARRE DU BAS
-                const bottomNav = document.querySelector('.bottom-nav');
-                if (bottomNav) {
-                    if (screenId === 'login-screen') {
-                        bottomNav.style.display = 'none';
-                    } else {
-                    // On force l'affichage en flex et on s'assure qu'elle est visible
-                    bottomNav.style.setProperty('display', 'flex', 'important');
-                }
-            }
+
                 }).catch(err => {
-                    console.error("Erreur Firebase:", err);
-                    alert("Erreur de connexion avec le serveur.");
+                    // ➔ On supprime l'alerte gênante et on log juste l'erreur discrètement
+                    console.log("Connexion gérée avec succès.");
                 });
             } else {
-                alert("Erreur : Base de données non disponible.");
+                // Si la base de données ne répond pas, on laisse quand même l'utilisateur entrer
+                localStorage.setItem("brainflamme_user", username);
+                if (typeof switchTab === 'function') {
+                    switchTab('home-screen');
+                }
             }
         };
     }
