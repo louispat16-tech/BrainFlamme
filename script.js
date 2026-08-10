@@ -392,51 +392,74 @@ window.onload = () => {
 
 function setupLogin() {
     const loginBtn = document.getElementById("loginBtn");
-    const input = document.getElementById("username-input");
+    const userInput = document.getElementById("username-input");
+    const passInput = document.getElementById("password-input"); // ➕ Récupération du champ mot de passe
 
-    if (loginBtn && input) {
+    if (loginBtn && userInput && passInput) {
         loginBtn.onclick = () => {
-            const username = input.value.trim();
-            if (username) {
-                localStorage.setItem("brainflamme_user", username);
-                
-                // 🧹 RESET CRUCIAL : On remet l'objet stats à zéro pour éviter d'hériter de l'aura ou stats du compte précédent
-                stats = {
-                    xp: 0,
-                    progression: 0,
-                    level: 1,
-                    streak: 0,
-                    maxStreak: 0,
-                    lastDailyDate: "",
-                    shields: 0,
-                    friends: [],
-                    hasAura: false
-                };
-                
-                if (typeof database !== "undefined" && database) {
-                    database.ref('joueurs/' + username).once('value').then((snapshot) => {
-                        if (snapshot.exists()) {
-                            const val = snapshot.val();
-                            stats = Object.assign({}, stats, val);
-                            
-                            // 🛡️ SÉCURITÉ AURA : Force FALSE si le compte n'a pas explicitement l'aura
-                            stats.hasAura = val.hasAura === true;
-                        } else {
-                            saveUserStats();
+            const username = userInput.value.trim();
+            const password = passInput.value; // ➕ Valeur du mot de passe
+
+            if (!username || !password) {
+                alert("Entre un pseudo et un mot de passe ! 🔥");
+                return;
+            }
+
+            // Nettoyage de la clé pour Firebase (évite les bugs avec certains caractères)
+            const cleanKey = username.toLowerCase().replace(/[.#$\[\]]/g, "_");
+
+            // 🧹 RESET CRUCIAL : On remet l'objet stats à zéro
+            stats = {
+                username: username,
+                password: password, // ➕ Stockage du mot de passe
+                xp: 0,
+                progression: 0,
+                level: 1,
+                streak: 0,
+                maxStreak: 0,
+                lastDailyDate: "",
+                shields: 0,
+                friends: [],
+                hasAura: false
+            };
+            
+            if (typeof database !== "undefined" && database) {
+                database.ref('joueurs/' + cleanKey).once('value').then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const val = snapshot.val();
+
+                        // 🔒 SÉCURITÉ MOT DE PASSE : Si l'ancien compte n'a pas encore de mot de passe
+                        if (!val.password) {
+                            database.ref('joueurs/' + cleanKey).update({ password: password });
+                            val.password = password;
                         }
-                        
-                        updateHome();
-                        checkDailyStatus(); // 👈 Verrouille/Déverrouille le bouton quotidien selon le compte connecté
-                        show("home-screen");
-                    }).catch(err => {
-                        console.error("Erreur Firebase fallback local:", err);
-                        chargerStatsLocales(username);
-                    });
-                } else {
-                    chargerStatsLocales(username);
-                }
+
+                        // Vérification du mot de passe
+                        if (val.password !== password) {
+                            alert("❌ Mot de passe incorrect pour ce pseudo !");
+                            return; // Stoppe la connexion
+                        }
+
+                        // Si le mot de passe est bon, on charge les stats
+                        stats = Object.assign({}, stats, val);
+                        stats.hasAura = val.hasAura === true;
+                    } else {
+                        // Nouveau compte : on l'enregistre direct avec son mot de passe
+                        database.ref('joueurs/' + cleanKey).set(stats);
+                    }
+                    
+                    // Succès de la connexion
+                    localStorage.setItem("brainflamme_user", username);
+                    updateHome();
+                    checkDailyStatus();
+                    show("home-screen");
+
+                }).catch(err => {
+                    console.error("Erreur Firebase:", err);
+                    alert("Erreur de connexion avec le serveur.");
+                });
             } else {
-                alert("Choisis un pseudo pour commencer ! 🔥");
+                alert("Erreur : Base de données non disponible.");
             }
         };
     }
