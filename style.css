@@ -1398,3 +1398,41 @@ input[type="text"], input[type="password"] {
     outline: none; 
     box-sizing: border-box; /* Évite que le padding ne dépasse de la largeur */
 }
+/* Espacement entre le champ pseudo et le bloc mot de passe */
+#username-input {
+    margin-bottom: 10px; /* Ajoute un petit espace en bas de l'input pseudo */
+    display: block; /* Force le saut de ligne */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Conteneur du mot de passe (position relative pour l'icône) */
+.password-wrapper {
+    position: relative;
+    width: 80%;
+    max-width: 250px; /* Même largeur que ton input text */
+    margin: 0 auto; /* Centre le bloc */
+    display: block;
+}
+
+/* Le champ mot de passe lui-même (hérite du style de ton input[type="text"]) */
+/* Pense bien à utiliser la règle que je t'ai donnée pour styliser input[type="text"], input[type="password"] ensemble pour qu'ils soient identiques */
+
+.password-wrapper input {
+    width: 100%; /* Remplit tout le conteneur */
+    padding-right: 40px; /* Important : Laisse de la place pour l'icône à droite */
+    box-sizing: border-box; /* Important : Pour que le padding n'élargisse pas le champ */
+}
+
+/* L'icône de l'œil (Positionnée à l'intérieur à droite) */
+.eye-icon {
+    position: absolute;
+    right: 15px; /* Position à droite */
+    top: 50%; /* Centre verticalement */
+    transform: translateY(-50%); /* Ajuste le centrage */
+    cursor: pointer;
+    color: #94a3b8; /* Couleur de l'icône (gris) */
+    font-size: 18px; /* Taille de l'icône */
+    user-select: none;
+    z-index: 10; /* Pour être au-dessus de l'input */
+}
