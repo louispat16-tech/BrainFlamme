@@ -1376,3 +1376,13 @@ body {
     font-size: 18px;
     user-select: none;
 }
+#password-input {
+    background-color: #1a2234; /* Même fond sombre que ton input pseudo (à adapter selon ta couleur exacte) */
+    border: 1px solid #334155; /* Même bordure subtile */
+    color: #ffffff; /* Texte blanc */
+    border-radius: 8px; /* Si tes inputs ont des coins arrondis */
+    outline: none;
+}
+#password-input::placeholder {
+    color: #64748b; /* Couleur du texte indicatif */
+}
