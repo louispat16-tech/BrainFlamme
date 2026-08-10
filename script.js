@@ -1406,7 +1406,15 @@ function switchTab(screenId, clickedBtn) {
     } else if (screenId === 'profile' && typeof renderProfile === 'function') {
         renderProfile();
     }
-}
+// ➔ AJOUTE CES LIGNES ICI (tout à la fin de switchTab) :
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) {
+        if (screenId === 'login-screen') {
+            bottomNav.style.display = 'none'; // Caché sur l'écran de connexion
+        } else {
+            bottomNav.style.display = 'flex'; // Visible partout ailleurs
+        }
+    }
 
 function renderProfile() {
     const currentUsername = localStorage.getItem("brainflamme_user") || "Joueur";
