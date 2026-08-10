@@ -465,6 +465,19 @@ function setupLogin() {
     }
 }
 
+function setupPasswordToggle() {
+    const passwordInput = document.getElementById("password-input");
+    const togglePassword = document.getElementById("togglePassword");
+
+    if (passwordInput && togglePassword) {
+        togglePassword.onclick = () => {
+            const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+            passwordInput.setAttribute("type", type);
+            togglePassword.textContent = type === "password" ? "👁️" : "👁️‍🗨️";
+        };
+    }
+}
+
 function chargerStatsLocales(username) {
     if (!username) return;
 
