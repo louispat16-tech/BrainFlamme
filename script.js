@@ -394,38 +394,25 @@ window.onload = () => {
 function setupLogin() {
     const loginBtn = document.getElementById("loginBtn");
     const userInput = document.getElementById("username-input");
-    const passInput = document.getElementById("password-input"); // ➕ Récupération du champ mot de passe
+    const passInput = document.getElementById("password-input");
 
     if (loginBtn && userInput && passInput) {
         loginBtn.onclick = () => {
             const username = userInput.value.trim();
-            const password = passInput.value; // ➕ Valeur du mot de passe
+            const password = passInput.value;
 
             if (!username || !password) {
                 alert("Entre un pseudo et un mot de passe ! 🔥");
                 return;
             }
 
-           // Remplace le bloc de la saisie par ceci :
-const username = userInput.value.trim();
-const password = passInput.value;
-
-if (!username || !password) {
-    alert("Entre un pseudo et un mot de passe ! 🔥");
-    return;
-}
-
-// ➔ On utilise directement le pseudo sans .toLowerCase() pour garder les majuscules d'origine
-const targetKey = username;
-
-// Et plus bas dans la requête Firebase, tu utilises targetKey :
-database.ref('joueurs/' + targetKey).once('value').then((snapshot) => {
-    // ... le reste de ta fonction
+            // ➔ On garde le pseudo exact (avec les majuscules) pour Firebase
+            const targetKey = username;
 
             // 🧹 RESET CRUCIAL : On remet l'objet stats à zéro
             stats = {
                 username: username,
-                password: password, // ➕ Stockage du mot de passe
+                password: password,
                 xp: 0,
                 progression: 0,
                 level: 1,
@@ -438,13 +425,13 @@ database.ref('joueurs/' + targetKey).once('value').then((snapshot) => {
             };
             
             if (typeof database !== "undefined" && database) {
-                database.ref('joueurs/' + cleanKey).once('value').then((snapshot) => {
+                database.ref('joueurs/' + targetKey).once('value').then((snapshot) => {
                     if (snapshot.exists()) {
                         const val = snapshot.val();
 
                         // 🔒 SÉCURITÉ MOT DE PASSE : Si l'ancien compte n'a pas encore de mot de passe
                         if (!val.password) {
-                            database.ref('joueurs/' + cleanKey).update({ password: password });
+                            database.ref('joueurs/' + targetKey).update({ password: password });
                             val.password = password;
                         }
 
@@ -459,14 +446,20 @@ database.ref('joueurs/' + targetKey).once('value').then((snapshot) => {
                         stats.hasAura = val.hasAura === true;
                     } else {
                         // Nouveau compte : on l'enregistre direct avec son mot de passe
-                        database.ref('joueurs/' + cleanKey).set(stats);
+                        database.ref('joueurs/' + targetKey).set(stats);
                     }
                     
                     // Succès de la connexion
                     localStorage.setItem("brainflamme_user", username);
                     updateHome();
                     checkDailyStatus();
-                    show("home-screen");
+                    
+                    // Utilise switchTab ou show selon ton code (ici switchTab)
+                    if (typeof switchTab === 'function') {
+                        switchTab('home-screen');
+                    } else if (typeof show === 'function') {
+                        show('home-screen');
+                    }
 
                 }).catch(err => {
                     console.error("Erreur Firebase:", err);
@@ -478,29 +471,18 @@ database.ref('joueurs/' + targetKey).once('value').then((snapshot) => {
         };
     }
 }
-
 function setupPasswordToggle() {
     const passwordInput = document.getElementById("password-input");
-    const userInput = document.getElementById("username-input"); // La case du pseudo
     const togglePassword = document.getElementById("togglePassword");
 
     if (passwordInput && togglePassword) {
         togglePassword.onclick = () => {
-            // 1. Gestion de l'affichage du mot de passe
+            // Alterne entre type="password" et type="text"
             const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
             passwordInput.setAttribute("type", type);
-            togglePassword.textContent = type === "password" ? "👁️" : "👁️‍🗨️";
-
-            // 2. Contraction / Décontraction de la case pseudo
-            if (userInput) {
-                // Si la case est déjà rétrécie, on la remet normale, sinon on la réduit
-                if (userInput.style.width === "150px") {
-                    userInput.style.width = ""; // Revient à la taille d'origine (100% ou CSS initial)
-                } else {
-                    userInput.style.width = "150px"; // Se contracte
-                    userInput.style.transition = "width 0.3s ease"; // Animation fluide
-                }
-            }
+            
+            // ➔ Icônes ultra-simples : Un tiret pour le texte, deux points pour le mot de passe masqué
+            togglePassword.textContent = type === "password" ? ".." : "-";
         };
     }
 }
