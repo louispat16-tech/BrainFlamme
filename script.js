@@ -482,11 +482,8 @@ function setupPasswordToggle() {
 
     if (passwordInput && togglePassword) {
         togglePassword.onclick = () => {
-            // Alterne entre type="password" et type="text"
             const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
             passwordInput.setAttribute("type", type);
-            
-            // Change l'icône de l'œil sans faire disparaître quoi que ce soit
             togglePassword.textContent = type === "password" ? "👁️" : "👁️‍🗨️";
         };
     }
