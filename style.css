@@ -1332,3 +1332,20 @@ body {
 .game-active .bottom-nav {
     display: none !important;
 }
+/* Style pour l'input de mot de passe sur l'écran de connexion */
+#passwordInput {
+    width: 100%;
+    max-width: 300px;
+    padding: 12px 15px;
+    margin: 10px 0;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+#passwordInput:focus {
+    border-color: #ff6b6b; /* Utilise la couleur principale de ton thème BrainFlamme */
+}
