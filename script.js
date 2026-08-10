@@ -460,12 +460,12 @@ function setupLogin() {
                     } else if (typeof show === 'function') {
                         show('home-screen');
                     }
-                // ➔ AJOUTE CES 3 LIGNES ICI : Force l'affichage de la barre du bas
-                const bottomNav = document.querySelector('.bottom-nav');
-                if (bottomNav) {
-                bottomNav.style.display = 'flex';
-        }
-                    
+
+                    // ➔ Force l'affichage de la barre du bas DIRECTEMENT ICI dans le succès
+                    const bottomNav = document.querySelector('.bottom-nav');
+                    if (bottomNav) {
+                        bottomNav.style.display = 'flex';
+                    }
 
                 }).catch(err => {
                     console.error("Erreur Firebase:", err);
