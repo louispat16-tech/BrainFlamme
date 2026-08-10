@@ -1411,16 +1411,18 @@ function switchTab(screenId, clickedBtn) {
         renderProfile();
     }
 
-    // ➔ GESTION AUTOMATIQUE DE LA BARRE DU BAS
+   // ➔ GESTION SÉCURISÉE DE LA BARRE DU BAS
     const bottomNav = document.querySelector('.bottom-nav');
     if (bottomNav) {
-        if (screenId === 'login-screen') {
-            bottomNav.style.display = 'none';
+        // Liste exacte des écrans où la barre a le droit d'être affichée
+        const allowedScreens = ['home-screen', 'shop-screen', 'leaderboard-screen', 'profile'];
+        
+        if (allowedScreens.includes(screenId)) {
+            bottomNav.style.setProperty('display', 'flex', 'important');
         } else {
-            bottomNav.style.display = 'flex';
+            bottomNav.style.setProperty('display', 'none', 'important');
         }
     }
-} // 👈 Cette accolade ferme bien la fonction switchTab
 
 function renderProfile() {
     const currentUsername = localStorage.getItem("brainflamme_user") || "Joueur";
