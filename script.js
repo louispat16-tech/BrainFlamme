@@ -1904,10 +1904,6 @@ function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
     });
 }
 
-let currentThemeQuestions = [];
-let currentQuestionIndex = 0;
-let userScore = 0;
-
 // ==========================================
 // 📂 GESTION DU MODE CATÉGORIES (MINUTE QUIZ)
 // ==========================================
