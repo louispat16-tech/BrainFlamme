@@ -100,8 +100,7 @@ const allThemesQuestions = {
         { question: "Quel auteur a écrit 'Atala' et 'René' ?", options: ["Chateaubriand", "Lamartine", "Vigny", "Stendhal"], correct: 0 },
         { question: "Qui a écrit 'Gigi' ?", options: ["Colette", "George Sand", "Simone de Beauvoir", "Marguerite Yourcenar"], correct: 0 },
         { question: "Quel auteur a écrit 'La Mare au diable' ?", options: ["George Sand", "Colette", "Madame de La Fayette", "Marguerite Duras"], correct: 0 }
-    ]
-};
+    ],
 
 "Astronomie": [
         { question: "Quelle est la plus grande planète du système solaire ?", options: ["Vénus", "Saturne", "Jupiter", "Neptune"], correct: 2 },
@@ -203,8 +202,7 @@ const allThemesQuestions = {
         { question: "Qu'appelle-t-on le plan de l'écliptique ?", options: ["Le plan de l'équateur terrestre", "Le plan géométrique de l'orbite de la Terre autour du Soleil", "Le plan de rotation de la Voie lactée", "Le plan des anneaux de Saturne"], correct: 1 },
         { question: "Quel est le nom de la plus grande faille ou canyon de Mars (comparable à la taille des USA) ?", options: ["Valles Marineris", "Olympus Mons", "Hellas Planitia", "Tharsis"], correct: 0 },
         { question: "Qu'est-ce qu'une supernova de type II ?", options: ["L'explosion d'une étoile massive par effondrement de cœur", "L'explosion d'une naine blanche", "La collision de deux étoiles", "L'évaporation d'un trou noir"], correct: 0 }
-    ]
-};
+   ],
 
 "Géographie": [
         { question: "Quelle est la capitale de l'Australie ?", options: ["Sydney", "Melbourne", "Canberra", "Brisbane"], correct: 2 },
@@ -307,8 +305,7 @@ const allThemesQuestions = {
         { question: "Quelle est la capitale de la Bulgarie ?", options: ["Bucarest", "Sofia", "Belgrade", "Zagreb"], correct: 1 },
         { question: "Quel pays européen est bordé à l'ouest par l'océan Atlantique et possède une péninsule majeure ?", options: ["L'Italie", "L'Espagne", "La Grèce", "La Suède"], correct: 1 },
         { question: "Quelle est la capitale des Philippines ?", options: ["Cebu", "Manille", "Davao", "Quezon City"], correct: 1 }
-    ]
-};
+   ],
 
 "Histoire": [
         { question: "En quelle année a eu lieu la chute du mur de Berlin ?", options: ["1985", "1989", "1991", "1975"], correct: 1 },
@@ -410,8 +407,7 @@ const allThemesQuestions = {
         { question: "Quel grand empire mésoaméricain ou andin a construit la cité de Machu Picchu ?", options: ["Les Aztèques", "Les Mayas", "Les Incas", "Les Toltèques"], correct: 2 },
         { question: "En quelle année s'est achevée officiellement la guerre de Cent Ans entre la France et l'Angleterre ?", options: ["1337", "1415", "1453", "1492"], correct: 2 },
         { question: "Quel leader sud-africain a été libéré de prison en 1990 avant de devenir président du pays ?", options: ["Desmond Tutu", "Nelson Mandela", "F.W. de Klerk", "Thabo Mbeki"], correct: 1 }
-    ]
-};
+   ],
 
 "Sciences et Nature": [
         { question: "Quel est l'élément chimique dont le symbole est H ?", options: ["Hélium", "Hydrogène", "Hafnium", "Hydrargyre"], correct: 1 },
@@ -514,8 +510,7 @@ const allThemesQuestions = {
         { question: "Quel est le nom de la plus grande lune de Jupiter ?", options: ["Titan", "Io", "Ganymède", "Callisto"], correct: 2 },
         { question: "Quel organe du corps humain produit les globules rouges chez l'adulte ?", options: ["Le foie", "La rate", "La moelle osseuse", "Les reins"], correct: 2 },
         { question: "Quel est le nom de la théorie cosmologique dominante expliquant la naissance de l'univers ?", options: ["L'état stationnaire", "Le Big Bang", "L'inflation universelle", "La création continue"], correct: 1 }
-    ]
-};
+],
 
 "Gastronomie": [
         { question: "Quel ingrédient principal compose la base de la sauce traditionnelle italienne appelée pesto ?", options: ["Le persil", "Le basilic", "La coriandre", "La menthe"], correct: 1 },
@@ -617,8 +612,7 @@ const allThemesQuestions = {
         { question: "Quel ingrédient est la base absolue de la confection d'un caramel classique à sec ?", options: ["Le beurre", "Le sucre blanc", "L'eau", "La crème fraîche"], correct: 1 },
         { question: "Quel plat traditionnel du sud-ouest de la France est un ragoût riche et mijoté à base de haricots blancs, de confit de canard et de saucisses ?", options: ["Le cassoulet", "La daube provençale", "La carbonnade", "Le bœuf bourguignon"], correct: 0 },
         { question: "Quel fruit à pépins, dont il existe des milliers de variétés (comme la Granny Smith ou la Gala), est récolté sur le pommier ?", options: ["La poire", "La pomme", "Le coing", "La pêche"], correct: 1 }
-    ]
-};
+    ],
 
 "Capitales": [
         { question: "Quelle est la capitale de l'Australie ?", options: ["Sydney", "Melbourne", "Canberra", "Brisbane"], correct: 2 },
@@ -722,8 +716,7 @@ const allThemesQuestions = {
         { question: "Quelle est la capitale de la Bosnie-Herzégovine ?", options: ["Banja Luka", "Mostar", "Sarajevo", "Tuzla"], correct: 2 },
         { question: "Quelle est la capitale de la Macédoine du Nord ?", options: ["Bitola", "Ohrid", "Skopje", "Kumanovo"], correct: 2 },
         { question: "Quelle est la capitale du Monténégro (siège du gouvernement) ?", options: ["Kotor", "Budva", "Podgorica", "Nikšić"], correct: 2 }
-    ]
-};
+    ],
 
 Sport": [
         { question: "Quel pays a remporté la Coupe du Monde de la FIFA en 2018 ?", options: ["Le Brésil", "L'Allemagne", "La France", "L'Argentine"], correct: 2 },
@@ -826,9 +819,7 @@ Sport": [
         { question: "Quel est le pays hôte des Jeux olympiques d'été de 2028 ?", options: ["La France", "L'Australie", "Les États-Unis (Los Angeles)", "Le Japon"], correct: 2 },
         { question: "Dans quel sport les compétiteurs s'élancent-ils sur une luge rigide couchés sur le dos les pieds en avant ?", options: ["Le bobsleigh", "Le skeleton", "La luge de course", "Le saut à ski"], correct: 2 },
         { question: "Quel pays a remporté la Coupe du Monde de football en 2006 en Italie/Allemagne (finale jouée à Berlin) ?", options: ["La France", "L'Italie", "L'Allemagne", "Le Brésil"], correct: 1 }
-    ]
-};
-
+    ],
 "Jeux Vidéo": [
         { question: "Quel célèbre plombier moustachu est la mascotte officielle de Nintendo ?", options: ["Luigi", "Mario", "Sonic", "Wario"], correct: 1 },
         { question: "Dans quel jeu à succès construit-on et survit-on dans un monde fait de blocs cubes ?", options: ["Terraria", "Minecraft", "Roblox", "Fortnite"], correct: 1 },
@@ -928,8 +919,7 @@ Sport": [
         { question: "Quel est le nom du petit personnage rond jaune du jeu Pac-Man qui mange des fantômes après avoir avalé une super pac-gomme ?", options: ["Pac-Man", "Blinky", "Inky", "Clyde"], correct: 0 },
         { question: "Dans quel jeu d'action-aventure en monde ouvert de Rockstar Games incarne-t-on le célèbre criminel Franklin, Michael et Trevor (GTA V) ?", options: ["Grand Theft Auto V", "Red Dead Redemption 2", "Watch Dogs", "Cyberpunk 2077"], correct: 0 },
         { question: "Quel est le nom du plombier rouge moustachu le plus célèbre de l'histoire du jeu vidéo pour conclure ces 100 questions ?", options: ["Mario", "Luigi", "Wario", "Toad"], correct: 0 }
-    ]
-};
+    ],
 
 "Musique": [
         { question: "Quel artiste pop américain, surnommé le « King of Pop », a interprété des tubes légendaires comme « Thriller » et « Billie Jean » ?", options: ["Prince", "Michael Jackson", "Elvis Presley", "Stevie Wonder"], correct: 1 },
@@ -992,8 +982,7 @@ Sport": [
         { question: "Quel instrument à cordes pincées, doté d'un long manche et d'une caisse de résonance ronde, est l'emblème de la musique country américaine et bluegrass ?", options: ["La guitare acoustique", "Le banjo", "La mandoline", "Le dobro"], correct: 1 },
         { question: "Quel compositeur français de la période impressionniste a écrit le célèbre morceau pour piano « Clair de lune » ?", options: ["Maurice Ravel", "Claude Debussy", "Erik Satie", "Gabriel Fauré"], correct: 1 },
         { question: "Quel groupe de rock gothique et post-punk britannique, mené par le chanteur Robert Smith aux cheveux ébouriffés, a interprété « Boys Don't Cry » ?", options: ["Depeche Mode", "The Cure", "Joy Division", "Bauhaus"], correct: 1 }
-    ]
-};
+    ],
 
 "Cinéma & Séries": [
         { question: "Quel réalisateur est à l'origine de la trilogie culte de science-fiction « Le Seigneur des Anneaux » au cinéma ?", options: ["Steven Spielberg", "Peter Jackson", "James Cameron", "George Lucas"], correct: 1 },
@@ -1101,8 +1090,7 @@ Sport": [
         { question: "Quelle série télévisée de science-fiction rétro des frères Duffer se déroule dans la ville fictive d'Hawkins (Stranger Things) ?", options: ["Stranger Things", "Dark", "The OA", "Fringe"], correct: 0 },
         { question: "Quel réalisateur est le créateur de la trilogie culte « Retour vers le futur » (Back to the Future) ?", options: ["Robert Zemeckis", "Steven Spielberg", "George Lucas", "James Cameron"], correct: 0 },
         { question: "Quel est le nom de la ville imaginaire dirigée par le Commissaire Gordon et protégée par Batman (Gotham) pour conclure ces 100 questions ?", options: ["Gotham City", "Metropolis", "Central City", "Star City"], correct: 0 }
-    ]
-};
+    ],
 
 const techQuestions = [
     { question: "Quel langage de balisage est principalement utilisé pour structurer et créer le contenu des pages web ?", options: ["Python", "HTML", "SQL", "C++"], correct: 1 },
