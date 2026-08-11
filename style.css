@@ -1444,3 +1444,97 @@ input[type="text"], input[type="password"] {
 .eye-icon:hover {
     color: #475569; /* Un gris un peu plus clair au survol */
 }
+.themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+    width: 100%;
+    max-width: 500px;
+}
+
+.theme-card {
+    background: #1e293b;
+    border: 2px solid #334155;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.theme-card:hover {
+    background: #334155;
+    border-color: #f97316; /* Couleur orange de BrainFlamme */
+    transform: translateY(-2px);
+}
+
+.theme-options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 30px 0;
+    width: 100%;
+    max-width: 400px;
+}
+
+.option-btn {
+    background: #f97316;
+    color: white;
+    border: none;
+    padding: 18px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.option-btn:hover {
+    background: #ea580c;
+}
+
+.option-btn small {
+    display: block;
+    font-size: 12px;
+    font-weight: normal;
+    opacity: 0.9;
+    margin-top: 5px;
+}
+.themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.theme-card {
+    background: #1e293b;
+    border: 2px solid #334155;
+    color: white;
+    padding: 15px 10px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.theme-card:hover {
+    background: #334155;
+    border-color: #f97316;
+    transform: translateY(-2px);
+}
+
+.theme-options-container {
+    max-width: 400px; 
+    margin: 20px auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px;
+}
