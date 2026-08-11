@@ -2022,3 +2022,19 @@ function finishMinuteQuiz() {
         if (typeof playSFX === 'function') playSFX('chestOpen');
     }
 }
+// Fonction pour ouvrir l'écran de sélection des catégories/thèmes
+function openThemeSelection() {
+    // Cache le menu principal
+    const mainMenu = document.getElementById('main-menu');
+    if (mainMenu) {
+        mainMenu.style.display = 'none';
+    }
+
+    // Affiche l'écran des thèmes (vérifie que cet ID existe dans ton HTML)
+    const themeScreen = document.getElementById('theme-selection');
+    if (themeScreen) {
+        themeScreen.style.display = 'block';
+    } else {
+        console.warn("Attention : l'ID de l'écran des thèmes est peut-être différent dans ton HTML.");
+    }
+}
