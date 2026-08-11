@@ -2022,19 +2022,33 @@ function finishMinuteQuiz() {
         if (typeof playSFX === 'function') playSFX('chestOpen');
     }
 }
-// Fonction pour ouvrir l'écran de sélection des catégories/thèmes
+// Fonction pour lancer le mode Catégories
 function openThemeSelection() {
-    // Cache le menu principal
+    console.log("Ouverture du mode Catégories");
+    
+    // 1. Masquer le menu principal
     const mainMenu = document.getElementById('main-menu');
-    if (mainMenu) {
-        mainMenu.style.display = 'none';
-    }
+    if (mainMenu) mainMenu.style.display = 'none';
 
-    // Affiche l'écran des thèmes (vérifie que cet ID existe dans ton HTML)
-    const themeScreen = document.getElementById('theme-selection');
-    if (themeScreen) {
-        themeScreen.style.display = 'block';
+    // 2. Afficher l'écran de sélection des thèmes (on utilise 'theme-options-screen' comme dans ton autre fonction)
+    const optionsScreen = document.getElementById('theme-options-screen');
+    if (optionsScreen) {
+        optionsScreen.style.display = 'block';
     } else {
-        console.warn("Attention : l'ID de l'écran des thèmes est peut-être différent dans ton HTML.");
+        console.error("Erreur : l'élément HTML 'theme-options-screen' est introuvable.");
+    }
+}
+// Fonction appelée quand on clique sur le bouton "Mode Catégories" du menu principal
+function openCategoryMenu() {
+    // 1. Masquer le menu principal
+    const mainMenu = document.getElementById('main-menu');
+    if (mainMenu) mainMenu.style.display = 'none';
+
+    // 2. Afficher l'écran de sélection des thèmes
+    const optionsScreen = document.getElementById('theme-options-screen');
+    if (optionsScreen) {
+        optionsScreen.style.display = 'block';
+    } else {
+        console.error("Erreur : l'élément 'theme-options-screen' est introuvable dans le HTML.");
     }
 }
