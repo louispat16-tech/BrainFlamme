@@ -1363,7 +1363,7 @@ function lancerQuestionBonus() {
 
 function switchTab(screenId, clickedBtn) {
     // 🎵 Si on quitte le jeu/quiz pour revenir sur un menu, on remet la musique de fond !
-    const menuScreens = ['home-screen', 'shop-screen', 'modeSelection', 'profile', 'leaderboard-screen', 'score'];
+    const menuScreens = ['home-screen', 'shop-screen', 'modeSelection', 'profile', 'leaderboard-screen', 'score', 'theme-selection-screen', 'theme-options-screen'];
     if (menuScreens.includes(screenId) && typeof playMusic === 'function') {
         playMusic('bgMusic');
     }
@@ -1376,7 +1376,9 @@ function switchTab(screenId, clickedBtn) {
         'quiz', 
         'profile', 
         'score', 
-        'leaderboard-screen'
+        'leaderboard-screen',
+        'theme-selection-screen',
+        'theme-options-screen'
     ];
 
     allScreens.forEach(id => {
@@ -1408,7 +1410,7 @@ function switchTab(screenId, clickedBtn) {
     // ➔ GESTION SÉCURISÉE DE LA BARRE DU BAS
     const bottomNav = document.querySelector('.bottom-nav');
     if (bottomNav) {
-        // Liste exacte des écrans où la barre a le droit d'être affichée
+        // Liste exacte des écrans principaux où la barre du bas est visible
         const allowedScreens = ['home-screen', 'shop-screen', 'leaderboard-screen', 'profile'];
         
         if (allowedScreens.includes(screenId)) {
@@ -1900,4 +1902,127 @@ function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
         avatar: avatar || localStorage.getItem('avatar') || "",
         lastSeen: Date.now()
     });
+}
+
+let currentThemeQuestions = [];
+let currentQuestionIndex = 0;
+let userScore = 0;
+
+// ==========================================
+// 📂 GESTION DU MODE CATÉGORIES (MINUTE QUIZ)
+// ==========================================
+
+let selectedTheme = null;         
+let currentThemeQuestions = [];   
+let currentQuestionIndex = 0;     
+let userScore = 0;                
+
+// 1. Appelée quand le joueur clique sur un bouton de thème dans le HTML
+function selectTheme(themeKey) {
+    selectedTheme = themeKey;
+    startThemeQuiz('training');
+}
+
+// 2. Appelée pour initialiser et démarrer le quiz par thème
+function startThemeQuiz(gameType) {
+    if (gameType === 'training') {
+        // Vérifie si allThemesQuestions existe bien (défini dans questions.js)
+        if (typeof allThemesQuestions === 'undefined') {
+            console.error("Erreur : allThemesQuestions n'est pas défini. Vérifie que questions.js est bien chargé.");
+            alert("Erreur de chargement des questions.");
+            return;
+        }
+
+        const themePool = allThemesQuestions[selectedTheme];
+        
+        if (!themePool || themePool.length === 0) {
+            alert("Oups, les questions de ce thème arrivent bientôt !");
+            return;
+        }
+
+        // Mélange les questions et prends-en 5 au hasard
+        currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random()).slice(0, 5);
+        currentQuestionIndex = 0;
+        userScore = 0;
+
+        // Masque les menus et affiche l'écran du quiz
+        const optionsScreen = document.getElementById('theme-options-screen');
+        if (optionsScreen) optionsScreen.style.display = 'none';
+
+        const quizScreen = document.getElementById('quiz');
+        if (quizScreen) quizScreen.style.display = 'block';
+
+        // Cache le timer car c'est un "Minute Quiz" sans pression
+        const timerContainer = document.getElementById('timerContainer');
+        if (timerContainer) timerContainer.style.display = 'none';
+
+        showNextThemeQuestion();
+    }
+}
+
+// 3. Fonction pour afficher les questions une par une
+function showNextThemeQuestion() {
+    if (currentQuestionIndex < currentThemeQuestions.length) {
+        const q = currentThemeQuestions[currentQuestionIndex];
+        
+        const questionEl = document.getElementById('question');
+        if (questionEl) {
+            questionEl.innerText = `Question ${currentQuestionIndex + 1}/5 : ${q.question}`;
+        }
+        
+        const answersGrid = document.getElementById('answers');
+        if (answersGrid) {
+            answersGrid.innerHTML = "";
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'mode-btn';
+                btn.innerText = opt;
+                btn.style.background = "#1e293b";
+                btn.style.border = "2px solid #334155";
+                btn.style.padding = "15px";
+                btn.style.borderRadius = "10px";
+                btn.style.color = "white";
+                btn.style.cursor = "pointer";
+                
+                btn.onclick = () => checkThemeAnswer(index, q.correct);
+                answersGrid.appendChild(btn);
+            });
+        }
+    } else {
+        finishMinuteQuiz();
+    }
+}
+
+// 4. Vérifie la réponse du joueur
+function checkThemeAnswer(selectedIndex, correctIndex) {
+    if (selectedIndex === correctIndex) {
+        userScore++;
+        if (typeof playSFX === 'function') playSFX('correct');
+    } else {
+        if (typeof playSFX === 'function') playSFX('wrong');
+    }
+    currentQuestionIndex++;
+    showNextThemeQuestion();
+}
+
+// 5. Déclenche l'écran du coffre en bois à la fin des 5 questions
+function finishMinuteQuiz() {
+    const quizScreen = document.getElementById('quiz');
+    if (quizScreen) quizScreen.style.display = 'none';
+    
+    const chestScreen = document.getElementById('chest-screen');
+    if (chestScreen) {
+        chestScreen.style.display = 'block';
+        
+        const chestTitle = document.getElementById('chest-title');
+        if (chestTitle) chestTitle.innerText = "Minute Quiz Terminé ! 🎉";
+        
+        const chestImg = document.getElementById('chest-img');
+        if (chestImg) {
+            chestImg.src = "bois.png"; 
+        }
+        
+        if (typeof playSFX === 'function') playSFX('chestOpen');
+    }
 }
