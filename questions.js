@@ -718,7 +718,7 @@ const allThemesQuestions = {
         { question: "Quelle est la capitale du Monténégro (siège du gouvernement) ?", options: ["Kotor", "Budva", "Podgorica", "Nikšić"], correct: 2 }
     ],
 
-Sport": [
+"Sport": [
         { question: "Quel pays a remporté la Coupe du Monde de la FIFA en 2018 ?", options: ["Le Brésil", "L'Allemagne", "La France", "L'Argentine"], correct: 2 },
         { question: "Combien de joueurs composent une équipe de football sur le terrain par match ?", options: ["9", "10", "11", "12"], correct: 2 },
         { question: "Quel athlète jamaïcain est le recordman du monde du 100 mètres et multiple champion olympique ?", options: ["Asafa Powell", "Yohan Blake", "Usain Bolt", "Michael Johnson"], correct: 2 },
