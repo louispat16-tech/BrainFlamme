@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BrainFlamme - Le meilleur quiz de culture générale</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css"> 
     <link rel="icon" type="image/png" href="icon.png">
 </head> 
 <body>
@@ -12,17 +12,17 @@
         <h1 id="title">🔥 Brainflamme</h1> 
 
         <div id="login-screen" class="screen">
-    <h2>Bienvenue !</h2>
-    <p style="color: #94a3b8; margin-bottom: 20px;">Prêt à enflammer tes neurones ?</p>
-    
-    <input type="text" id="username-input" placeholder="Ton pseudo..." maxlength="12">
-    <div class="password-wrapper">
-    <input type="password" id="password-input" placeholder="Ton mot de passe..." maxlength="20">
-    <span id="togglePassword" class="eye-icon">👁️</span>
-</div>
-    
-    <button id="loginBtn" class="play pulse-btn">Créer mon profil</button>
-</div>
+            <h2>Bienvenue !</h2>
+            <p style="color: #94a3b8; margin-bottom: 20px;">Prêt à enflammer tes neurones ?</p>
+            
+            <input type="text" id="username-input" placeholder="Ton pseudo..." maxlength="12">
+            <div class="password-wrapper">
+                <input type="password" id="password-input" placeholder="Ton mot de passe..." maxlength="20">
+                <span id="togglePassword" class="eye-icon">👁️</span>
+            </div>
+            
+            <button id="loginBtn" class="play pulse-btn">Créer mon profil</button>
+        </div>
 
         <div id="home-screen" class="screen" style="display:none;">
             <div class="home-streak-container">
@@ -101,11 +101,14 @@
                     <button class="buy-btn" onclick="buyItem('aura_effect', 1000)">1000 🪙</button>
                 </div>
             </div> 
-        </div> <div id="modeSelection" class="screen" style="display:none;">
+        </div>
+
+        <div id="modeSelection" class="screen" style="display:none;">
             <h2 style="font-size: 40px; margin-bottom: 30px;">Choisis ton défi</h2>
             <div class="mode-btn-container">
                 <button id="dailyMode" class="mode-btn">📅 Mode Quotidien</button>
                 <button id="chronoMode" class="mode-btn">⚡ Mode Chrono</button>
+                <button class="mode-btn" onclick="openThemeSelection()">🎯 Mode Catégories</button>
             </div>
         </div>
 
@@ -216,20 +219,20 @@
                 </div>
             </div>
         </div>
-        
+      
         <div id="notif-banner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 15px 20px; border-radius: 12px; border: 2px solid #ff5722; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 9999; text-align: center; max-width: 90%; width: 400px;">
-    <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 1.05em;">
-        🔥 Ne perds pas ta flamme !
-    </p>
-    <p style="margin: 0 0 15px 0; font-size: 0.9em; color: #ccc;">
-        Autorise les notifications pour recevoir tes rappels quotidiens à 9h et 20h.
-    </p>
-    <button onclick="accepterNotifsViaBanniere()" style="background: #ff5722; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 8px;">
-        Activer les rappels
-    </button>
-    <button onclick="fermerBanniereNotif()" style="background: transparent; color: #aaa; border: 1px solid #555; padding: 8px 12px; border-radius: 8px; cursor: pointer;">
-        Plus tard
-    </button>
+            <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 1.05em;">
+                🔥 Ne perds pas ta flamme !
+            </p>
+            <p style="margin: 0 0 15px 0; font-size: 0.9em; color: #ccc;">
+                Autorise les notifications pour recevoir tes rappels quotidiens à 9h et 20h.
+            </p>
+            <button onclick="accepterNotifsViaBanniere()" style="background: #ff5722; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 8px;">
+                Activer les rappels
+            </button>
+            <button onclick="fermerBanniereNotif()" style="background: transparent; color: #aaa; border: 1px solid #555; padding: 8px 12px; border-radius: 8px; cursor: pointer;">
+                Plus tard
+            </button>
         </div>
 
         <div id="leaderboard-screen" class="screen" style="display:none;">
@@ -256,10 +259,51 @@
 
                 <div id="leaderboard-list" class="leaderboard-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 45vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
                 </div>
+            
+            </div> 
+        </div> <div id="theme-selection-screen" class="screen" style="display: none;">
+            <h2 style="color: #f97316; text-align: center; margin-top: 20px;">Mode Catégories 🎯</h2>
+            <p style="text-align: center; color: #94a3b8; margin-bottom: 20px;">Choisis ton thème :</p>
+            
+            <div class="themes-grid">
+                <button class="theme-card" onclick="selectTheme('Littérature')">📖 Littérature</button>
+                <button class="theme-card" onclick="selectTheme('Astronomie')">🚀 Astronomie</button>
+                <button class="theme-card" onclick="selectTheme('Géographie')">🌍 Géographie</button>
+                <button class="theme-card" onclick="selectTheme('Histoire')">⏳ Histoire</button>
+                <button class="theme-card" onclick="selectTheme('Capitales')">🏛️ Capitales</button>
+                <button class="theme-btn" onclick="selectTheme('tech')">💻 Technologie & Numérique</button>
+                <button class="theme-card" onclick="selectTheme('Gastronomie')">🍳 Gastronomie</button>
+                <button class="theme-card" onclick="selectTheme('Sport')">⚽ Sport</button>
+                <button class="theme-card" onclick="selectTheme('Cinéma & Séries')">🎬 Cinéma & Séries</button>
+                <button class="theme-card" onclick="selectTheme('Sciences & Tech')">🔬 Sciences & Nature</button>
+                <button class="theme-card" onclick="selectTheme('Musique')">🎵 Musique</button>
+                <button class="theme-card" onclick="selectTheme('Jeux Vidéo')">🎮 Jeux Vidéo</button>
+            </div>
 
-            </div> </div>
-        
-        </div> </div> <nav class="bottom-nav">
+            <div style="text-align: center; margin-top: 25px;">
+                <button class="mode-btn" style="background:#334155; border:1px solid #f97316; color:white; padding:12px 25px; border-radius:10px; cursor:pointer;" onclick="switchTab('modeSelection')">Retour</button>
+            </div>
+        </div>
+
+        <div id="theme-options-screen" class="screen" style="display: none; text-align: center;">
+            <h2 id="current-theme-title" style="color: #f97316; font-size: 30px; margin-top: 20px;">Thème</h2>
+            <p style="color: #94a3b8; margin-bottom: 30px;">Comment souhaites-tu jouer ?</p>
+
+            <div class="theme-options-container" style="max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px;">
+                <button class="mode-btn" onclick="startThemeQuiz('training')" style="background: #1e293b; border: 2px solid #f97316; padding: 18px; border-radius: 12px; color: white; cursor: pointer; text-align: center;">
+                    ⏱️ Minute Quiz <br><small style="font-size: 12px; color: #94a3b8;">Quiz de 5 questions</small>
+                </button>
+                <button class="mode-btn" onclick="startThemeQuiz('ranked')" style="background: #f97316; border: none; padding: 18px; border-radius: 12px; color: white; cursor: pointer; text-align: center;">
+                    ⚡ Mode Entraînement <br><small style="font-size: 12px; opacity: 0.9;">Quiz chronométré</small>
+                </button>
+            </div>
+
+            <div style="margin-top: 25px;">
+                <button class="mode-btn" style="background:#334155; border:1px solid #f97316; color:white; padding:12px 25px; border-radius:10px; cursor:pointer;" onclick="openThemeSelection()">Changer de thème</button>
+            </div>
+        </div>
+
+    </div> <nav class="bottom-nav">
         <button class="nav-btn active" onclick="switchTab('home-screen'); updateHome(); setNavActive(this);">
             <span class="nav-icon">🏠</span>
             <span class="nav-label">Accueil</span>
@@ -282,14 +326,13 @@
     </nav>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-<script src="notifications.js"></script>
-<script src="audio.js"></script>
-<script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="notifications.js"></script>
+    <script src="audio.js"></script>
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
