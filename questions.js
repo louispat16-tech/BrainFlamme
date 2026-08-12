@@ -1092,7 +1092,7 @@ const allThemesQuestions = {
         { question: "Quel est le nom de la ville imaginaire dirigée par le Commissaire Gordon et protégée par Batman (Gotham) pour conclure ces 100 questions ?", options: ["Gotham City", "Metropolis", "Central City", "Star City"], correct: 0 }
     ],
 
-const techQuestions = [
+"techQuestions" = [
     { question: "Quel langage de balisage est principalement utilisé pour structurer et créer le contenu des pages web ?", options: ["Python", "HTML", "SQL", "C++"], correct: 1 },
     { question: "En quelle année le World Wide Web (WWW) a-t-il été inventé par Tim Berners-Lee au CERN ?", options: ["1975", "1989", "1995", "2001"], correct: 1 },
     { question: "Quel composant informatique est souvent qualifié de 'cerveau' de l'ordinateur pour exécuter les calculs ?", options: ["La carte graphique", "Le disque dur", "Le processeur (CPU)", "La mémoire RAM"], correct: 2 },
