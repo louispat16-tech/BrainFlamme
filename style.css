@@ -1570,3 +1570,8 @@ input[type="text"], input[type="password"] {
 .screen.active {
     display: block;
 }
+/* S'assure que tes écrans prennent toute la largeur et ne se chevauchent pas */
+#main-menu, #theme-options-screen {
+    width: 100%;
+    box-sizing: border-box;
+}
