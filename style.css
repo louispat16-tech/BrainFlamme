@@ -1575,3 +1575,13 @@ input[type="text"], input[type="password"] {
     width: 100%;
     box-sizing: border-box;
 }
+#theme-options-screen {
+    display: none; /* Caché par défaut */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #0f172a; /* Mets la couleur de fond exacte de ton site */
+    z-index: 10; /* S'assure qu'il passe par-dessus tout le reste */
+}
