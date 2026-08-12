@@ -1552,3 +1552,11 @@ input[type="text"], input[type="password"] {
     justify-content: center;
     width: 100%;
 }
+#theme-options-screen {
+    display: none; /* Caché par défaut */
+    width: 100%;
+    /* Si tu veux qu'il se positionne bien au-dessus ou qu'il remplace le flux : */
+    position: relative; 
+    top: 0;
+    left: 0;
+}
