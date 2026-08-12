@@ -1560,3 +1560,13 @@ input[type="text"], input[type="password"] {
     top: 0;
     left: 0;
 }
+/* Tous les écrans du jeu doivent occuper le même espace propre */
+.screen {
+    display: none;
+    width: 100%;
+}
+
+/* L'écran actif s'affiche correctement */
+.screen.active {
+    display: block;
+}
