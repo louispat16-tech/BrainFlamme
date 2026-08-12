@@ -2026,20 +2026,22 @@ function finishMinuteQuiz() {
 function openThemeSelection() {
     console.log("Ouverture du mode Catégories");
     
-    // 1. Cache le menu principal
+    // 1. Masquer complètement le menu principal
     const mainMenu = document.getElementById('main-menu');
-    if (mainMenu) mainMenu.classList.remove('active');
+    if (mainMenu) {
+        mainMenu.style.display = 'none';
+    }
 
-    // 2. Affiche l'écran des thèmes
+    // 2. Afficher l'écran des thèmes et le forcer à prendre toute la largeur/hauteur nécessaire
     const optionsScreen = document.getElementById('theme-options-screen');
     if (optionsScreen) {
-        optionsScreen.classList.add('active');
+        optionsScreen.style.display = 'block'; // Ou 'flex' si tu préfères
     } else {
         console.error("Erreur : l'élément 'theme-options-screen' est introuvable.");
     }
 
-    // 3. Force le retour tout en haut de la page
-    window.scrollTo(0, 0);
+    // 3. Remonter instantanément tout en haut de la fenêtre
+    window.scrollTo({ top: 0, behavior: 'instant' });
 }
 // Fonction appelée quand on clique sur le bouton "Mode Catégories" du menu principal
 function openCategoryMenu() {
