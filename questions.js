@@ -1193,4 +1193,4 @@ const allThemesQuestions = {
     { question: "Quel terme désigne l'utilisation de plusieurs ordinateurs en réseau pour exécuter collectivement des calculs massifs ou du minage de données ?", options: ["Le calcul distribué (Grid / Cluster)", "Le stockage local", "La virtualisation simple", "Le pare-feu réseau"], correct: 0 },
     { question: "Quel est le nom de la célèbre base de données NoSQL orientée documents, très populaire dans le développement web moderne en Node.js ?", options: ["MySQL", "MongoDB", "Oracle", "PostgreSQL"], correct: 1 },
     { question: "Quel est le nom complet et officiel du protocole d'interconnexion réseau mondial abrégé sous le terme d'Internet ?", options: ["Interconnected Network", "International Terminal Protocol", "Internal Node Transfer", "Interactive Net Protocol"], correct: 0 }
-];
+],
