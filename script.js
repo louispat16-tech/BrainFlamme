@@ -2063,12 +2063,23 @@ function openThemeSelection() {
 }
 
 function openCategoriesScreen() {
-    // Cache le menu principal
-    document.getElementById('main-menu').style.display = 'none';
-    
-    // Affiche l'écran qui contient toutes tes cartes de catégories (ex: id="categories-screen")
-    document.getElementById('categories-screen').style.display = 'block'; 
+    console.log("Ouverture de l'écran des catégories");
+
+    // 1. Cache le menu principal
+    const mainMenu = document.getElementById('main-menu');
+    if (mainMenu) {
+        mainMenu.style.display = 'none';
+    }
+
+    // 2. Affiche l'écran des thèmes avec le VRAI ID de ton HTML ('theme-selection-screen')
+    const categoriesScreen = document.getElementById('theme-selection-screen');
+    if (categoriesScreen) {
+        categoriesScreen.style.display = 'block'; // ou 'flex' selon ton style
+    } else {
+        console.error("Erreur : L'élément 'theme-selection-screen' est introuvable !");
+    }
 }
+
 function chooseTheme(themeKey) {
     selectedTheme = themeKey; // On stocke la matière choisie (ex: "techQuestions")
     console.log("Matière choisie :", selectedTheme);
