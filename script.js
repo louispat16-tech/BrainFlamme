@@ -1971,7 +1971,6 @@ function startThemeQuiz(gameType) {
     } else {
         console.error("La fonction showNextThemeQuestion() n'existe pas dans ton script.");
     }
-}
 
 // 3. Fonction pour afficher les questions une par une
 function showNextThemeQuestion() {
