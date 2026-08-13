@@ -2063,17 +2063,20 @@ function openThemeSelection() {
     window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
-// Fonction appelée quand on clique sur le bouton "Mode Catégories" du menu principal
-function openCategoryMenu() {
-    // 1. Masquer le menu principal
-    const mainMenu = document.getElementById('main-menu');
-    if (mainMenu) mainMenu.style.display = 'none';
+function openCategoriesScreen() {
+    // Cache le menu principal
+    document.getElementById('main-menu').style.display = 'none';
+    
+    // Affiche l'écran qui contient toutes tes cartes de catégories (ex: id="categories-screen")
+    document.getElementById('categories-screen').style.display = 'block'; 
+}
+function chooseTheme(themeKey) {
+    selectedTheme = themeKey; // On stocke la matière choisie (ex: "techQuestions")
+    console.log("Matière choisie :", selectedTheme);
 
-    // 2. Afficher l'écran de sélection des thèmes
-    const optionsScreen = document.getElementById('theme-options-screen');
-    if (optionsScreen) {
-        optionsScreen.style.display = 'block';
-    } else {
-        console.error("Erreur : l'élément 'theme-options-screen' est introuvable dans le HTML.");
-    }
+    // 1. On cache l'écran des catégories
+    document.getElementById('categories-screen').style.display = 'none';
+
+    // 2. On affiche l'écran des modes de jeu (Minute Quiz / Entraînement)
+    document.getElementById('theme-options-screen').style.display = 'block';
 }
