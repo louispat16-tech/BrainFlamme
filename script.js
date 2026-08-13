@@ -1913,20 +1913,35 @@ let currentThemeQuestions = [];
 let currentQuestionIndex = 0;     
 let userScore = 0;                
 
-function selectTheme(themeKey) {
-    selectedTheme = themeKey;
+// 1. Ouvre la grille de toutes les catégories (clic sur le bouton Catégories du menu)
+function openCategoriesScreen() {
+    console.log("Ouverture de l'écran des catégories");
+    hideAllScreens();
 
-    // 1. Cache l'écran des catégories
-    const catScreen = document.getElementById('theme-selection-screen');
-    if (catScreen) catScreen.style.display = 'none';
-
-    // 2. Affiche l'écran des modes (Minute Quiz / Entraînement)
-    const optionsScreen = document.getElementById('theme-options-screen');
-    if (optionsScreen) optionsScreen.style.display = 'block';
+    const categoriesScreen = document.getElementById('theme-selection-screen');
+    if (categoriesScreen) {
+        categoriesScreen.style.display = 'block';
+    } else {
+        console.error("Erreur : L'élément 'theme-selection-screen' est introuvable !");
+    }
 }
 
+// 2. Quand on clique sur une catégorie précise (ex: Littérature)
+function selectTheme(themeKey) {
+    selectedTheme = themeKey;
+    console.log("Matière choisie :", selectedTheme);
+
+    hideAllScreens(); // Cache tout (notamment l'écran des catégories)
+
+    // Affiche l'écran du choix du mode (Minute Quiz / Entraînement)
+    const optionsScreen = document.getElementById('theme-options-screen');
+    if (optionsScreen) {
+        optionsScreen.style.display = 'block';
+    }
+}
+
+// 3. Lancement du quiz selon le mode choisi
 function startThemeQuiz(gameType) {
-    // Si aucun mode n'est passé en paramètre, on force par défaut à 'training'
     const mode = gameType ? gameType : 'training';
     
     console.log("Lancement du quiz en mode : " + mode);
@@ -1944,7 +1959,7 @@ function startThemeQuiz(gameType) {
         return;
     }
 
-    // 1. Prépare les questions
+    // Prépare les questions
     if (mode === 'training') {
         currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random()).slice(0, 5);
     } else {
@@ -1954,30 +1969,21 @@ function startThemeQuiz(gameType) {
     currentQuestionIndex = 0;
     userScore = 0;
 
-    // 2. Cache l'écran des options, du menu ET l'écran des catégories
-    const optionsScreen = document.getElementById('theme-options-screen');
-    if (optionsScreen) optionsScreen.style.display = 'none';
+    // Masque tout et affiche uniquement le quiz
+    hideAllScreens();
 
-    const mainMenu = document.getElementById('main-menu');
-    if (mainMenu) mainMenu.style.display = 'none';
-
-    // AJOUT ICI : Masque l'écran des catégories pour qu'il ne reste pas en fond
-    const categoriesScreen = document.getElementById('theme-selection-screen');
-    if (categoriesScreen) categoriesScreen.style.display = 'none';
-
-    // 3. Affiche l'écran du quiz
     const quizScreen = document.getElementById('quiz');
     if (quizScreen) {
         quizScreen.style.display = 'block';
     }
 
-    // 4. Lance la première question
+    // Lance la première question
     if (typeof showNextThemeQuestion === 'function') {
         showNextThemeQuestion();
     }
 }
 
-// 3. Fonction pour afficher les questions une par une
+// 4. Fonction pour afficher les questions une par une
 function showNextThemeQuestion() {
     if (currentQuestionIndex < currentThemeQuestions.length) {
         const q = currentThemeQuestions[currentQuestionIndex];
@@ -2011,7 +2017,7 @@ function showNextThemeQuestion() {
     }
 }
 
-// 4. Vérifie la réponse du joueur
+// 5. Vérifie la réponse du joueur
 function checkThemeAnswer(selectedIndex, correctIndex) {
     if (selectedIndex === correctIndex) {
         userScore++;
@@ -2023,10 +2029,9 @@ function checkThemeAnswer(selectedIndex, correctIndex) {
     showNextThemeQuestion();
 }
 
-// 5. Déclenche l'écran du coffre en bois à la fin des 5 questions
+// 6. Déclenche l'écran du coffre à la fin
 function finishMinuteQuiz() {
-    const quizScreen = document.getElementById('quiz');
-    if (quizScreen) quizScreen.style.display = 'none';
+    hideAllScreens();
     
     const chestScreen = document.getElementById('chest-screen');
     if (chestScreen) {
@@ -2044,58 +2049,19 @@ function finishMinuteQuiz() {
     }
 }
 
-function openThemeSelection() {
-    console.log("Ouverture du mode Catégories");
-    
-    // 1. Cache explicitement le menu principal
-    const mainMenu = document.getElementById('main-menu');
-    if (mainMenu) mainMenu.style.display = 'none';
-
-    // 2. Affiche l'écran des thèmes en mode 'flex' (ou 'block')
-    const optionsScreen = document.getElementById('theme-options-screen');
-    if (optionsScreen) {
-        optionsScreen.style.display = 'flex'; // Utilise flex pour bien centrer le contenu
-        optionsScreen.style.flexDirection = 'column';
-        optionsScreen.style.alignItems = 'center';
-        optionsScreen.style.justifyContent = 'center';
-        optionsScreen.style.minHeight = '100vh'; // Force l'écran à prendre toute la hauteur de la page
-    } else {
-        console.error("Erreur : l'élément 'theme-options-screen' est introuvable.");
-    }
-
-    // 3. Remonte tout en haut de la fenêtre instantanément
-    window.scrollTo({ top: 0, behavior: 'instant' });
-}
-
-function openCategoriesScreen() {
-    console.log("Ouverture de l'écran des catégories");
-
-    // 1. Cache le menu principal
-    const mainMenu = document.getElementById('main-menu');
-    if (mainMenu) {
-        mainMenu.style.display = 'none';
-    }
-
-    // 2. Affiche l'écran des thèmes avec le VRAI ID de ton HTML ('theme-selection-screen')
-    const categoriesScreen = document.getElementById('theme-selection-screen');
-    if (categoriesScreen) {
-        categoriesScreen.style.display = 'block'; // ou 'flex' selon ton style
-    } else {
-        console.error("Erreur : L'élément 'theme-selection-screen' est introuvable !");
-    }
-}
-
-function chooseTheme(themeKey) {
-    selectedTheme = themeKey;
-    console.log("Matière choisie :", selectedTheme);
-
-    hideAllScreens(); // On cache TOUT d'abord
-    document.getElementById('theme-options-screen').style.display = 'block'; // On n'affiche que le choix du mode
-}
-
+// 7. Fonction utilitaire de nettoyage
 function hideAllScreens() {
     const screens = document.querySelectorAll('.screen');
     screens.forEach(screen => {
         screen.style.display = 'none';
     });
+}
+
+// Ancienne fonction conservée par sécurité si appelée ailleurs
+function openThemeSelection() {
+    openCategoriesScreen();
+}
+
+function chooseTheme(themeKey) {
+    selectTheme(themeKey);
 }
