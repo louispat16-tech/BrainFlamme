@@ -1919,41 +1919,43 @@ function selectTheme(themeKey) {
     startThemeQuiz('training');
 }
 
-// 2. Appelée pour initialiser et démarrer le quiz par thème
-function startThemeQuiz(gameType) {
-    if (gameType === 'training') {
-        // Vérifie si allThemesQuestions existe bien (défini dans questions.js)
-        if (typeof allThemesQuestions === 'undefined') {
-            console.error("Erreur : allThemesQuestions n'est pas défini. Vérifie que questions.js est bien chargé.");
-            alert("Erreur de chargement des questions.");
-            return;
-        }
+// Fonction pour lancer le quiz selon le mode choisi ('training' ou 'ranked')
+function startThemeQuiz(mode) {
+    console.log("Lancement du quiz en mode : " + mode);
 
-        const themePool = allThemesQuestions[selectedTheme];
-        
-        if (!themePool || themePool.length === 0) {
-            alert("Oups, les questions de ce thème arrivent bientôt !");
-            return;
-        }
+    // 1. Masquer l'écran des thèmes
+    const optionsScreen = document.getElementById('theme-options-screen');
+    if (optionsScreen) optionsScreen.style.display = 'none';
 
-        // Mélange les questions et prends-en 5 au hasard
-        currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random()).slice(0, 5);
-        currentQuestionIndex = 0;
-        userScore = 0;
-
-        // Masque les menus et affiche l'écran du quiz
-        const optionsScreen = document.getElementById('theme-options-screen');
-        if (optionsScreen) optionsScreen.style.display = 'none';
-
-        const quizScreen = document.getElementById('quiz');
-        if (quizScreen) quizScreen.style.display = 'block';
-
-        // Cache le timer car c'est un "Minute Quiz" sans pression
-        const timerContainer = document.getElementById('timerContainer');
-        if (timerContainer) timerContainer.style.display = 'none';
-
-        showNextThemeQuestion();
+    // 2. Afficher l'écran du quiz/jeu (remplace 'quiz-screen' par l'ID réel de ton écran de jeu dans ton HTML)
+    const quizScreen = document.getElementById('quiz-screen');
+    if (quizScreen) {
+        quizScreen.style.display = 'block';
     }
+
+    // 3. Charger les questions correspondantes (par exemple techQuestions si tu es sur le thème Tech)
+    // Tu peux stocker le thème actuel dans une variable globale quand l'utilisateur clique sur un thème
+    if (typeof currentTheme !== 'undefined' && window[currentTheme]) {
+        let questionsList = window[currentTheme];
+        
+        // Si c'est le "Minute Quiz", on limite par exemple à 5 questions
+        if (mode === 'training') {
+            questionsList = questionsList.slice(0, 5);
+        }
+
+        // 4. Lancer ta fonction de démarrage du jeu avec ces questions
+        // (Remplace 'startQuizWithQuestions' par le nom de ta fonction existante qui affiche les questions à l'écran)
+        if (typeof startQuizWithQuestions === 'function') {
+            startQuizWithQuestions(questionsList, mode);
+        } else {
+            console.log("Questions chargées pour le quiz :", questionsList);
+        }
+    } else {
+        console.error("Aucun thème sélectionné ou questions introuvables.");
+    }
+
+    // 5. Remonter tout en haut
+    window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 // 3. Fonction pour afficher les questions une par une
