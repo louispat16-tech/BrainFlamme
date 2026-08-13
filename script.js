@@ -1920,37 +1920,36 @@ function selectTheme(themeKey) {
     openThemeSelection(); // Ouvre l'écran qui propose "Minute Quiz" et "Mode Entraînement"
 }
 
-function startThemeQuiz(gameType = 'training') {
-    console.log("--> Thème sélectionné actuellement :", selectedTheme);
-    console.log("--> Objet des questions dispo :", typeof allThemesQuestions !== 'undefined' ? allThemesQuestions : "NON CHARGÉ");
+function startThemeQuiz(gameType) {
+    // Si aucun mode n'est passé en paramètre, on force par défaut à 'training'
+    const mode = gameType ? gameType : 'training';
+    
+    console.log("Lancement du quiz en mode : " + mode);
 
     if (typeof allThemesQuestions === 'undefined') {
-        alert("Erreur : allThemesQuestions n'est pas défini.");
+        console.error("Erreur : allThemesQuestions n'est pas défini.");
+        alert("Erreur de chargement des questions.");
         return;
     }
 
     const themePool = allThemesQuestions[selectedTheme];
-    console.log("--> Tableau de questions trouvé :", themePool);
     
     if (!themePool || themePool.length === 0) {
         alert("Oups, les questions de ce thème arrivent bientôt !");
         return;
     }
-    // ... suite de ton code ...
-}
 
-    // 1. Prépare les questions (5 pour le training, ou toutes/plus pour le ranked si tu veux)
-    if (gameType === 'training') {
+    // 1. Prépare les questions
+    if (mode === 'training') {
         currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random()).slice(0, 5);
     } else {
-        // Mode classé / entraînement complet
         currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random());
     }
 
     currentQuestionIndex = 0;
     userScore = 0;
 
-    // 2. Cache l'écran des thèmes ET le menu principal
+    // 2. Cache l'écran des thèmes et du menu
     const optionsScreen = document.getElementById('theme-options-screen');
     if (optionsScreen) optionsScreen.style.display = 'none';
 
@@ -1961,16 +1960,13 @@ function startThemeQuiz(gameType = 'training') {
     const quizScreen = document.getElementById('quiz');
     if (quizScreen) {
         quizScreen.style.display = 'block';
-    } else {
-        console.error("Erreur : L'élément HTML avec l'ID 'quiz' est introuvable.");
     }
 
-    // 4. Lance l'affichage de la première question
+    // 4. Lance la première question
     if (typeof showNextThemeQuestion === 'function') {
         showNextThemeQuestion();
-    } else {
-        console.error("La fonction showNextThemeQuestion() n'existe pas dans ton script.");
     }
+}
 
 // 3. Fonction pour afficher les questions une par une
 function showNextThemeQuestion() {
