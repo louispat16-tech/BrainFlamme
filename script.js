@@ -1949,12 +1949,16 @@ function startThemeQuiz(gameType) {
     currentQuestionIndex = 0;
     userScore = 0;
 
-    // 2. Cache l'écran des thèmes et du menu
+    // 2. Cache l'écran des options, du menu ET l'écran des catégories
     const optionsScreen = document.getElementById('theme-options-screen');
     if (optionsScreen) optionsScreen.style.display = 'none';
 
     const mainMenu = document.getElementById('main-menu');
     if (mainMenu) mainMenu.style.display = 'none';
+
+    // AJOUT ICI : Masque l'écran des catégories pour qu'il ne reste pas en fond
+    const categoriesScreen = document.getElementById('theme-selection-screen');
+    if (categoriesScreen) categoriesScreen.style.display = 'none';
 
     // 3. Affiche l'écran du quiz
     const quizScreen = document.getElementById('quiz');
@@ -2077,12 +2081,16 @@ function openCategoriesScreen() {
 }
 
 function chooseTheme(themeKey) {
-    selectedTheme = themeKey; // On stocke la matière choisie (ex: "techQuestions")
+    selectedTheme = themeKey;
     console.log("Matière choisie :", selectedTheme);
 
-    // 1. On cache l'écran des catégories
-    document.getElementById('categories-screen').style.display = 'none';
+    hideAllScreens(); // On cache TOUT d'abord
+    document.getElementById('theme-options-screen').style.display = 'block'; // On n'affiche que le choix du mode
+}
 
-    // 2. On affiche l'écran des modes de jeu (Minute Quiz / Entraînement)
-    document.getElementById('theme-options-screen').style.display = 'block';
+function hideAllScreens() {
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(screen => {
+        screen.style.display = 'none';
+    });
 }
