@@ -1905,7 +1905,7 @@ function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
 }
 
 // ==========================================
-// 📂 GESTION DU MODE CATÉGORIES (MINUTE QUIZ)
+// 📂 GESTION DES ÉCRANS ET DU MODE CATÉGORIES
 // ==========================================
 
 let selectedTheme = null;         
@@ -1913,7 +1913,23 @@ let currentThemeQuestions = [];
 let currentQuestionIndex = 0;     
 let userScore = 0;                
 
-// 1. Ouvre la grille de toutes les catégories (clic sur le bouton Catégories du menu)
+// Fonction pour afficher ou masquer la barre du bas (.bottom-nav)
+function updateBottomNav(isInGame) {
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) {
+        bottomNav.style.display = isInGame ? 'none' : 'flex';
+    }
+}
+
+// Fonction globale pour masquer tous les écrans
+function hideAllScreens() {
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(screen => {
+        screen.style.display = 'none';
+    });
+}
+
+// 1. Ouvre la grille de toutes les catégories
 function openCategoriesScreen() {
     console.log("Ouverture de l'écran des catégories");
     hideAllScreens();
@@ -1924,23 +1940,27 @@ function openCategoriesScreen() {
     } else {
         console.error("Erreur : L'élément 'theme-selection-screen' est introuvable !");
     }
+    updateBottomNav(false); // Barre visible
 }
 
-// 2. Quand on clique sur une catégorie précise (ex: Littérature)
+// 2. Quand on clique sur une catégorie précise -> Affiche l'écran des modes
 function selectTheme(themeKey) {
     selectedTheme = themeKey;
     console.log("Matière choisie :", selectedTheme);
 
-    hideAllScreens(); // Cache tout (notamment l'écran des catégories)
+    hideAllScreens(); // Cache tout
 
     // Affiche l'écran du choix du mode (Minute Quiz / Entraînement)
     const optionsScreen = document.getElementById('theme-options-screen');
     if (optionsScreen) {
         optionsScreen.style.display = 'block';
+    } else {
+        console.error("Erreur : L'élément 'theme-options-screen' est introuvable !");
     }
+    updateBottomNav(false); // Barre visible
 }
 
-// 3. Lancement du quiz selon le mode choisi
+// 3. Lancement effectif du quiz (Le jeu commence)
 function startThemeQuiz(gameType) {
     const mode = gameType ? gameType : 'training';
     
@@ -1976,6 +1996,9 @@ function startThemeQuiz(gameType) {
     if (quizScreen) {
         quizScreen.style.display = 'block';
     }
+
+    // ON CACHE LA BARRE DU BAS CAR ON JOUE
+    updateBottomNav(true);
 
     // Lance la première question
     if (typeof showNextThemeQuestion === 'function') {
@@ -2029,9 +2052,10 @@ function checkThemeAnswer(selectedIndex, correctIndex) {
     showNextThemeQuestion();
 }
 
-// 6. Déclenche l'écran du coffre à la fin
+// 6. Fin du quiz
 function finishMinuteQuiz() {
     hideAllScreens();
+    updateBottomNav(false); // Réaffiche la barre du bas sur l'écran final
     
     const chestScreen = document.getElementById('chest-screen');
     if (chestScreen) {
@@ -2049,15 +2073,7 @@ function finishMinuteQuiz() {
     }
 }
 
-// 7. Fonction utilitaire de nettoyage
-function hideAllScreens() {
-    const screens = document.querySelectorAll('.screen');
-    screens.forEach(screen => {
-        screen.style.display = 'none';
-    });
-}
-
-// Ancienne fonction conservée par sécurité si appelée ailleurs
+// Alias de sécurité
 function openThemeSelection() {
     openCategoriesScreen();
 }
