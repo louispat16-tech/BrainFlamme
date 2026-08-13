@@ -1921,20 +1921,23 @@ function selectTheme(themeKey) {
 }
 
 function startThemeQuiz(gameType) {
-    console.log("Lancement du quiz en mode : " + gameType);
+    console.log("--> Thème sélectionné actuellement :", selectedTheme);
+    console.log("--> Objet des questions dispo :", typeof allThemesQuestions !== 'undefined' ? allThemesQuestions : "NON CHARGÉ");
 
     if (typeof allThemesQuestions === 'undefined') {
-        console.error("Erreur : allThemesQuestions n'est pas défini.");
-        alert("Erreur de chargement des questions.");
+        alert("Erreur : allThemesQuestions n'est pas défini.");
         return;
     }
 
     const themePool = allThemesQuestions[selectedTheme];
+    console.log("--> Tableau de questions trouvé :", themePool);
     
     if (!themePool || themePool.length === 0) {
         alert("Oups, les questions de ce thème arrivent bientôt !");
         return;
     }
+    // ... suite de ton code ...
+}
 
     // 1. Prépare les questions (5 pour le training, ou toutes/plus pour le ranked si tu veux)
     if (gameType === 'training') {
