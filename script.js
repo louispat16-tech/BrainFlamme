@@ -1914,10 +1914,16 @@ let currentQuestionIndex = 0;
 let userScore = 0;                
 
 function selectTheme(themeKey) {
-    selectedTheme = themeKey; // Enregistre le thème choisi (ex: "Littérature")
+    selectedTheme = themeKey;
     console.log("Thème sélectionné :", selectedTheme);
-    
-    openThemeSelection(); // Ouvre l'écran qui propose "Minute Quiz" et "Mode Entraînement"
+
+    // 1. Masque l'écran des catégories
+    const catScreen = document.getElementById('theme-selection-screen');
+    if (catScreen) catScreen.style.display = 'none';
+
+    // 2. Affiche l'écran du choix du mode
+    const optionsScreen = document.getElementById('theme-options-screen');
+    if (optionsScreen) optionsScreen.style.display = 'block';
 }
 
 function startThemeQuiz(gameType) {
