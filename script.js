@@ -1919,43 +1919,48 @@ function selectTheme(themeKey) {
     startThemeQuiz('training');
 }
 
-// Fonction pour lancer le quiz selon le mode choisi ('training' ou 'ranked')
-function startThemeQuiz(mode) {
-    console.log("Lancement du quiz en mode : " + mode);
+function startThemeQuiz(gameType) {
+    if (gameType === 'training') {
+        if (typeof allThemesQuestions === 'undefined') {
+            console.error("Erreur : allThemesQuestions n'est pas défini.");
+            return;
+        }
 
-    // 1. Masquer l'écran des thèmes
-    const optionsScreen = document.getElementById('theme-options-screen');
-    if (optionsScreen) optionsScreen.style.display = 'none';
-
-    // 2. Afficher l'écran du quiz/jeu (remplace 'quiz-screen' par l'ID réel de ton écran de jeu dans ton HTML)
-    const quizScreen = document.getElementById('quiz-screen');
-    if (quizScreen) {
-        quizScreen.style.display = 'block';
-    }
-
-    // 3. Charger les questions correspondantes (par exemple techQuestions si tu es sur le thème Tech)
-    // Tu peux stocker le thème actuel dans une variable globale quand l'utilisateur clique sur un thème
-    if (typeof currentTheme !== 'undefined' && window[currentTheme]) {
-        let questionsList = window[currentTheme];
+        const themePool = allThemesQuestions[selectedTheme];
         
-        // Si c'est le "Minute Quiz", on limite par exemple à 5 questions
-        if (mode === 'training') {
-            questionsList = questionsList.slice(0, 5);
+        if (!themePool || themePool.length === 0) {
+            alert("Oups, les questions de ce thème arrivent bientôt !");
+            return;
         }
 
-        // 4. Lancer ta fonction de démarrage du jeu avec ces questions
-        // (Remplace 'startQuizWithQuestions' par le nom de ta fonction existante qui affiche les questions à l'écran)
-        if (typeof startQuizWithQuestions === 'function') {
-            startQuizWithQuestions(questionsList, mode);
+        // 1. Prépare les 5 questions
+        currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random()).slice(0, 5);
+        currentQuestionIndex = 0;
+        userScore = 0;
+
+        // 2. Cache l'écran des thèmes ET le menu principal pour être sûr
+        const optionsScreen = document.getElementById('theme-options-screen');
+        if (optionsScreen) optionsScreen.style.display = 'none';
+
+        const mainMenu = document.getElementById('main-menu');
+        if (mainMenu) mainMenu.style.display = 'none';
+
+        // 3. Affiche l'écran du quiz
+        const quizScreen = document.getElementById('quiz');
+        if (quizScreen) {
+            quizScreen.style.display = 'block';
         } else {
-            console.log("Questions chargées pour le quiz :", questionsList);
+            console.error("Erreur : L'élément HTML avec l'ID 'quiz' est introuvable.");
         }
-    } else {
-        console.error("Aucun thème sélectionné ou questions introuvables.");
-    }
 
-    // 5. Remonter tout en haut
-    window.scrollTo({ top: 0, behavior: 'instant' });
+        // 4. Lance l'affichage de la première question
+        // (Assure-toi que cette fonction s'appelle bien comme ça chez toi, ou remplace-la par ta fonction d'affichage)
+        if (typeof showNextThemeQuestion === 'function') {
+            showNextThemeQuestion();
+        } else {
+            console.error("La fonction showNextThemeQuestion() n'existe pas dans ton script.");
+        }
+    }
 }
 
 // 3. Fonction pour afficher les questions une par une
