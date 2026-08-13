@@ -1913,53 +1913,60 @@ let currentThemeQuestions = [];
 let currentQuestionIndex = 0;     
 let userScore = 0;                
 
-// 1. Appelée quand le joueur clique sur un bouton de thème dans le HTML
 function selectTheme(themeKey) {
-    selectedTheme = themeKey;
-    startThemeQuiz('training');
+    selectedTheme = themeKey; // Enregistre le thème choisi (ex: "Littérature")
+    console.log("Thème sélectionné :", selectedTheme);
+    
+    openThemeSelection(); // Ouvre l'écran qui propose "Minute Quiz" et "Mode Entraînement"
 }
 
 function startThemeQuiz(gameType) {
+    console.log("Lancement du quiz en mode : " + gameType);
+
+    if (typeof allThemesQuestions === 'undefined') {
+        console.error("Erreur : allThemesQuestions n'est pas défini.");
+        alert("Erreur de chargement des questions.");
+        return;
+    }
+
+    const themePool = allThemesQuestions[selectedTheme];
+    
+    if (!themePool || themePool.length === 0) {
+        alert("Oups, les questions de ce thème arrivent bientôt !");
+        return;
+    }
+
+    // 1. Prépare les questions (5 pour le training, ou toutes/plus pour le ranked si tu veux)
     if (gameType === 'training') {
-        if (typeof allThemesQuestions === 'undefined') {
-            console.error("Erreur : allThemesQuestions n'est pas défini.");
-            return;
-        }
-
-        const themePool = allThemesQuestions[selectedTheme];
-        
-        if (!themePool || themePool.length === 0) {
-            alert("Oups, les questions de ce thème arrivent bientôt !");
-            return;
-        }
-
-        // 1. Prépare les 5 questions
         currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random()).slice(0, 5);
-        currentQuestionIndex = 0;
-        userScore = 0;
+    } else {
+        // Mode classé / entraînement complet
+        currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random());
+    }
 
-        // 2. Cache l'écran des thèmes ET le menu principal pour être sûr
-        const optionsScreen = document.getElementById('theme-options-screen');
-        if (optionsScreen) optionsScreen.style.display = 'none';
+    currentQuestionIndex = 0;
+    userScore = 0;
 
-        const mainMenu = document.getElementById('main-menu');
-        if (mainMenu) mainMenu.style.display = 'none';
+    // 2. Cache l'écran des thèmes ET le menu principal
+    const optionsScreen = document.getElementById('theme-options-screen');
+    if (optionsScreen) optionsScreen.style.display = 'none';
 
-        // 3. Affiche l'écran du quiz
-        const quizScreen = document.getElementById('quiz');
-        if (quizScreen) {
-            quizScreen.style.display = 'block';
-        } else {
-            console.error("Erreur : L'élément HTML avec l'ID 'quiz' est introuvable.");
-        }
+    const mainMenu = document.getElementById('main-menu');
+    if (mainMenu) mainMenu.style.display = 'none';
 
-        // 4. Lance l'affichage de la première question
-        // (Assure-toi que cette fonction s'appelle bien comme ça chez toi, ou remplace-la par ta fonction d'affichage)
-        if (typeof showNextThemeQuestion === 'function') {
-            showNextThemeQuestion();
-        } else {
-            console.error("La fonction showNextThemeQuestion() n'existe pas dans ton script.");
-        }
+    // 3. Affiche l'écran du quiz
+    const quizScreen = document.getElementById('quiz');
+    if (quizScreen) {
+        quizScreen.style.display = 'block';
+    } else {
+        console.error("Erreur : L'élément HTML avec l'ID 'quiz' est introuvable.");
+    }
+
+    // 4. Lance l'affichage de la première question
+    if (typeof showNextThemeQuestion === 'function') {
+        showNextThemeQuestion();
+    } else {
+        console.error("La fonction showNextThemeQuestion() n'existe pas dans ton script.");
     }
 }
 
