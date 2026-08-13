@@ -1920,7 +1920,7 @@ function selectTheme(themeKey) {
     openThemeSelection(); // Ouvre l'écran qui propose "Minute Quiz" et "Mode Entraînement"
 }
 
-function startThemeQuiz(gameType) {
+function startThemeQuiz(gameType = 'training') {
     console.log("--> Thème sélectionné actuellement :", selectedTheme);
     console.log("--> Objet des questions dispo :", typeof allThemesQuestions !== 'undefined' ? allThemesQuestions : "NON CHARGÉ");
 
