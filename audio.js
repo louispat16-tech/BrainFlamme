@@ -43,14 +43,20 @@ function playSFX(name) {
     }
 }
 
-function playMusic(name) {
-    if (currentMusic) {
-        currentMusic.pause();
-        currentMusic.currentTime = 0;
-    }
-    if (backgroundMusics[name]) {
-        currentMusic = backgroundMusics[name];
-        currentMusic.play().catch(e => console.log("Musique bloquée:", e));
+function playMusic(musicName) {
+    const audio = document.getElementById(musicName);
+    
+    if (audio) {
+        // 🛑 SÉCURITÉ : Si la musique est DÉJÀ en train de jouer, on ne fait STRICTEMENT RIEN !
+        // Ça évite qu'elle ne reparte de zéro quand un autre script l'appelle par erreur.
+        if (!audio.paused) {
+            return; 
+        }
+        
+        // Sinon, on la lance normalement
+        audio.play().catch(error => {
+            console.log("Lecture audio bloquée par le navigateur : ", error);
+        });
     }
 }
 
