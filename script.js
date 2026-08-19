@@ -1362,11 +1362,6 @@ function lancerQuestionBonus() {
 // ==========================================
 
 function switchTab(screenId, clickedBtn) {
-    // 🎵 Si on quitte le jeu/quiz pour revenir sur un menu, on remet la musique de fond !
-    const menuScreens = ['home-screen', 'shop-screen', 'modeSelection', 'profile', 'leaderboard-screen', 'score', 'theme-selection-screen', 'theme-options-screen'];
-    if (menuScreens.includes(screenId) && typeof playMusic === 'function') {
-        playMusic('bgMusic');
-    }
 
     const allScreens = [
         'login-screen', 
