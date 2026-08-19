@@ -31,7 +31,7 @@ const backgroundMusics = {
 // Configuration des musiques de fond
 Object.values(backgroundMusics).forEach(music => {
     music.loop = true;
-    music.volume = 0.10; // 🎵 Fond sonore doux à 10%
+    music.volume = 0.15; // 🎵 Fond sonore doux à 15%
 });
 
 let currentMusic = null;
