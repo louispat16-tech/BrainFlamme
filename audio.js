@@ -15,7 +15,7 @@ const soundEffects = {
 };
 
 // 🔉 RÉGLAGE ULTRA-DOUX POUR NE PAS DÉCONCENTRER
-soundEffects.correct.volume = 0.05;   // 🔉 Baissé à 5% (très discret mais audible)
+soundEffects.correct.volume = 0.09;   // 🔉 Baissé à 9% (très discret mais audible)
 soundEffects.wrong.volume = 0.05;     // 🔉 Baissé à 5% (très discret mais audible)
 soundEffects.chestOpen.volume = 0.20; // 🎺 Volume parfait pour la fanfare !
 soundEffects.reward.volume = 0.15;    // Baissé à 15%
@@ -47,13 +47,12 @@ function playMusic(musicName) {
     const audio = document.getElementById(musicName);
     
     if (audio) {
-        // 🛑 SÉCURITÉ : Si la musique est DÉJÀ en train de jouer, on ne fait STRICTEMENT RIEN !
-        // Ça évite qu'elle ne reparte de zéro quand un autre script l'appelle par erreur.
+        // Si la musique est DÉJÀ en train de jouer, on ne fait strictement RIEN !
         if (!audio.paused) {
             return; 
         }
         
-        // Sinon, on la lance normalement
+        // Sinon, on la lance
         audio.play().catch(error => {
             console.log("Lecture audio bloquée par le navigateur : ", error);
         });
