@@ -392,7 +392,6 @@ window.onload = () => {
 };
 
 function setupLogin() {
-    playMusic('bg-music');
     const loginBtn = document.getElementById("loginBtn");
     const userInput = document.getElementById("username-input");
     const passInput = document.getElementById("password-input");
@@ -990,10 +989,7 @@ function checkDailyStatus() {
 }
 
 function endQuiz() {
-    // 🎵 On stoppe la musique du chrono et on remet la musique de fond !
-    if (typeof playMusic === 'function') {
-        playSFX('bgMusic');
-    }
+    playMusic('bg-music');
     clearInterval(timerInterval);
 
     if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
