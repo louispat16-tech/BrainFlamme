@@ -1,2 +1,2 @@
 # BrainFlamme
-🔥BrainFlamme est un jeu qui permet de tester ses capacités de culture générale!
+🔥 BrainFlamme transforme la culture générale en compétition ! Teste tes connaissances, gagne de l’XP, progresse et tente de devenir #1.
