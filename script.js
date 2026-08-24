@@ -2033,23 +2033,31 @@ function showNextThemeQuestion() {
     }
 }
 
-// 2. Pour voir le Vert / Rouge s'afficher sur les boutons et faire une pause
 function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
-    // Désactive tous les boutons pour empêcher les double-clics
     const allBtns = document.querySelectorAll('#answers .answer');
     allBtns.forEach(b => b.disabled = true);
 
+    const q = currentThemeQuestions[currentQuestionIndex];
     const isCorrect = (selectedIndex === correctIndex);
+
+    // 📝 Enregistrement dans l'historique pour le bouton "Récapitulatif"
+    if (typeof quizHistory !== 'undefined') {
+        quizHistory.push({
+            question: q.question,
+            userAns: q.options[selectedIndex],
+            correctAns: q.options[correctIndex],
+            isCorrect: isCorrect
+        });
+    }
 
     if (isCorrect) {
         userScore++;
-        clickedBtn.classList.add('correct'); // ➔ Met le bouton cliqué en VERT
+        clickedBtn.classList.add('correct'); 
         if (typeof playSFX === 'function') playSFX('correct');
     } else {
-        clickedBtn.classList.add('wrong'); // ➔ Met le bouton cliqué en ROUGE
+        clickedBtn.classList.add('wrong'); 
         if (typeof playSFX === 'function') playSFX('wrong');
 
-        // Montre aussi quelle était la bonne réponse en vert
         allBtns.forEach((b, idx) => {
             if (idx === correctIndex) {
                 b.classList.add('correct');
@@ -2057,7 +2065,7 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
         });
     }
 
-    // ⏱️ Petite pause de 800ms pour voir le résultat avant de passer à la question suivante
+    // Petite pause avant la suite
     setTimeout(() => {
         currentQuestionIndex++;
         showNextThemeQuestion();
@@ -2065,38 +2073,50 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
 }
 
 
-// 6. Fin du quiz des catégories
+
+// Variable pour stocker l'historique du Minute Quiz (nécessaire pour le récap)
+let quizHistory = [];
+
 function finishMinuteQuiz() {
     hideAllScreens();
-    updateBottomNav(false); // Réaffiche la barre du bas sur l'écran final
+    updateBottomNav(false); // Réaffiche la barre du bas
     
-    // 🪙 On définit le mode sur "Chrono" temporairement pour que preparerCoffre() affiche le Coffre en Bois !
-    selectedMode = "Chrono";
+    // 1. Sauvegarde du score global pour les écrans de fin
+    score = userScore; 
+    selectedMode = "Chrono"; // Utilise le mode Chrono pour déclencher le coffre en bois dans preparerCoffre()
 
-    // On calcule l'XP gagné (par exemple : 10 XP par bonne réponse, ou un gain fixe)
-    let gain = userScore * 10;
-    stats.xp = (stats.xp || 0) + gain;
-    stats.progression = (stats.progression || 0) + gain;
+    // 2. Gestion des gains d'XP et de niveau (identique au reste du jeu)
+    if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
+    if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
+    if (isNaN(stats.level) || !stats.level) stats.level = 1;
+
+    let gain = score * 10; 
+    stats.xp += gain;
+    stats.progression += gain;
 
     while (stats.progression >= stats.level * 100) {
         stats.level++;
-        if (typeof playSFX === 'function') playSFX('levelUp');
+        if (typeof playSFX === 'function') playSFX('levelUp'); // 🏆 Fanfare niveau sup
     }
 
     if (typeof saveUserStats === "function") saveUserStats();
     if (typeof updateHome === "function") updateHome();
 
-    // 🎁 Déclenche l'affichage du coffre en bois via ta fonction globale existante !
+    // 3. Préparation du coffre en bois (exactement comme le mode chrono)
     let aUnCoffre = false;
     if (typeof preparerCoffre === "function") {
         aUnCoffre = preparerCoffre();
     }
 
-    // Si pour une raison quelconque le coffre ne s'ouvre pas, on redirige vers le score
+    // 4. Si aucun coffre n'est renvoyé, on affiche directement l'écran de score standard
     if (!aUnCoffre) {
         show("score");
+        if (typeof continuerAffichageScore === "function") {
+            continuerAffichageScore(gain);
+        }
     }
 }
+
 
 
 // Alias de sécurité
