@@ -519,7 +519,15 @@ function chargerStatsLocales(username) {
     // Met à jour l'affichage et le statut du mode quotidien
     updateHome();
     checkDailyStatus();
+
+    // ➔ AFFICHE L'ÉCRAN D'ACCUEIL QUAND ON PASSE PAR LE LOCAL
+    if (typeof switchTab === 'function') {
+        switchTab('home-screen');
+    } else if (typeof show === 'function') {
+        show('home-screen');
+    }
 }
+
 
 function saveUserStats() {
     const username = localStorage.getItem("brainflamme_user");
