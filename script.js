@@ -1951,8 +1951,6 @@ function selectTheme(themeKey) {
     }
     updateBottomNav(false); // Barre visible
 }
-
-// 3. Lancement effectif du quiz (Le jeu commence)
 function startThemeQuiz(gameType) {
     const mode = gameType ? gameType : 'training';
     
@@ -1989,6 +1987,10 @@ function startThemeQuiz(gameType) {
         quizScreen.style.display = 'block';
     }
 
+    // 🛑 ON CACHE LE TIMER POUR CE MODE (Pas de barre de chrono en haut)
+    const timerBox = document.getElementById("timerContainer");
+    if (timerBox) timerBox.style.display = "none";
+
     // ON CACHE LA BARRE DU BAS CAR ON JOUE
     updateBottomNav(true);
 
@@ -1997,6 +1999,7 @@ function startThemeQuiz(gameType) {
         showNextThemeQuestion();
     }
 }
+
 
 // 4. Fonction pour afficher les questions une par une
 function showNextThemeQuestion() {
