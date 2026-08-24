@@ -2047,26 +2047,39 @@ function checkThemeAnswer(selectedIndex, correctIndex) {
     showNextThemeQuestion();
 }
 
-// 6. Fin du quiz
+// 6. Fin du quiz des catégories
 function finishMinuteQuiz() {
     hideAllScreens();
     updateBottomNav(false); // Réaffiche la barre du bas sur l'écran final
     
-    const chestScreen = document.getElementById('chest-screen');
-    if (chestScreen) {
-        chestScreen.style.display = 'block';
-        
-        const chestTitle = document.getElementById('chest-title');
-        if (chestTitle) chestTitle.innerText = "Minute Quiz Terminé ! 🎉";
-        
-        const chestImg = document.getElementById('chest-img');
-        if (chestImg) {
-            chestImg.src = "bois.png"; 
-        }
-        
-        if (typeof playSFX === 'function') playSFX('chestOpen');
+    // 🪙 On définit le mode sur "Chrono" temporairement pour que preparerCoffre() affiche le Coffre en Bois !
+    selectedMode = "Chrono";
+
+    // On calcule l'XP gagné (par exemple : 10 XP par bonne réponse, ou un gain fixe)
+    let gain = userScore * 10;
+    stats.xp = (stats.xp || 0) + gain;
+    stats.progression = (stats.progression || 0) + gain;
+
+    while (stats.progression >= stats.level * 100) {
+        stats.level++;
+        if (typeof playSFX === 'function') playSFX('levelUp');
+    }
+
+    if (typeof saveUserStats === "function") saveUserStats();
+    if (typeof updateHome === "function") updateHome();
+
+    // 🎁 Déclenche l'affichage du coffre en bois via ta fonction globale existante !
+    let aUnCoffre = false;
+    if (typeof preparerCoffre === "function") {
+        aUnCoffre = preparerCoffre();
+    }
+
+    // Si pour une raison quelconque le coffre ne s'ouvre pas, on redirige vers le score
+    if (!aUnCoffre) {
+        show("score");
     }
 }
+
 
 // Alias de sécurité
 function openThemeSelection() {
