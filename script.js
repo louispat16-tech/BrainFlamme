@@ -2000,8 +2000,7 @@ function startThemeQuiz(gameType) {
     }
 }
 
-
-// 4. Fonction pour afficher les questions une par une
+// 1. Pour corriger la taille et l'affichage des boutons de réponse du Minute Quiz
 function showNextThemeQuestion() {
     if (currentQuestionIndex < currentThemeQuestions.length) {
         const q = currentThemeQuestions[currentQuestionIndex];
@@ -2017,16 +2016,15 @@ function showNextThemeQuestion() {
 
             q.options.forEach((opt, index) => {
                 const btn = document.createElement('button');
-                btn.className = 'mode-btn';
+                btn.className = 'answer'; // ➔ Utilise le style standard du jeu pour avoir une taille normale
                 btn.innerText = opt;
-                btn.style.background = "#1e293b";
-                btn.style.border = "2px solid #334155";
-                btn.style.padding = "15px";
-                btn.style.borderRadius = "10px";
-                btn.style.color = "white";
-                btn.style.cursor = "pointer";
                 
-                btn.onclick = () => checkThemeAnswer(index, q.correct);
+                // Limite la largeur pour éviter des boutons géants
+                btn.style.width = "100%";
+                btn.style.maxWidth = "350px";
+                btn.style.margin = "0 auto";
+                
+                btn.onclick = () => checkThemeAnswer(index, q.correct, btn);
                 answersGrid.appendChild(btn);
             });
         }
@@ -2035,17 +2033,37 @@ function showNextThemeQuestion() {
     }
 }
 
-// 5. Vérifie la réponse du joueur
-function checkThemeAnswer(selectedIndex, correctIndex) {
-    if (selectedIndex === correctIndex) {
+// 2. Pour voir le Vert / Rouge s'afficher sur les boutons et faire une pause
+function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
+    // Désactive tous les boutons pour empêcher les double-clics
+    const allBtns = document.querySelectorAll('#answers .answer');
+    allBtns.forEach(b => b.disabled = true);
+
+    const isCorrect = (selectedIndex === correctIndex);
+
+    if (isCorrect) {
         userScore++;
+        clickedBtn.classList.add('correct'); // ➔ Met le bouton cliqué en VERT
         if (typeof playSFX === 'function') playSFX('correct');
     } else {
+        clickedBtn.classList.add('wrong'); // ➔ Met le bouton cliqué en ROUGE
         if (typeof playSFX === 'function') playSFX('wrong');
+
+        // Montre aussi quelle était la bonne réponse en vert
+        allBtns.forEach((b, idx) => {
+            if (idx === correctIndex) {
+                b.classList.add('correct');
+            }
+        });
     }
-    currentQuestionIndex++;
-    showNextThemeQuestion();
+
+    // ⏱️ Petite pause de 800ms pour voir le résultat avant de passer à la question suivante
+    setTimeout(() => {
+        currentQuestionIndex++;
+        showNextThemeQuestion();
+    }, 800);
 }
+
 
 // 6. Fin du quiz des catégories
 function finishMinuteQuiz() {
