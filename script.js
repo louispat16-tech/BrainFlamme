@@ -374,7 +374,7 @@ let selectedMode = "";
 let quizHistory = [];
 
 
-// --- INITIALISATION AU CHARGEMENT (MODE SÉCURISÉ) ---
+// --- INITIALISATION AU CHARGEMENT ---
 window.onload = () => {
     setupLogin(); 
     setupPasswordToggle(); 
@@ -382,19 +382,14 @@ window.onload = () => {
     const savedUser = localStorage.getItem("brainflamme_user");
     
     if (savedUser) { 
-        // 🚀 SÉCURITÉ ABSOLUE : On force l'affichage de l'accueil IMMÉDIATEMENT
-        // pour ne jamais laisser l'écran vide, peu importe le réseau ou Firebase.
-        if (typeof switchTab === 'function') {
-            switchTab('home-screen');
-        } else {
-            show('home-screen');
-        }
-        
-        // On charge ensuite les stats en arrière-plan
+        // On charge les stats d'abord
         chargerStatsLocales(savedUser);
         loadUserStatsFromCloud(savedUser); 
+        
+        // 🚀 On bascule sur l'accueil via ta fonction switchTab
+        switchTab('home-screen');
     } else {
-        show("login-screen");
+        switchTab('login-screen');
     }
     
     // 🎵 Lance la musique de fond au premier clic
@@ -402,6 +397,7 @@ window.onload = () => {
         playMusic('bgMusic');
     }, { once: true });
 };
+
 
 
 function setupLogin() {
