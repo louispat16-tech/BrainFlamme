@@ -327,6 +327,53 @@
     <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>
+        <!-- Ton fichier script principal -->
+    <script src="script.js"></script>
+
+    <!-- ➔ COLLE LA FONCTION DE SECOURS JUSTE ICI -->
+    <script>
+        function switchTab(screenId, clickedBtn) {
+            const allScreens = [
+                'login-screen', 'home-screen', 'shop-screen', 'modeSelection', 
+                'quiz', 'profile', 'score', 'leaderboard-screen',
+                'theme-selection-screen', 'theme-options-screen'
+            ];
+
+            allScreens.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+
+            const target = document.getElementById(screenId);
+            if (target) target.style.display = 'block';
+
+            const buttons = document.querySelectorAll('.bottom-nav .nav-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if (clickedBtn) clickedBtn.classList.add('active');
+
+            if (screenId === 'home-screen' && typeof updateHome === 'function') {
+                updateHome();
+            } else if (screenId === 'shop-screen' && typeof updateShopDisplay === 'function') {
+                updateShopDisplay();
+            } else if (screenId === 'profile' && typeof renderProfile === 'function') {
+                renderProfile();
+            }
+
+            const bottomNav = document.querySelector('.bottom-nav');
+            if (bottomNav) {
+                const allowedScreens = ['home-screen', 'shop-screen', 'leaderboard-screen', 'profile'];
+                if (allowedScreens.includes(screenId)) {
+                    bottomNav.style.setProperty('display', 'flex', 'important');
+                } else {
+                    bottomNav.style.setProperty('display', 'none', 'important');
+                }
+            }
+        }
+    </script>
+
+</body> <!-- C'est la fin du fichier -->
+</html>
+
 
 </body>
 </html>
