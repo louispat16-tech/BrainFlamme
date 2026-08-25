@@ -373,21 +373,25 @@ let currentQuestions = [];
 let selectedMode = "";
 let quizHistory = [];
 
-// --- INITIALISATION AU CHARGEMENT ---
+
+// --- INITIALISATION AU CHARGEMENT (MODE SÉCURISÉ) ---
 window.onload = () => {
     setupLogin(); 
     setupPasswordToggle(); 
     
     const savedUser = localStorage.getItem("brainflamme_user");
+    
     if (savedUser) { 
-        // 🚀 SÉCURITÉ : On affiche l'accueil IMMÉDIATEMENT avec les données locales
-        chargerStatsLocales(savedUser);
+        // 🚀 SÉCURITÉ ABSOLUE : On force l'affichage de l'accueil IMMÉDIATEMENT
+        // pour ne jamais laisser l'écran vide, peu importe le réseau ou Firebase.
         if (typeof switchTab === 'function') {
             switchTab('home-screen');
         } else {
             show('home-screen');
         }
-        // Et on lance la synchro cloud en arrière-plan sans bloquer l'affichage
+        
+        // On charge ensuite les stats en arrière-plan
+        chargerStatsLocales(savedUser);
         loadUserStatsFromCloud(savedUser); 
     } else {
         show("login-screen");
@@ -556,7 +560,6 @@ function saveUserStats() {
 // ==========================================
 function loadUserStatsFromCloud(username) {
     if (typeof database === "undefined" || !database) {
-        chargerStatsLocales(username);
         return;
     }
 
@@ -564,30 +567,22 @@ function loadUserStatsFromCloud(username) {
         if (snapshot.exists()) {
             const cloudData = snapshot.val();
             
-            // Charge les données cloud dans l'objet global
             stats = Object.assign({}, stats, cloudData);
-            
-            // 🛡️ SÉCURITÉ AURA : Force FALSE si le compte ne l'a pas achetée
             stats.hasAura = cloudData.hasAura === true; 
 
             if (stats.shields === undefined) stats.shields = 0;
             if (stats.progression === undefined) stats.progression = stats.xp || 0;
 
-            // 🎯 VÉRIFICATION DE LA FLAMME (Sécurisée)
             const lastDateStr = stats.lastDailyDate || localStorage.getItem("daily_done_" + username);
 
             if (lastDateStr) {
                 const lastDate = new Date(lastDateStr);
                 const today = new Date();
-                
-                // Réinitialisation des heures pour comparer UNIQUEMENT les jours
                 lastDate.setHours(0,0,0,0);
                 today.setHours(0,0,0,0);
                 
-                const diffTime = today.getTime() - lastDate.getTime();
-                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                const diffDays = Math.round((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
                 
-                // Se déclenche uniquement si 2 jours ou plus sont passés
                 if (diffDays > 1) {
                     if (stats.shields && stats.shields > 0) {
                         stats.shields--; 
@@ -601,25 +596,20 @@ function loadUserStatsFromCloud(username) {
                 }
             }
 
-            // 🖼️ Remet l'avatar à l'écran si disponible
             if (stats.avatar && document.getElementById("avatarImg")) {
                 document.getElementById("avatarImg").src = stats.avatar;
             }
-
-        } else {
-            chargerStatsLocales(username);
         }
         
+        // Met à jour l'interface avec les données fraîches du cloud
         updateHome(); 
-        checkDailyStatus(); // Met à jour le bouton après réception
-        show("home-screen");
+        checkDailyStatus();
 
     }).catch(err => {
-        console.error("Erreur Cloud:", err);
-        chargerStatsLocales(username);
-        checkDailyStatus();
+        console.error("Erreur Cloud silencieuse:", err);
     });
 }
+
 
 // ==========================================
 // 🎮 LOGIQUE DE DÉMARRAGE DES QUIZ
