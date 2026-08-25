@@ -2077,8 +2077,7 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
 
 
 
-// Variable pour stocker l'historique du Minute Quiz (nécessaire pour le récap)
-let quizHistory = [];
+
 
 function finishMinuteQuiz() {
     hideAllScreens();
