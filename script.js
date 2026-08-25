@@ -375,21 +375,30 @@ let quizHistory = [];
 
 // --- INITIALISATION AU CHARGEMENT ---
 window.onload = () => {
-    setupLogin(); // On prépare le bouton quoi qu'il arrive
-    setupPasswordToggle(); // 👈 Ajoute l'appel ici
+    setupLogin(); 
+    setupPasswordToggle(); 
     
     const savedUser = localStorage.getItem("brainflamme_user");
     if (savedUser) { 
+        // 🚀 SÉCURITÉ : On affiche l'accueil IMMÉDIATEMENT avec les données locales
+        chargerStatsLocales(savedUser);
+        if (typeof switchTab === 'function') {
+            switchTab('home-screen');
+        } else {
+            show('home-screen');
+        }
+        // Et on lance la synchro cloud en arrière-plan sans bloquer l'affichage
         loadUserStatsFromCloud(savedUser); 
     } else {
         show("login-screen");
     }
     
-    // 🎵 Lance la musique de fond au premier clic de l'utilisateur (contourne la restriction navigateur)
+    // 🎵 Lance la musique de fond au premier clic
     document.body.addEventListener('click', () => {
         playMusic('bgMusic');
     }, { once: true });
 };
+
 
 function setupLogin() {
     const loginBtn = document.getElementById("loginBtn");
