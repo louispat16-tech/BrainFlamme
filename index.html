@@ -126,7 +126,8 @@
         </div>
       
         <div id="profile" class="screen" style="display: none;">
-    <div class="profile-card" style="padding-bottom: 10px;">
+    <div class="profile-card" style="padding-bottom: 15px;">
+        <!-- En-tête du profil -->
         <div class="profile-header" style="margin-bottom: 10px;">
             <div class="avatar-container" onclick="document.getElementById('avatarInput').click()">
                 <img id="avatarImg" src="https://ui-avatars.com/api/?name=Joueur&background=f97316&color=fff" alt="Avatar">
@@ -140,50 +141,54 @@
             </div>
         </div>
 
-        <div class="flame-section" style="text-align: center; margin-top: 0;">
+        <!-- Section Flammes Actuelles (Flamme redimensionnée et centrée) -->
+        <div class="flame-section" style="text-align: center; margin-top: 0; margin-bottom: 5px;">
             <div class="flame-badge" style="position: relative; display: inline-block;">
-                <img src="IMG_0203.gif" alt="Flamme" style="width: 150px; display: block; margin: 0 auto;">
+                <img src="IMG_0203.gif" alt="Flamme" style="width: 85px; display: block; margin: 0 auto;">
                 
-                <span id="profileCurrentFlame" style="position: absolute; top: 58px; left: 50%; transform: translate(-50%, -50%); font-size: 1.8rem; font-weight: bold; color: #ffffff; text-shadow: 0 2px 5px rgba(0,0,0,0.8);"></span>
+                <!-- Chiffre positionné pile au centre de la flamme de 85px -->
+                <span id="profileCurrentFlame" style="position: absolute; top: 58%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: bold; color: #ffffff; text-shadow: 0 2px 5px rgba(0,0,0,0.8);"></span>
             </div>
             
-            <p class="flame-label" style="margin-top: 2px; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem;">FLAMMES ACTUELLES</p>
+            <p class="flame-label" style="margin-top: 2px; margin-bottom: 10px; font-weight: bold; font-size: 0.85rem;">FLAMMES ACTUELLES</p>
         </div>
+
+        <!-- Grille des Stats (Record & Niveau) bien rangée à l'intérieur -->
+        <div class="stats-grid" style="margin-top: 5px;">
+            <div class="stat-card">
+                <span class="stat-title">Record de Flammes</span>
+                <span id="profileMaxFlame" class="stat-value">🔥 0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Niveau Actuel</span>
+                <span id="profileLevel" class="stat-value">Niv. 1</span>
+            </div>
+        </div>
+
+        <!-- Section Progression XP -->
+        <div class="xp-section" style="margin-top: 10px;">
+            <div class="xp-header">
+                <span>Progression XP</span>
+                <span id="xpText">0 / 100 XP</span>
+            </div>
+            <div class="xp-bar-bg">
+                <div id="xpBarFill" class="xp-bar-fill" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- Section Amis -->
+        <div class="social-section" style="margin-top: 10px;">
+            <h3>👥 Mes Amis</h3>
+            <div class="add-friend-box">
+                <input type="text" id="friendInput" placeholder="Entrer un pseudo...">
+                <button onclick="addFriend()">Ajouter</button>
+            </div>
+            <ul id="friendsList" class="friends-list"></ul>
+        </div>
+
     </div>
 </div>
 
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="stat-title">Record de Flammes</span>
-                        <span id="profileMaxFlame" class="stat-value">🔥 0</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-title">Niveau Actuel</span>
-                        <span id="profileLevel" class="stat-value">Niv. 1</span>
-                    </div>
-                </div>
-
-                <div class="xp-section">
-                    <div class="xp-header">
-                        <span>Progression XP</span>
-                        <span id="xpText">0 / 100 XP</span>
-                    </div>
-                    <div class="xp-bar-bg">
-                        <div id="xpBarFill" class="xp-bar-fill" style="width: 0%;"></div>
-                    </div>
-                </div>
-
-                <div class="social-section">
-                    <h3>👥 Mes Amis</h3>
-                    <div class="add-friend-box">
-                        <input type="text" id="friendInput" placeholder="Entrer un pseudo...">
-                        <button onclick="addFriend()">Ajouter</button>
-                    </div>
-                    <ul id="friendsList" class="friends-list"></ul>
-                </div>
-            </div>
-        </div>
 
         <div id="chest-screen" class="screen" style="display:none; text-align: center; background: rgba(15, 23, 42, 0.95); min-height: 100vh; padding-top: 20px;">
             <div style="max-width:600px; margin: 0 auto; padding: 15px;">
