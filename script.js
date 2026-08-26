@@ -2126,18 +2126,18 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
     };
 }
 
-// 3. Fin du quiz : XP, Niveaux, Coffre et Récapitulatif
 function finishMinuteQuiz() {
     hideAllScreens();
-    updateBottomNav(false); // Réaffiche la barre du bas
+    if (typeof updateBottomNav === "function") updateBottomNav(false);
     
-    // 1. Sauvegarde du score global pour les écrans de fin
+    // 1. Sauvegarde des points
     score = userScore; 
     selectedMode = "Chrono"; 
 
-    // 2. Gestion des gains d'XP et de niveau
-    if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
-    if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
+    // 2. Gestion XP / Niveau
+    if (typeof stats === 'undefined') stats = { xp: 0, progression: 0, level: 1 };
+    if (isNaN(stats.xp)) stats.xp = 0;
+    if (isNaN(stats.progression)) stats.progression = 0;
     if (isNaN(stats.level) || !stats.level) stats.level = 1;
 
     let gain = score * 10; 
@@ -2152,20 +2152,65 @@ function finishMinuteQuiz() {
     if (typeof saveUserStats === "function") saveUserStats();
     if (typeof updateHome === "function") updateHome();
 
-    // 3. Préparation du coffre en bois
+    // 3. Calcul du texte de fin
+    let nbQuestionsPosees = (typeof currentThemeQuestions !== 'undefined' && currentThemeQuestions.length > 0) 
+        ? currentThemeQuestions.length 
+        : 5;
+
+    let comment = "BIEN JOUÉ ! 👏";
+    let subText = score + " / " + nbQuestionsPosees + " correctes";
+    let ratio = score / nbQuestionsPosees;
+
+    if (ratio === 1) {
+        comment = "LÉGENDAIRE ! 👑";
+        subText = "Un sans-faute absolu ! (" + score + "/" + nbQuestionsPosees + ")";
+    } else if (ratio >= 0.8) {
+        comment = "INCROYABLE ! 🔥";
+        subText = "Superbe performance ! (" + score + "/" + nbQuestionsPosees + ")";
+    } else if (ratio >= 0.5) {
+        comment = "BIEN JOUÉ ! 👏";
+        subText = "Bon score ! (" + score + "/" + nbQuestionsPosees + ")";
+    } else {
+        comment = "COURAGE ! 💪";
+        subText = "Retente ta chance ! (" + score + "/" + nbQuestionsPosees + ")";
+    }
+
+    // 4. INJECTION DIRECTE DANS LE HTML DU SCORE (Garanti de s'afficher !)
+    const lvlElem = document.getElementById("score-level");
+    const xpElem = document.getElementById("score-xp");
+    const commElem = document.getElementById("score-comment");
+    const textElem = document.getElementById("score-text");
+
+    if (lvlElem) lvlElem.textContent = "Niveau " + stats.level;
+    if (xpElem) xpElem.textContent = "+" + gain + " XP";
+    if (commElem) commElem.textContent = comment;
+    if (textElem) textElem.textContent = subText;
+
+    // Animation barre XP
+    setTimeout(() => {
+        const bar = document.getElementById("anim-fill");
+        if (bar) {
+            let currentLevelXP = stats.progression % 100; 
+            bar.style.width = currentLevelXP + "%";
+        }
+    }, 100);
+
+    // 5. Affichage forcé de l'écran de score
     let aUnCoffre = false;
     if (typeof preparerCoffre === "function") {
         aUnCoffre = preparerCoffre();
     }
 
-    // 4. Si aucun coffre, affichage direct de l'écran de score standard
     if (!aUnCoffre) {
-        show("score");
-        if (typeof continuerAffichageScore === "function") {
-            continuerAffichageScore(gain);
+        const scoreScreen = document.getElementById("score");
+        if (scoreScreen) {
+            scoreScreen.style.display = "block";
+        } else if (typeof show === "function") {
+            show("score");
         }
     }
 }
+
 
 
 
