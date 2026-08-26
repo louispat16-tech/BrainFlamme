@@ -1976,6 +1976,9 @@ function selectTheme(themeKey) {
 }
 
 let themeTimer = null;
+let timeLeft = 45; // 45 secondes pour le mode
+
+let themeTimer = null;
 let timeLeft = 45; // 45 secondes pour le mode entraînement
 
 function startThemeQuiz(gameType) {
@@ -1996,12 +1999,8 @@ function startThemeQuiz(gameType) {
         return;
     }
 
-    // Prépare les questions
-    if (mode === 'training') {
-        currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random()); // Toutes les questions mélangées pour le chrono
-    } else {
-        currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random());
-    }
+    // Mélange toutes les questions du thème pour le chrono de 45s
+    currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random());
 
     currentQuestionIndex = 0;
     userScore = 0;
@@ -2014,13 +2013,13 @@ function startThemeQuiz(gameType) {
         quizScreen.style.display = 'block';
     }
 
-    // ⏱️ GESTION DU TIMER POUR LE MODE ENTRAÎNEMENT (45s)
-    timeLeft = 45;
+    // ⏱️ GESTION DU TIMER EN HAUT (S'assure qu'il s'affiche bien)
     const timerBox = document.getElementById("timerContainer");
     if (timerBox) {
-        timerBox.style.display = "block"; // On affiche le conteneur du chrono
+        timerBox.style.display = "block"; 
     }
 
+    timeLeft = 45;
     const timerText = document.getElementById("timerText");
     if (timerText) {
         timerText.innerText = timeLeft + "s";
@@ -2036,12 +2035,10 @@ function startThemeQuiz(gameType) {
 
         if (timeLeft <= 0) {
             clearInterval(themeTimer);
-            // Temps écoulé -> Fin du quiz automatique
-            finishMinuteQuiz();
+            finishMinuteQuiz(); // Fin automatique quand le temps est écoulé
         }
     }, 1000);
 
-    // ON CACHE LA BARRE DU BAS CAR ON JOUE
     updateBottomNav(true);
 
     // Lance la première question
@@ -2049,6 +2046,7 @@ function startThemeQuiz(gameType) {
         showNextThemeQuestion();
     }
 }
+
 
 
 // ==========================================
