@@ -2003,10 +2003,14 @@ function startThemeQuiz(gameType) {
     }
 }
 
+// ==========================================
+// 📂 MODE QUIZ / CATÉGORIES (CORRIGÉ)
+// ==========================================
+
 // 1. Affichage de la question et gestion du bouton "Suivant"
 function showNextThemeQuestion() {
-    // Masquer le "Le sais-tu ?" au début d'une nouvelle question
-    const funFactBox = document.getElementById('funFactBox'); // Remplace par l'ID exact de ton bloc "Le sais-tu ?" si besoin
+    // Masquer le "Le sais-tu ?" au début d'une nouvelle question (Correction du 'u' en trop ici)
+    const funFactBox = document.getElementById('funFactBox'); 
     if (funFactBox) funFactBox.style.display = 'none';
 
     // Cacher le bouton "Suivant" tant qu'on n'a pas répondu
@@ -2076,25 +2080,19 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
         });
     }
 
-    // 💡 Si tu as un bloc "Le sais-tu ?", c'est ici qu'on peut l'afficher :
+    // 💡 Affichage du bloc "Le sais-tu ?" après la réponse
     const funFactBox = document.getElementById('funFactBox');
     if (funFactBox) {
-        // funFactBox.innerText = q.funFact; // Si tu as une propriété funFact dans tes questions
         funFactBox.style.display = 'block';
     }
 
-    // 🛑 ON N'UTILISE PLUS DE SETTIMEOUT. On affiche le bouton "Suivant" à la place !
+    // Gestion du bouton "Suivant" avec la classe Duolingo
     let nextBtn = document.getElementById('nextQuestionBtn');
     if (!nextBtn) {
-        // S'il n'existe pas encore dans ton HTML, on le crée dynamiquement sous les réponses
         nextBtn = document.createElement('button');
         nextBtn.id = 'nextQuestionBtn';
-        nextBtn.innerText = "Suivant ➔";
-        nextBtn.className = "btn-primary"; // Utilise ta classe de bouton principale
-        nextBtn.style.marginTop = "20px";
-        nextBtn.style.display = "block";
-        nextBtn.style.marginLeft = "auto";
-        nextBtn.style.marginRight = "auto";
+        nextBtn.innerText = "CONTINUER ➔";
+        nextBtn.className = "duo-next-btn"; // Utilise la classe CSS Duolingo
         
         const quizScreen = document.getElementById('quiz');
         if (quizScreen) quizScreen.appendChild(nextBtn);
@@ -2108,19 +2106,16 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
     };
 }
 
-
-
-
-
+// 3. Fin du quiz : XP, Niveaux, Coffre et Récapitulatif
 function finishMinuteQuiz() {
     hideAllScreens();
     updateBottomNav(false); // Réaffiche la barre du bas
     
     // 1. Sauvegarde du score global pour les écrans de fin
     score = userScore; 
-    selectedMode = "Chrono"; // Utilise le mode Chrono pour déclencher le coffre en bois dans preparerCoffre()
+    selectedMode = "Chrono"; 
 
-    // 2. Gestion des gains d'XP et de niveau (identique au reste du jeu)
+    // 2. Gestion des gains d'XP et de niveau
     if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
     if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
     if (isNaN(stats.level) || !stats.level) stats.level = 1;
@@ -2131,19 +2126,19 @@ function finishMinuteQuiz() {
 
     while (stats.progression >= stats.level * 100) {
         stats.level++;
-        if (typeof playSFX === 'function') playSFX('levelUp'); // 🏆 Fanfare niveau sup
+        if (typeof playSFX === 'function') playSFX('levelUp'); 
     }
 
     if (typeof saveUserStats === "function") saveUserStats();
     if (typeof updateHome === "function") updateHome();
 
-    // 3. Préparation du coffre en bois (exactement comme le mode chrono)
+    // 3. Préparation du coffre en bois
     let aUnCoffre = false;
     if (typeof preparerCoffre === "function") {
         aUnCoffre = preparerCoffre();
     }
 
-    // 4. Si aucun coffre n'est renvoyé, on affiche directement l'écran de score standard
+    // 4. Si aucun coffre, affichage direct de l'écran de score standard
     if (!aUnCoffre) {
         show("score");
         if (typeof continuerAffichageScore === "function") {
@@ -2151,6 +2146,7 @@ function finishMinuteQuiz() {
         }
     }
 }
+
 
 
 
