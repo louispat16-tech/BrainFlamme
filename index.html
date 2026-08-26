@@ -126,34 +126,30 @@
         </div>
       
         <div id="profile" class="screen" style="display: none;">
-            <div class="profile-card">
-                <div class="profile-header">
-                    <div class="avatar-container" onclick="document.getElementById('avatarInput').click()">
-                        <img id="avatarImg" src="https://ui-avatars.com/api/?name=Joueur&background=f97316&color=fff" alt="Avatar">
-                        <div class="avatar-overlay">📷 Modif.</div>
-                    </div>
-                    <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="updateAvatar(event)">
-                    
-                    <div class="user-info">
-                        <h2 id="profileUsername">PseudoJoueur</h2>
-                        <span class="user-tag">@joueur</span>
-                    </div>
-                </div>
+    <div class="profile-card" style="padding-bottom: 15px;">
+        <div class="profile-header" style="margin-bottom: 15px;">
+            <div class="avatar-container" onclick="document.getElementById('avatarInput').click()">
+                <img id="avatarImg" src="https://ui-avatars.com/api/?name=Joueur&background=f97316&color=fff" alt="Avatar">
+                <div class="avatar-overlay">📷 Modif.</div>
+            </div>
+            <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="updateAvatar(event)">
+            
+            <div class="user-info">
+                <h2 id="profileUsername">PseudoJoueur</h2>
+                <span class="user-tag">@joueur</span>
+            </div>
+        </div>
 
-                <div class="flame-section" style="text-align: center; margin-top: 10px;">
-    <!-- Le conteneur du badge en position relative -->
-    <div class="flame-badge" style="position: relative; display: inline-block;">
-        <img src="IMG_0203.gif" alt="Flamme" style="width: 120px; display: block; margin: 0 auto;">
-        
-        <!-- Le nombre positionné en absolu exactement au centre de l'image -->
-        <span id="profileCurrentFlame" style="position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: bold; color: #ffffff; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">0</span>
+        <div class="flame-section" style="text-align: center; margin-top: 0;">
+            <div class="flame-badge" style="position: relative; display: inline-block;">
+                <img src="IMG_0203.gif" alt="Flamme" style="width: 110px; display: block; margin: 0 auto;">
+                
+                <span id="profileCurrentFlame" style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); font-size: 1.8rem; font-weight: bold; color: #ffffff; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">0</span>
+            </div>
+            
+            <p class="flame-label" style="margin-top: 2px; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem;">FLAMMES ACTUELLES</p>
+        </div>
     </div>
-    
-    <p class="flame-label" style="margin-top: 5px; margin-bottom: 10px; font-weight: bold;">FLAMMES ACTUELLES</p>
-</div>
-
-
-
 </div>
 
                         <span id="profileCurrentFlame" class="flame-count">0</span>
