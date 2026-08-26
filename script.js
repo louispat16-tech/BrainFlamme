@@ -1974,6 +1974,10 @@ function selectTheme(themeKey) {
     }
     updateBottomNav(false); // Barre visible
 }
+
+let themeTimer = null;
+let timeLeft = 45; // 45 secondes pour le mode entraînement
+
 function startThemeQuiz(gameType) {
     const mode = gameType ? gameType : 'training';
     
@@ -1994,7 +1998,7 @@ function startThemeQuiz(gameType) {
 
     // Prépare les questions
     if (mode === 'training') {
-        currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random()).slice(0, 5);
+        currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random()); // Toutes les questions mélangées pour le chrono
     } else {
         currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random());
     }
@@ -2010,9 +2014,32 @@ function startThemeQuiz(gameType) {
         quizScreen.style.display = 'block';
     }
 
-    // 🛑 ON CACHE LE TIMER POUR CE MODE (Pas de barre de chrono en haut)
+    // ⏱️ GESTION DU TIMER POUR LE MODE ENTRAÎNEMENT (45s)
+    timeLeft = 45;
     const timerBox = document.getElementById("timerContainer");
-    if (timerBox) timerBox.style.display = "none";
+    if (timerBox) {
+        timerBox.style.display = "block"; // On affiche le conteneur du chrono
+    }
+
+    const timerText = document.getElementById("timerText");
+    if (timerText) {
+        timerText.innerText = timeLeft + "s";
+    }
+
+    // Lance le décompte chaque seconde
+    clearInterval(themeTimer);
+    themeTimer = setInterval(() => {
+        timeLeft--;
+        if (timerText) {
+            timerText.innerText = timeLeft + "s";
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(themeTimer);
+            // Temps écoulé -> Fin du quiz automatique
+            finishMinuteQuiz();
+        }
+    }, 1000);
 
     // ON CACHE LA BARRE DU BAS CAR ON JOUE
     updateBottomNav(true);
@@ -2022,6 +2049,7 @@ function startThemeQuiz(gameType) {
         showNextThemeQuestion();
     }
 }
+
 
 // ==========================================
 // 📂 MODE QUIZ / CATÉGORIES (CORRIGÉ)
@@ -2127,12 +2155,15 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
 }
 
 function finishMinuteQuiz() {
+    // 🛑 Arrêt impératif du chronomètre du mode entraînement
+    clearInterval(themeTimer);
+
     hideAllScreens();
     if (typeof updateBottomNav === "function") updateBottomNav(false);
     
     // 1. Sauvegarde des points
     score = userScore; 
-    selectedMode = "Chrono"; 
+    selectedMode = "Chrono"; // Déclenche le coffre en bois
 
     // 2. Gestion XP / Niveau
     if (typeof stats === 'undefined') stats = { xp: 0, progression: 0, level: 1 };
@@ -2195,7 +2226,7 @@ function finishMinuteQuiz() {
         }
     }, 100);
 
-    // 5. Affichage forcé de l'écran de score
+    // 5. Affichage forcé de l'écran de score ou préparation du coffre en bois
     let aUnCoffre = false;
     if (typeof preparerCoffre === "function") {
         aUnCoffre = preparerCoffre();
@@ -2210,9 +2241,6 @@ function finishMinuteQuiz() {
         }
     }
 }
-
-
-
 
 
 // Alias de sécurité
