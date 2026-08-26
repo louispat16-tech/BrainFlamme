@@ -1103,50 +1103,54 @@ function addFriend() {
 }
 
 function continuerAffichageScore(gain) {
-    // Utilise le vrai nombre de questions du quiz en cours, ou l'historique par défaut
+    console.log("-> Fonction continuerAffichageScore appelée avec gain:", gain);
+
     let nbQuestionsPosees = (typeof currentThemeQuestions !== 'undefined' && currentThemeQuestions.length > 0) 
         ? currentThemeQuestions.length 
-        : (quizHistory.length || 5);
+        : 5;
 
-    // Détermination d'un commentaire personnalisé selon le score (plusieurs paliers)
-    let comment = "";
-    let subText = "";
+    let comment = "BIEN JOUÉ ! 👏";
+    let subText = score + " / " + nbQuestionsPosees + " correctes";
 
     const ratio = score / nbQuestionsPosees;
-
     if (ratio === 1) {
         comment = "LÉGENDAIRE ! 👑";
-        subText = "Un sans-faute absolu, tu maîtrises le sujet à la perfection !";
+        subText = "Un sans-faute absolu !";
     } else if (ratio >= 0.8) {
         comment = "INCROYABLE ! 🔥";
-        subText = "Superbe performance, tu y es presque à fond !";
+        subText = "Superbe performance !";
     } else if (ratio >= 0.5) {
         comment = "BIEN JOUÉ ! 👏";
-        subText = "C'est un bon score, continue sur cette lancée.";
-    } else if (ratio > 0) {
-        comment = "PAS MAL ! 💪";
-        subText = "Tu peux encore progresser, ne lâche rien.";
+        subText = "Bon score, continue !";
     } else {
-        comment = "AÏE AÏE AÏE... 🐢";
-        subText = "C'était compliqué, retente ta chance pour te rattraper !";
+        comment = "COURAGE ! 💪";
+        subText = "Retente pour t'améliorer !";
     }
 
-    // Récupération des éléments HTML de la carte de score
+    // Récupération des éléments
     const lvlElem = document.getElementById("score-level");
     const xpElem = document.getElementById("score-xp");
     const commElem = document.getElementById("score-comment");
     const textElem = document.getElementById("score-text");
 
-    // Injection des données dans les éléments
+    console.log("Éléments trouvés -> lvl:", lvlElem, "xp:", xpElem, "comm:", commElem, "text:", textElem);
+
+    // Injection directe forcée
     if (lvlElem) lvlElem.textContent = "Niveau " + (stats.level || 1);
     if (xpElem) xpElem.textContent = "+" + gain + " XP";
     if (commElem) commElem.textContent = comment;
-    if (textElem) textElem.textContent = score + " / " + nbQuestionsPosees + " correctes (" + subText + ")";
+    if (textElem) textElem.textContent = subText;
 
-    // Actualisation de la boutique ou de l'accueil si nécessaire
-    if (typeof updateShopDisplay === "function") updateShopDisplay();
+    // Affichage forcé de l'écran score
+    const scoreScreen = document.getElementById("score");
+    if (scoreScreen) {
+        scoreScreen.style.display = "block";
+        console.log("Écran #score affiché de force !");
+    } else {
+        console.error("ERREUR : L'élément HTML avec l'id 'score' est introuvable !");
+    }
 
-    // Animation de la barre de progression XP
+    // Animation de la barre
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
         if (bar) {
@@ -1155,32 +1159,9 @@ function continuerAffichageScore(gain) {
         }
     }, 100);
 
-    if (typeof updateHome === "function") {
-        updateHome();
-    }
-
-    // Effet de confettis si score parfait en mode Quotidien ou autre
-    if (score === nbQuestionsPosees && selectedMode === "Quotidien" && typeof lancerConfettis === "function") {
-        lancerConfettis();
-    }
-
-    // Gestion des coffres (si applicable)
-    let aUnCoffre = false;
-    if (typeof preparerCoffre === "function") {
-        aUnCoffre = preparerCoffre();
-    }
-
-    // Affichage officiel de l'écran de score s'il n'y a pas de coffre prioritaire
-    if (!aUnCoffre) {
-        if (typeof show === "function") {
-            show("score");
-        } else {
-            // Sécurité de secours si la fonction "show" globale a un autre nom
-            const scoreScreen = document.getElementById("score");
-            if (scoreScreen) scoreScreen.style.display = "block";
-        }
-    }
+    if (typeof updateHome === "function") updateHome();
 }
+
 
 
 function logout() {
