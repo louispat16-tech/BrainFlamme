@@ -1103,23 +1103,50 @@ function addFriend() {
 }
 
 function continuerAffichageScore(gain) {
-    let nbQuestionsPosees = quizHistory.length || 1;
-    let comment = (score >= (nbQuestionsPosees * 0.8)) 
-        ? "INCROYABLE ! 🔥" 
-        : (score >= (nbQuestionsPosees * 0.5) ? "BIEN JOUÉ ! 👏" : "ESSAIE ENCORE ! 🐢");
+    // Utilise le vrai nombre de questions du quiz en cours, ou l'historique par défaut
+    let nbQuestionsPosees = (typeof currentThemeQuestions !== 'undefined' && currentThemeQuestions.length > 0) 
+        ? currentThemeQuestions.length 
+        : (quizHistory.length || 5);
 
+    // Détermination d'un commentaire personnalisé selon le score (plusieurs paliers)
+    let comment = "";
+    let subText = "";
+
+    const ratio = score / nbQuestionsPosees;
+
+    if (ratio === 1) {
+        comment = "LÉGENDAIRE ! 👑";
+        subText = "Un sans-faute absolu, tu maîtrises le sujet à la perfection !";
+    } else if (ratio >= 0.8) {
+        comment = "INCROYABLE ! 🔥";
+        subText = "Superbe performance, tu y es presque à fond !";
+    } else if (ratio >= 0.5) {
+        comment = "BIEN JOUÉ ! 👏";
+        subText = "C'est un bon score, continue sur cette lancée.";
+    } else if (ratio > 0) {
+        comment = "PAS MAL ! 💪";
+        subText = "Tu peux encore progresser, ne lâche rien.";
+    } else {
+        comment = "AÏE AÏE AÏE... 🐢";
+        subText = "C'était compliqué, retente ta chance pour te rattraper !";
+    }
+
+    // Récupération des éléments HTML de la carte de score
     const lvlElem = document.getElementById("score-level");
     const xpElem = document.getElementById("score-xp");
     const commElem = document.getElementById("score-comment");
     const textElem = document.getElementById("score-text");
 
-    if (lvlElem) lvlElem.textContent = "Niveau " + stats.level;
+    // Injection des données dans les éléments
+    if (lvlElem) lvlElem.textContent = "Niveau " + (stats.level || 1);
     if (xpElem) xpElem.textContent = "+" + gain + " XP";
     if (commElem) commElem.textContent = comment;
-    if (textElem) textElem.textContent = score + " / " + nbQuestionsPosees + " correctes";
+    if (textElem) textElem.textContent = score + " / " + nbQuestionsPosees + " correctes (" + subText + ")";
 
+    // Actualisation de la boutique ou de l'accueil si nécessaire
     if (typeof updateShopDisplay === "function") updateShopDisplay();
 
+    // Animation de la barre de progression XP
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
         if (bar) {
@@ -1128,21 +1155,33 @@ function continuerAffichageScore(gain) {
         }
     }, 100);
 
-    updateHome();
+    if (typeof updateHome === "function") {
+        updateHome();
+    }
 
+    // Effet de confettis si score parfait en mode Quotidien ou autre
     if (score === nbQuestionsPosees && selectedMode === "Quotidien" && typeof lancerConfettis === "function") {
         lancerConfettis();
     }
 
+    // Gestion des coffres (si applicable)
     let aUnCoffre = false;
     if (typeof preparerCoffre === "function") {
         aUnCoffre = preparerCoffre();
     }
 
+    // Affichage officiel de l'écran de score s'il n'y a pas de coffre prioritaire
     if (!aUnCoffre) {
-        show("score");
+        if (typeof show === "function") {
+            show("score");
+        } else {
+            // Sécurité de secours si la fonction "show" globale a un autre nom
+            const scoreScreen = document.getElementById("score");
+            if (scoreScreen) scoreScreen.style.display = "block";
+        }
     }
 }
+
 
 function logout() {
     localStorage.removeItem("brainflamme_user");
