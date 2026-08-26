@@ -1695,21 +1695,22 @@ input[type="text"], input[type="password"] {
     max-width: 350px;
     margin: 20px auto 10px auto;
     padding: 14px;
-    background-color: #65a30d; /* Vert olive/pastel plus doux */
+    background-color: #3b82f6; /* Bleu moderne */
     color: #ffffff;
     border: none;
-    border-bottom: 4px solid #4d7c0f; /* Ombre 3D assortie */
+    border-bottom: 4px solid #1d4ed8; 
     border-radius: 16px;
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 4px 0 #4d7c0f;
+    box-shadow: 0 4px 0 #1d4ed8;
     transition: all 0.1s ease;
 }
 
 .duo-next-btn:active {
     transform: translateY(4px);
-    box-shadow: 0 0 0 #4d7c0f;
+    box-shadow: 0 0 0 #1d4ed8;
     border-bottom-width: 0px;
 }
+
 
