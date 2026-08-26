@@ -1975,8 +1975,6 @@ function selectTheme(themeKey) {
     updateBottomNav(false); // Barre visible
 }
 
-let themeTimer = null;
-let timeLeft = 45; // 45 secondes pour le mode
 
 let themeTimer = null;
 let timeLeft = 45; // 45 secondes pour le mode entraînement
