@@ -1666,3 +1666,27 @@ input[type="text"], input[type="password"] {
         filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.7)) drop-shadow(0 0 18px rgba(255, 69, 0, 0.4));
     }
 }
+.duo-next-btn {
+    display: block;
+    width: 90%;
+    max-width: 350px;
+    margin: 20px auto 10px auto;
+    padding: 14px;
+    background-color: #58cc02;
+    color: #ffffff;
+    border: none;
+    border-bottom: 4px solid #46a302;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #46a302;
+    transition: all 0.1s ease;
+}
+
+.duo-next-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #46a302;
+    border-bottom-width: 0px;
+}
+
