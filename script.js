@@ -2003,14 +2003,22 @@ function startThemeQuiz(gameType) {
     }
 }
 
-// 1. Pour corriger la taille et l'affichage des boutons de réponse du Minute Quiz
+// 1. Affichage de la question et gestion du bouton "Suivant"
 function showNextThemeQuestion() {
+    // Masquer le "Le sais-tu ?" au début d'une nouvelle question
+    const funFactBox = document.getElementById('funFactBox'); // Remplace par l'ID exact de ton bloc "Le sais-tu ?" si besoin
+    if (funFactBox) funFactBox.style.display = 'none';
+
+    // Cacher le bouton "Suivant" tant qu'on n'a pas répondu
+    let nextBtnContainer = document.getElementById('nextQuestionBtn');
+    if (nextBtnContainer) nextBtnContainer.style.display = 'none';
+
     if (currentQuestionIndex < currentThemeQuestions.length) {
         const q = currentThemeQuestions[currentQuestionIndex];
         
         const questionEl = document.getElementById('question');
         if (questionEl) {
-            questionEl.innerText = `Question ${currentQuestionIndex + 1}/5 : ${q.question}`;
+            questionEl.innerText = `Question ${currentQuestionIndex + 1}/${currentThemeQuestions.length} : ${q.question}`;
         }
         
         const answersGrid = document.getElementById('answers');
@@ -2019,10 +2027,9 @@ function showNextThemeQuestion() {
 
             q.options.forEach((opt, index) => {
                 const btn = document.createElement('button');
-                btn.className = 'answer'; // ➔ Utilise le style standard du jeu pour avoir une taille normale
+                btn.className = 'answer';
                 btn.innerText = opt;
                 
-                // Limite la largeur pour éviter des boutons géants
                 btn.style.width = "100%";
                 btn.style.maxWidth = "350px";
                 btn.style.margin = "0 auto";
@@ -2036,14 +2043,15 @@ function showNextThemeQuestion() {
     }
 }
 
+// 2. Vérification de la réponse (SANS passage automatique, on attend le clic sur "Suivant")
 function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
     const allBtns = document.querySelectorAll('#answers .answer');
-    allBtns.forEach(b => b.disabled = true);
+    allBtns.forEach(b => b.disabled = true); // Bloque les autres boutons
 
     const q = currentThemeQuestions[currentQuestionIndex];
     const isCorrect = (selectedIndex === correctIndex);
 
-    // 📝 Enregistrement dans l'historique pour le bouton "Récapitulatif"
+    // 📝 Enregistrement dans l'historique
     if (typeof quizHistory !== 'undefined') {
         quizHistory.push({
             question: q.question,
@@ -2068,11 +2076,36 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
         });
     }
 
-    // Petite pause avant la suite
-    setTimeout(() => {
+    // 💡 Si tu as un bloc "Le sais-tu ?", c'est ici qu'on peut l'afficher :
+    const funFactBox = document.getElementById('funFactBox');
+    if (funFactBox) {
+        // funFactBox.innerText = q.funFact; // Si tu as une propriété funFact dans tes questions
+        funFactBox.style.display = 'block';
+    }
+
+    // 🛑 ON N'UTILISE PLUS DE SETTIMEOUT. On affiche le bouton "Suivant" à la place !
+    let nextBtn = document.getElementById('nextQuestionBtn');
+    if (!nextBtn) {
+        // S'il n'existe pas encore dans ton HTML, on le crée dynamiquement sous les réponses
+        nextBtn = document.createElement('button');
+        nextBtn.id = 'nextQuestionBtn';
+        nextBtn.innerText = "Suivant ➔";
+        nextBtn.className = "btn-primary"; // Utilise ta classe de bouton principale
+        nextBtn.style.marginTop = "20px";
+        nextBtn.style.display = "block";
+        nextBtn.style.marginLeft = "auto";
+        nextBtn.style.marginRight = "auto";
+        
+        const quizScreen = document.getElementById('quiz');
+        if (quizScreen) quizScreen.appendChild(nextBtn);
+    }
+    
+    // On l'affiche pour que le joueur clique quand il veut
+    nextBtn.style.display = 'block';
+    nextBtn.onclick = () => {
         currentQuestionIndex++;
         showNextThemeQuestion();
-    }, 800);
+    };
 }
 
 
