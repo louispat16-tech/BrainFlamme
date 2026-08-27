@@ -1051,7 +1051,7 @@ function endQuiz() {
         if (typeof saveUserStats === "function") saveUserStats();
     }
 
-/ 5. Effet visuel de confettis (si score max)
+// 5. Effet visuel de confettis (si score max)
     let currentScore = typeof score !== 'undefined' ? score : userScore;
     if ((currentScore === 5 || currentScore === 8) && typeof confetti === "function") {
         confetti({
