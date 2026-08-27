@@ -2005,33 +2005,34 @@ function startThemeQuiz(gameType) {
         quizScreen.style.display = 'block';
     }
 
-    // Affichage du timer
     const timerBox = document.getElementById("timerContainer");
-    if (timerBox) {
-        timerBox.style.display = "block"; 
-    }
-
-    // On assigne 45 directement SANS le mot-clé "let"
-    timeLeft = 45; 
-    
     const timerText = document.getElementById("timerText");
-    if (timerText) {
-        timerText.innerText = timeLeft + "s";
-    }
 
-    // Lance le décompte
-    clearInterval(themeTimer);
-    themeTimer = setInterval(() => {
-        timeLeft--;
+    // ⏱️ GESTION DU TIMER SELON LE MODE
+    if (mode === 'training') {
+        if (timerBox) timerBox.style.display = "block"; 
+        timeLeft = 45; 
+        
         if (timerText) {
             timerText.innerText = timeLeft + "s";
         }
 
-        if (timeLeft <= 0) {
-            clearInterval(themeTimer);
-            finishMinuteQuiz();
-        }
-    }, 1000);
+        clearInterval(themeTimer);
+        themeTimer = setInterval(() => {
+            timeLeft--;
+            if (timerText) {
+                timerText.innerText = timeLeft + "s";
+            }
+
+            if (timeLeft <= 0) {
+                clearInterval(themeTimer);
+                finishMinuteQuiz();
+            }
+        }, 1000);
+    } else {
+        if (timerBox) timerBox.style.display = "none";
+        clearInterval(themeTimer);
+    }
 
     updateBottomNav(true);
 
@@ -2049,7 +2050,7 @@ function startThemeQuiz(gameType) {
 
 // 1. Affichage de la question et gestion du bouton "Suivant"
 function showNextThemeQuestion() {
-    // Masquer le "Le sais-tu ?" au début d'une nouvelle question (Correction du 'u' en trop ici)
+    // Masquer le "Le sais-tu ?" au début d'une nouvelle question
     const funFactBox = document.getElementById('funFactBox'); 
     if (funFactBox) funFactBox.style.display = 'none';
 
@@ -2087,7 +2088,7 @@ function showNextThemeQuestion() {
     }
 }
 
-// 2. Vérification de la réponse (SANS passage automatique, on attend le clic sur "Suivant")
+// 2. Vérification de la réponse
 function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
     const allBtns = document.querySelectorAll('#answers .answer');
     allBtns.forEach(b => b.disabled = true); // Bloque les autres boutons
@@ -2132,30 +2133,36 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
         nextBtn = document.createElement('button');
         nextBtn.id = 'nextQuestionBtn';
         nextBtn.innerText = "CONTINUER ➔";
-        nextBtn.className = "duo-next-btn"; // Utilise la classe CSS Duolingo
+        nextBtn.className = "duo-next-btn"; 
         
         const quizScreen = document.getElementById('quiz');
         if (quizScreen) quizScreen.appendChild(nextBtn);
     }
     
-    // On l'affiche pour que le joueur clique quand il veut
     nextBtn.style.display = 'block';
     nextBtn.onclick = () => {
         currentQuestionIndex++;
-        showNextThemeQuestion();
+        // Vérifie s'il reste des questions avant d'afficher la suite ou de finir
+        if (currentQuestionIndex < currentThemeQuestions.length) {
+            showNextThemeQuestion();
+        } else {
+            finishMinuteQuiz();
+        }
     };
 }
 
 function finishMinuteQuiz() {
-    // 🛑 Arrêt impératif du chronomètre du mode entraînement
-    clearInterval(themeTimer);
+    // 🛑 Arrêt impératif du chronomètre
+    if (typeof themeTimer !== 'undefined') {
+        clearInterval(themeTimer);
+    }
 
     hideAllScreens();
     if (typeof updateBottomNav === "function") updateBottomNav(false);
     
     // 1. Sauvegarde des points
     score = userScore; 
-    selectedMode = "Chrono"; // Déclenche le coffre en bois
+    selectedMode = "Chrono"; // Déclenche le coffre
 
     // 2. Gestion XP / Niveau
     if (typeof stats === 'undefined') stats = { xp: 0, progression: 0, level: 1 };
@@ -2198,7 +2205,7 @@ function finishMinuteQuiz() {
         subText = "Retente ta chance ! (" + score + "/" + nbQuestionsPosees + ")";
     }
 
-    // 4. INJECTION DIRECTE DANS LE HTML DU SCORE (Garanti de s'afficher !)
+    // 4. INJECTION DIRECTE DANS LE HTML DU SCORE
     const lvlElem = document.getElementById("score-level");
     const xpElem = document.getElementById("score-xp");
     const commElem = document.getElementById("score-comment");
@@ -2218,7 +2225,7 @@ function finishMinuteQuiz() {
         }
     }, 100);
 
-    // 5. Affichage forcé de l'écran de score ou préparation du coffre en bois
+    // 5. Affichage forcé de l'écran de score ou préparation du coffre
     let aUnCoffre = false;
     if (typeof preparerCoffre === "function") {
         aUnCoffre = preparerCoffre();
