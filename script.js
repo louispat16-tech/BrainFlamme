@@ -372,6 +372,7 @@ let timeLeft = 0;
 let currentQuestions = [];
 let selectedMode = "";
 let quizHistory = [];
+let themeTimer = null;
 
 
 // --- INITIALISATION AU CHARGEMENT ---
