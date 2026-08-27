@@ -1994,7 +1994,7 @@ function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
 let selectedTheme = null;         
 let currentThemeQuestions = [];   
 let currentQuestionIndex = 0;     
-let userScore = 0;                
+let userScore = 0;              
 
 // Fonction pour afficher ou masquer la barre du bas (.bottom-nav)
 function updateBottomNav(isInGame) {
@@ -2218,6 +2218,76 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
         }
     };
 }
+
+function finishMinuteQuiz() {
+    clearInterval(themeTimer);
+
+    const quizScreen = document.getElementById('quiz');
+    if (quizScreen) quizScreen.style.display = 'none';
+    if (typeof updateBottomNav === 'function') updateBottomNav(false);
+
+    if (typeof stats === 'undefined') stats = { xp: 0, progression: 0, level: 1 };
+    if (isNaN(stats.xp)) stats.xp = 0;
+    if (isNaN(stats.progression)) stats.progression = 0;
+    if (isNaN(stats.level) || !stats.level) stats.level = 1;
+
+    let gain = userScore * 10;
+    stats.xp += gain;
+    stats.progression += gain;
+
+    while (stats.progression >= stats.level * 100) {
+        stats.level++;
+        if (typeof playSFX === 'function') playSFX('levelUp');
+    }
+
+    if (typeof saveUserStats === 'function') saveUserStats();
+
+    const nbQuestionsPosees = currentThemeQuestions.length;
+    let comment = "BIEN JOUÉ ! 👏";
+    let subText = userScore + " / " + nbQuestionsPosees + " correctes";
+    const ratio = userScore / nbQuestionsPosees;
+
+    if (ratio === 1) {
+        comment = "LÉGENDAIRE ! 👑";
+        subText = "Un sans-faute absolu ! (" + userScore + "/" + nbQuestionsPosees + ")";
+    } else if (ratio >= 0.8) {
+        comment = "INCROYABLE ! 🔥";
+        subText = "Superbe performance ! (" + userScore + "/" + nbQuestionsPosees + ")";
+    } else if (ratio >= 0.5) {
+        comment = "BIEN JOUÉ ! 👏";
+        subText = "Bon score ! (" + userScore + "/" + nbQuestionsPosees + ")";
+    } else {
+        comment = "COURAGE ! 💪";
+        subText = "DOMMAGE ! (" + userScore + "/" + nbQuestionsPosees + ")";
+    }
+
+    if (userScore === nbQuestionsPosees && typeof confetti === "function") {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
+
+    const lvlElem = document.getElementById("score-level");
+    const xpElem = document.getElementById("score-xp");
+    const commElem = document.getElementById("score-comment");
+    const textElem = document.getElementById("score-text");
+
+    if (lvlElem) lvlElem.textContent = "Niveau " + stats.level;
+    if (xpElem) xpElem.textContent = "+" + gain + " XP";
+    if (commElem) commElem.textContent = comment;
+    if (textElem) textElem.textContent = subText;
+
+    setTimeout(() => {
+        const bar = document.getElementById("anim-fill");
+        if (bar) bar.style.width = (stats.progression % 100) + "%";
+    }, 100);
+
+    const scoreScreen = document.getElementById("score");
+    if (scoreScreen) {
+        scoreScreen.style.display = "block";
+    } else if (typeof show === "function") {
+        show("score");
+    }
+}
+
 
 
 // Alias de sécurité
