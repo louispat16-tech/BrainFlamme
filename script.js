@@ -1988,7 +1988,3 @@ function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
         lastSeen: Date.now()
     });
 }
-
-Date.now()
-    });
-}
