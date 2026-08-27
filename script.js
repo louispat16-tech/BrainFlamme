@@ -1976,9 +1976,6 @@ function selectTheme(themeKey) {
 }
 
 
-let themeTimer = null;
-let timeLeft = 45; // 45 secondes pour le mode entraînement
-
 function startThemeQuiz(gameType) {
     const mode = gameType ? gameType : 'training';
     
@@ -1997,13 +1994,10 @@ function startThemeQuiz(gameType) {
         return;
     }
 
-    // Mélange toutes les questions du thème pour le chrono de 45s
     currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random());
-
     currentQuestionIndex = 0;
     userScore = 0;
 
-    // Masque tout et affiche uniquement le quiz
     hideAllScreens();
 
     const quizScreen = document.getElementById('quiz');
@@ -2011,19 +2005,21 @@ function startThemeQuiz(gameType) {
         quizScreen.style.display = 'block';
     }
 
-    // ⏱️ GESTION DU TIMER EN HAUT (S'assure qu'il s'affiche bien)
+    // Affichage du timer
     const timerBox = document.getElementById("timerContainer");
     if (timerBox) {
         timerBox.style.display = "block"; 
     }
 
-    timeLeft = 45;
+    // On assigne 45 directement SANS le mot-clé "let"
+    timeLeft = 45; 
+    
     const timerText = document.getElementById("timerText");
     if (timerText) {
         timerText.innerText = timeLeft + "s";
     }
 
-    // Lance le décompte chaque seconde
+    // Lance le décompte
     clearInterval(themeTimer);
     themeTimer = setInterval(() => {
         timeLeft--;
@@ -2033,17 +2029,17 @@ function startThemeQuiz(gameType) {
 
         if (timeLeft <= 0) {
             clearInterval(themeTimer);
-            finishMinuteQuiz(); // Fin automatique quand le temps est écoulé
+            finishMinuteQuiz();
         }
     }, 1000);
 
     updateBottomNav(true);
 
-    // Lance la première question
     if (typeof showNextThemeQuestion === 'function') {
         showNextThemeQuestion();
     }
 }
+
 
 
 
