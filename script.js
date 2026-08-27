@@ -1051,9 +1051,10 @@ function endQuiz() {
     } else {
         if (typeof saveUserStats === "function") saveUserStats();
     }
-
-// 5. Effet visuel de confettis (si score max)
     let currentScore = typeof score !== 'undefined' ? score : userScore;
+    let nbQuestionsPosees = currentQuestionIndex; 
+    if (nbQuestionsPosees === 0) nbQuestionsPosees = currentThemeQuestions.length;
+
     if ((currentScore === 5 || currentScore === 8) && typeof confetti === "function") {
         confetti({
             particleCount: 100,
@@ -1061,17 +1062,11 @@ function endQuiz() {
             origin: { y: 0.6 }
         });
     }
-    // Nombre de questions réellement traitées ou total du mode
-    let nbQuestionsPosees = currentQuestionIndex; 
-    if (nbQuestionsPosees === 0) nbQuestionsPosees = currentThemeQuestions.length;
-
-    let currentScore = typeof score !== 'undefined' ? score : userScore;
-    let subText = currentScore + " / " + nbQuestionsPosees + " correctes";
-
 
     let comment = "BIEN JOUÉ ! 👏";
     let subText = currentScore + " / " + nbQuestionsPosees + " correctes";
     let ratio = currentScore / nbQuestionsPosees;
+
 
     if (ratio === 1) {
         comment = "LÉGENDAIRE ! 👑";
