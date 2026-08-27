@@ -1060,11 +1060,13 @@ function endQuiz() {
             origin: { y: 0.6 }
         });
     }
+    // Nombre de questions réellement traitées ou total du mode
+    let nbQuestionsPosees = currentQuestionIndex; 
+    if (nbQuestionsPosees === 0) nbQuestionsPosees = currentThemeQuestions.length;
 
-    // 6. Calcul des textes de fin
-    let nbQuestionsPosees = (typeof currentThemeQuestions !== 'undefined' && currentThemeQuestions.length > 0) 
-        ? currentThemeQuestions.length 
-        : 5;
+    let currentScore = typeof score !== 'undefined' ? score : userScore;
+    let subText = currentScore + " / " + nbQuestionsPosees + " correctes";
+
 
     let comment = "BIEN JOUÉ ! 👏";
     let subText = currentScore + " / " + nbQuestionsPosees + " correctes";
@@ -1081,7 +1083,7 @@ function endQuiz() {
         subText = "Bon score ! (" + currentScore + "/" + nbQuestionsPosees + ")";
     } else {
         comment = "COURAGE ! 💪";
-        subText = "Retente ta chance ! (" + currentScore + "/" + nbQuestionsPosees + ")";
+        subText = "DOMMAGE !(" + currentScore + "/" + nbQuestionsPosees + ")";
     }
 
     // 7. Injection directe dans le HTML de l'écran de score
