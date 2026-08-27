@@ -1011,7 +1011,7 @@ function endQuiz() {
 
     while (stats.progression >= stats.level * 100) {
         stats.level++;
-    playSFX('levelUp'); // 🏆 FANFARE POUR MONTER DE NIVEAU
+        playSFX('levelUp'); // 🏆 FANFARE POUR MONTER DE NIVEAU
     }
 
     // 📅 GESTION DU MODE QUOTIDIEN
@@ -1040,7 +1040,7 @@ function endQuiz() {
         saveUserStats();
     }
 
-    // 🎉 CONFETTIS (Uniquement si 5/5 à la fin du quiz)
+    // 🎉 CONFETTIS (Uniquement si score max)
     if (score === 8 && typeof confetti === "function") {
         confetti({
             particleCount: 100,
@@ -1049,8 +1049,20 @@ function endQuiz() {
         });
     }
 
+    // 🛑 MASQUAGE PROPRE DU QUIZ ET AFFICHAGE DU SCORE/COFFRE
+    const quizScreen = document.getElementById('quiz');
+    if (quizScreen) {
+        quizScreen.style.display = 'none'; // Cache la dernière question
+    }
+
+    if (typeof updateBottomNav === "function") {
+        updateBottomNav(false);
+    }
+
+    // Appel de la suite pour afficher le score et déclencher le coffre
     continuerAffichageScore(gain);
 }
+
 
 // ==========================================
 // 3. AJOUT D'AMI AVEC VÉRIFICATION FIREBASE
