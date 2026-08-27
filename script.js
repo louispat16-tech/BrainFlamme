@@ -1292,35 +1292,24 @@ function showStep(stepId) {
     if(target) target.classList.add('active');
 }
 
-function showRecap() {
+function showRecap() { 
     let recapHTML = `
-        <div id="recap-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.98); z-index:9999; overflow-y:auto; padding:20px; font-family:sans-serif;">
-            <div style="max-width:500px; margin:40px auto;">
+        <div id="recap-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.98); z-index:9999; overflow-y:auto; padding:20px; font-family:sans-serif;"> 
+            <div style="max-width:500px; margin:40px auto;"> 
                 <h2 style="color:#f97316; text-align:center; font-size:32px; margin-bottom:30px;">Tes neurones en action 🧠</h2>
-    `;
-
-    quizHistory.forEach((item, index) => {
-        const color = item.isCorrect ? '#22c55e' : '#ef4444';
-        const icon = item.isCorrect ? '✅' : '❌';
-        
-        recapHTML += `
-            <div style="background:#1e293b; padding:15px; border-radius:15px; margin-bottom:15px; border-left:6px solid ${color};">
-                <p style="font-weight:bold; color:white; margin:0 0 8px 0; font-size:16px;">${index + 1}. ${item.question}</p>
-                <p style="color:${color}; font-weight:bold; margin:0; font-size:15px;">
-                    ${icon} Ta réponse : ${item.userAns}
-                </p>
-                ${!item.isCorrect ? `<p style="color:#94a3b8; font-size:14px; margin-top:8px;">La réponse était : <span style="color:#22c55e">${item.correctAns}</span></p>` : ''}
-            </div>
-        `;
-    });
-
-    recapHTML += `
-                <button class="play" onclick="document.getElementById('recap-modal').remove()" style="width:100%; margin-top:30px; padding:15px; font-weight:bold; cursor:pointer; background:#f97316; color:white; border:none; border-radius:10px;">FERMER LE RÉCAP</button>
             </div>
         </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', recapHTML);
+    `; 
+    
+    if (typeof quizHistory !== 'undefined' && Array.isArray(quizHistory)) {
+        quizHistory.forEach((item, index) => { 
+            const color = item.isCorrect ? '#22c55e' : '#ef4444'; 
+            const icon = item.isCorrect ? '✅' : '❌'; 
+            // ... suite de ta logique
+        });
+    }
 }
+
 
 function buyItem(name, price) {
     if (stats.xp >= price) {
