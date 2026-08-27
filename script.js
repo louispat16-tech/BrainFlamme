@@ -990,15 +990,27 @@ function checkDailyStatus() {
         btn.innerText = "Mode Quotidien 📅";
     }
 }
-function endQuiz() {
-    playMusic('bg-music');
-    clearInterval(timerInterval);
 
+function endQuiz() {
+    // 1. Arrêt de TOUS les timers possibles (chrono entraînement, timer quotidien, etc.)
+    if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
+    if (typeof themeTimer !== 'undefined') clearInterval(themeTimer);
+
+    // 2. MASQUAGE STRICT DE L'ÉCRAN DE QUIZ ET DE LA NAVIGATION
+    const quizScreen = document.getElementById('quiz');
+    if (quizScreen) quizScreen.style.display = 'none';
+
+    if (typeof updateBottomNav === "function") {
+        updateBottomNav(false);
+    }
+
+    // 3. Gestion sécurisée des stats (XP, Niveau, Progression)
+    if (typeof stats === 'undefined') stats = { xp: 0, progression: 0, level: 1 };
     if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
     if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
     if (isNaN(stats.level) || !stats.level) stats.level = 1;
 
-    let gain = score * 10; 
+    let gain = (typeof score !== 'undefined' ? score : userScore) * 10; 
 
     if (typeof bonusSuccess !== "undefined" && bonusSuccess) {
         gain += 10; 
@@ -1010,10 +1022,10 @@ function endQuiz() {
 
     while (stats.progression >= stats.level * 100) {
         stats.level++;
-    playSFX('levelUp'); // 🏆 FANFARE POUR MONTER DE NIVEAU
+        if (typeof playSFX === 'function') playSFX('levelUp'); // 🏆 Fanfare niveau sup
     }
 
-    // 📅 GESTION DU MODE QUOTIDIEN
+    // 4. Gestion spécifique du mode Quotidien
     if (selectedMode === "Quotidien") {
         const now = new Date();
         const year = now.getFullYear();
@@ -1034,13 +1046,14 @@ function endQuiz() {
         }
 
         saveUserStats();
-        checkDailyStatus(); // Grise le bouton direct !
+        if (typeof checkDailyStatus === "function") checkDailyStatus(); 
     } else {
-        saveUserStats();
+        if (typeof saveUserStats === "function") saveUserStats();
     }
 
-    // 🎉 CONFETTIS (Uniquement si 5/5 à la fin du quiz)
-    if (score === 8 && typeof confetti === "function") {
+    // 5. Effet visuel de confettis (si score max)
+    let currentScore = typeof score !== 'undefined' ? score : userScore;
+    if ((currentScore === 5 || currentScore === 8) && typeof confetti === "function") {
         confetti({
             particleCount: 100,
             spread: 70,
@@ -1048,8 +1061,65 @@ function endQuiz() {
         });
     }
 
-    continuerAffichageScore(gain);
+    // 6. Calcul des textes de fin
+    let nbQuestionsPosees = (typeof currentThemeQuestions !== 'undefined' && currentThemeQuestions.length > 0) 
+        ? currentThemeQuestions.length 
+        : 5;
+
+    let comment = "BIEN JOUÉ ! 👏";
+    let subText = currentScore + " / " + nbQuestionsPosees + " correctes";
+    let ratio = currentScore / nbQuestionsPosees;
+
+    if (ratio === 1) {
+        comment = "LÉGENDAIRE ! 👑";
+        subText = "Un sans-faute absolu ! (" + currentScore + "/" + nbQuestionsPosees + ")";
+    } else if (ratio >= 0.8) {
+        comment = "INCROYABLE ! 🔥";
+        subText = "Superbe performance ! (" + currentScore + "/" + nbQuestionsPosees + ")";
+    } else if (ratio >= 0.5) {
+        comment = "BIEN JOUÉ ! 👏";
+        subText = "Bon score ! (" + currentScore + "/" + nbQuestionsPosees + ")";
+    } else {
+        comment = "COURAGE ! 💪";
+        subText = "Retente ta chance ! (" + currentScore + "/" + nbQuestionsPosees + ")";
+    }
+
+    // 7. Injection directe dans le HTML de l'écran de score
+    const lvlElem = document.getElementById("score-level");
+    const xpElem = document.getElementById("score-xp");
+    const commElem = document.getElementById("score-comment");
+    const textElem = document.getElementById("score-text");
+
+    if (lvlElem) lvlElem.textContent = "Niveau " + stats.level;
+    if (xpElem) xpElem.textContent = "+" + gain + " XP";
+    if (commElem) commElem.textContent = comment;
+    if (textElem) textElem.textContent = subText;
+
+    // Animation de la barre d'XP
+    setTimeout(() => {
+        const bar = document.getElementById("anim-fill");
+        if (bar) {
+            let currentLevelXP = stats.progression % 100; 
+            bar.style.width = currentLevelXP + "%";
+        }
+    }, 100);
+
+    // 8. Déclenchement du coffre ou affichage forcé du score par-dessus
+    let aUnCoffre = false;
+    if (typeof preparerCoffre === "function") {
+        aUnCoffre = preparerCoffre();
+    }
+
+    if (!aUnCoffre) {
+        const scoreScreen = document.getElementById("score");
+        if (scoreScreen) {
+            scoreScreen.style.display = "block";
+        } else if (typeof show === "function") {
+            show("score");
+        }
+    }
 }
+
 
 
 // ==========================================
@@ -2149,96 +2219,6 @@ function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
             finishMinuteQuiz();
         }
     };
-}
-
-function finishMinuteQuiz() {
-    // 🛑 Arrêt impératif du chronomètre
-    if (typeof themeTimer !== 'undefined') {
-        clearInterval(themeTimer);
-    }
-
-    hideAllScreens();
-    if (typeof updateBottomNav === "function") updateBottomNav(false);
-    
-    // 1. Sauvegarde des points
-    score = userScore; 
-    selectedMode = "Chrono"; // Déclenche le coffre
-
-    // 2. Gestion XP / Niveau
-    if (typeof stats === 'undefined') stats = { xp: 0, progression: 0, level: 1 };
-    if (isNaN(stats.xp)) stats.xp = 0;
-    if (isNaN(stats.progression)) stats.progression = 0;
-    if (isNaN(stats.level) || !stats.level) stats.level = 1;
-
-    let gain = score * 10; 
-    stats.xp += gain;
-    stats.progression += gain;
-
-    while (stats.progression >= stats.level * 100) {
-        stats.level++;
-        if (typeof playSFX === 'function') playSFX('levelUp'); 
-    }
-
-    if (typeof saveUserStats === "function") saveUserStats();
-    if (typeof updateHome === "function") updateHome();
-
-    // 3. Calcul du texte de fin
-    let nbQuestionsPosees = (typeof currentThemeQuestions !== 'undefined' && currentThemeQuestions.length > 0) 
-        ? currentThemeQuestions.length 
-        : 5;
-
-    let comment = "BIEN JOUÉ ! 👏";
-    let subText = score + " / " + nbQuestionsPosees + " correctes";
-    let ratio = score / nbQuestionsPosees;
-
-    if (ratio === 1) {
-        comment = "LÉGENDAIRE ! 👑";
-        subText = "Un sans-faute absolu ! (" + score + "/" + nbQuestionsPosees + ")";
-    } else if (ratio >= 0.8) {
-        comment = "INCROYABLE ! 🔥";
-        subText = "Superbe performance ! (" + score + "/" + nbQuestionsPosees + ")";
-    } else if (ratio >= 0.5) {
-        comment = "BIEN JOUÉ ! 👏";
-        subText = "Bon score ! (" + score + "/" + nbQuestionsPosees + ")";
-    } else {
-        comment = "COURAGE ! 💪";
-        subText = "Retente ta chance ! (" + score + "/" + nbQuestionsPosees + ")";
-    }
-
-    // 4. INJECTION DIRECTE DANS LE HTML DU SCORE
-    const lvlElem = document.getElementById("score-level");
-    const xpElem = document.getElementById("score-xp");
-    const commElem = document.getElementById("score-comment");
-    const textElem = document.getElementById("score-text");
-
-    if (lvlElem) lvlElem.textContent = "Niveau " + stats.level;
-    if (xpElem) xpElem.textContent = "+" + gain + " XP";
-    if (commElem) commElem.textContent = comment;
-    if (textElem) textElem.textContent = subText;
-
-    // Animation barre XP
-    setTimeout(() => {
-        const bar = document.getElementById("anim-fill");
-        if (bar) {
-            let currentLevelXP = stats.progression % 100; 
-            bar.style.width = currentLevelXP + "%";
-        }
-    }, 100);
-
-    // 5. Affichage forcé de l'écran de score ou préparation du coffre
-    let aUnCoffre = false;
-    if (typeof preparerCoffre === "function") {
-        aUnCoffre = preparerCoffre();
-    }
-
-    if (!aUnCoffre) {
-        const scoreScreen = document.getElementById("score");
-        if (scoreScreen) {
-            scoreScreen.style.display = "block";
-        } else if (typeof show === "function") {
-            show("score");
-        }
-    }
 }
 
 
