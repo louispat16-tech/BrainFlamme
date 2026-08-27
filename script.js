@@ -990,11 +990,9 @@ function checkDailyStatus() {
         btn.innerText = "Mode Quotidien 📅";
     }
 }
-
 function endQuiz() {
     playMusic('bg-music');
-    if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
-    if (typeof themeTimer !== 'undefined') clearInterval(themeTimer);
+    clearInterval(timerInterval);
 
     if (isNaN(stats.xp) || stats.xp === undefined) stats.xp = 0;
     if (isNaN(stats.progression) || stats.progression === undefined) stats.progression = 0;
@@ -1012,7 +1010,7 @@ function endQuiz() {
 
     while (stats.progression >= stats.level * 100) {
         stats.level++;
-        playSFX('levelUp'); 
+    playSFX('levelUp'); // 🏆 FANFARE POUR MONTER DE NIVEAU
     }
 
     // 📅 GESTION DU MODE QUOTIDIEN
@@ -1036,12 +1034,12 @@ function endQuiz() {
         }
 
         saveUserStats();
-        if (typeof checkDailyStatus === "function") checkDailyStatus();
+        checkDailyStatus(); // Grise le bouton direct !
     } else {
         saveUserStats();
     }
 
-    // 🎉 CONFETTIS
+    // 🎉 CONFETTIS (Uniquement si 5/5 à la fin du quiz)
     if (score === 8 && typeof confetti === "function") {
         confetti({
             particleCount: 100,
@@ -1050,54 +1048,8 @@ function endQuiz() {
         });
     }
 
-    // 🛑 MASQUAGE STRICT DE TOUT CE QUI EST QUIZ ET NAVIGATION
-    if (typeof hideAllScreens === "function") {
-        hideAllScreens();
-    } else {
-        const quizScreen = document.getElementById('quiz');
-        if (quizScreen) quizScreen.style.display = 'none';
-    }
-
-    if (typeof updateBottomNav === "function") {
-        updateBottomNav(false);
-    }
-
-    // 🏆 INJECTION DIRECTE DES SCORES DANS L'ÉCRAN DE FIN
-    const lvlElem = document.getElementById("score-level");
-    const xpElem = document.getElementById("score-xp");
-    const commElem = document.getElementById("score-comment");
-    const textElem = document.getElementById("score-text");
-
-    if (lvlElem) lvlElem.textContent = "Niveau " + stats.level;
-    if (xpElem) xpElem.textContent = "+" + gain + " XP";
-    if (commElem) commElem.textContent = "MODE QUOTIDIEN TERMINÉ ! 🎯";
-    if (textElem) textElem.textContent = score + " / 5 correctes";
-
-    // Animation barre XP
-    setTimeout(() => {
-        const bar = document.getElementById("anim-fill");
-        if (bar) {
-            let currentLevelXP = stats.progression % 100; 
-            bar.style.width = currentLevelXP + "%";
-        }
-    }, 100);
-
-    // 🎁 AFFICHAGE DU COFFRE OU DE L'ÉCRAN DE SCORE PAR-DESSUS
-    let aUnCoffre = false;
-    if (typeof preparerCoffre === "function") {
-        aUnCoffre = preparerCoffre();
-    }
-
-    if (!aUnCoffre) {
-        const scoreScreen = document.getElementById("score");
-        if (scoreScreen) {
-            scoreScreen.style.display = "block";
-        } else if (typeof show === "function") {
-            show("score");
-        }
-    }
+    continuerAffichageScore(gain);
 }
-
 
 
 // ==========================================
