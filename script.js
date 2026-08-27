@@ -991,6 +991,7 @@ function checkDailyStatus() {
     }
 }
 
+
 function endQuiz() {
     // 1. Arrêt de TOUS les timers possibles (chrono entraînement, timer quotidien, etc.)
     if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
@@ -1121,7 +1122,6 @@ function endQuiz() {
         }
     }
 }
-
 
 
 // ==========================================
