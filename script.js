@@ -13,9 +13,9 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig); 
 }
 
-// 2. Initialisation des services (Firestore, Database, Auth)
-const database = firebase.database(); // ✅ Utilisez Realtime Database 
-const auth = firebase.auth(); 
+var database = firebase.database();
+var auth = firebase.auth();
+
 
 // --- ÉCOUTEUR DE CONNEXION ---
 auth.onAuthStateChanged(user => {
