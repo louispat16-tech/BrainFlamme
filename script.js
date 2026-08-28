@@ -1988,3 +1988,290 @@ function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
         lastSeen: Date.now()
     });
 }
+// ==========================================
+// 📂 GESTION DES ÉCRANS ET DU MODE CATÉGORIES
+// ==========================================
+
+var selectedTheme = null;         
+var currentThemeQuestions = [];   
+var currentQuestionIndex = 0;     
+var userScore = 0;
+var currentThemeMode = null;
+var maxThemeTime = 45;
+
+// Fonction pour afficher ou masquer la barre du bas (.bottom-nav)
+function updateBottomNav(isInGame) {
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) {
+        bottomNav.style.display = isInGame ? 'none' : 'flex';
+    }
+}
+
+// Fonction globale pour masquer tous les écrans
+function hideAllScreens() {
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(screen => {
+        screen.style.display = 'none';
+    });
+}
+
+// 1. Ouvre la grille de toutes les catégories
+function openCategoriesScreen() {
+    hideAllScreens();
+    const categoriesScreen = document.getElementById('theme-selection-screen');
+    if (categoriesScreen) categoriesScreen.style.display = 'block';
+    updateBottomNav(false);
+}
+
+// 2. Quand on clique sur une catégorie précise -> Affiche l'écran des modes
+function selectTheme(themeKey) {
+    selectedTheme = themeKey;
+    hideAllScreens();
+    const optionsScreen = document.getElementById('theme-options-screen');
+    if (optionsScreen) optionsScreen.style.display = 'block';
+    updateBottomNav(false);
+}
+
+function startThemeQuiz(gameType) {
+    const mode = gameType ? gameType : 'training';
+    currentThemeMode = mode;
+
+    if (typeof allThemesQuestions === 'undefined') {
+        alert("Erreur de chargement des questions.");
+        return;
+    }
+
+    const themePool = allThemesQuestions[selectedTheme];
+    if (!themePool || themePool.length === 0) {
+        alert("Oups, les questions de ce thème arrivent bientôt !");
+        return;
+    }
+
+    if (mode === 'training') {
+        // Minute Quiz : 5 questions, pas de timer
+        currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random()).slice(0, 5);
+    } else {
+        // Mode Entraînement : toutes les questions, avec timer
+        currentThemeQuestions = [...themePool].sort(() => 0.5 - Math.random());
+    }
+
+    currentQuestionIndex = 0;
+    userScore = 0;
+    quizHistory = [];
+
+    hideAllScreens();
+    const quizScreen = document.getElementById('quiz');
+    if (quizScreen) quizScreen.style.display = 'block';
+
+    const timerBox = document.getElementById("timerContainer");
+    clearInterval(themeTimer);
+
+    if (mode === 'ranked') {
+        if (timerBox) timerBox.style.display = "block";
+        timeLeft = 45;
+        updateThemeTimerUI();
+        themeTimer = setInterval(() => {
+            timeLeft--;
+            updateThemeTimerUI();
+            if (timeLeft <= 0) {
+                clearInterval(themeTimer);
+                finishMinuteQuiz();
+            }
+        }, 1000);
+    } else {
+        if (timerBox) timerBox.style.display = "none";
+    }
+
+    updateBottomNav(true);
+    showNextThemeQuestion();
+}
+
+function updateThemeTimerUI() {
+    const bar = document.getElementById("timerBar");
+    const text = document.getElementById("timerText");
+    if (!bar || !text) return;
+
+    const pct = (timeLeft / maxThemeTime) * 100;
+    bar.style.width = Math.max(0, pct) + "%";
+    text.textContent = Math.ceil(timeLeft);
+
+    if (timeLeft > 20) bar.style.background = "#22c55e";
+    else if (timeLeft > 12) bar.style.background = "#eab308";
+    else if (timeLeft > 5) bar.style.background = "#f97316";
+    else bar.style.background = "#ef4444";
+}
+
+// ==========================================
+// 📂 MODE QUIZ / CATÉGORIES
+// ==========================================
+
+function showNextThemeQuestion() {
+    const funFactBox = document.getElementById('funFactBox'); 
+    if (funFactBox) funFactBox.style.display = 'none';
+
+    let nextBtnContainer = document.getElementById('nextQuestionBtn');
+    if (nextBtnContainer) nextBtnContainer.style.display = 'none';
+
+    if (currentQuestionIndex < currentThemeQuestions.length) {
+        const q = currentThemeQuestions[currentQuestionIndex];
+        const questionEl = document.getElementById('question');
+
+        if (questionEl) {
+            if (currentThemeMode === 'ranked') {
+                questionEl.innerText = q.question;
+            } else {
+                questionEl.innerText = `Question ${currentQuestionIndex + 1}/${currentThemeQuestions.length} : ${q.question}`;
+            }
+        }
+
+        const answersGrid = document.getElementById('answers');
+        if (answersGrid) {
+            answersGrid.innerHTML = "";
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer';
+                btn.innerText = opt;
+                btn.style.width = "100%";
+                btn.style.maxWidth = "350px";
+                btn.style.margin = "0 auto";
+                btn.onclick = () => checkThemeAnswer(index, q.correct, btn);
+                answersGrid.appendChild(btn);
+            });
+        }
+    } else {
+        finishMinuteQuiz();
+    }
+}
+
+function checkThemeAnswer(selectedIndex, correctIndex, clickedBtn) {
+    const allBtns = document.querySelectorAll('#answers .answer');
+    allBtns.forEach(b => b.disabled = true);
+
+    const q = currentThemeQuestions[currentQuestionIndex];
+    const isCorrect = (selectedIndex === correctIndex);
+
+    if (typeof quizHistory !== 'undefined') {
+        quizHistory.push({
+            question: q.question,
+            userAns: q.options[selectedIndex],
+            correctAns: q.options[correctIndex],
+            isCorrect: isCorrect
+        });
+    }
+
+    if (isCorrect) {
+        userScore++;
+        clickedBtn.classList.add('correct'); 
+        if (typeof playSFX === 'function') playSFX('correct');
+    } else {
+        clickedBtn.classList.add('wrong'); 
+        if (typeof playSFX === 'function') playSFX('wrong');
+        allBtns.forEach((b, idx) => {
+            if (idx === correctIndex) b.classList.add('correct');
+        });
+    }
+
+    if (currentThemeMode === 'ranked') {
+        setTimeout(() => {
+            currentQuestionIndex++;
+            showNextThemeQuestion();
+        }, 1200);
+    } else {
+        let nextBtn = document.getElementById('nextQuestionBtn');
+        if (!nextBtn) {
+            nextBtn = document.createElement('button');
+            nextBtn.id = 'nextQuestionBtn';
+            nextBtn.innerText = "CONTINUER ➔";
+            nextBtn.className = "duo-next-btn"; 
+            const quizScreen = document.getElementById('quiz');
+            if (quizScreen) quizScreen.appendChild(nextBtn);
+        }
+        nextBtn.style.display = 'block';
+        nextBtn.onclick = () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentThemeQuestions.length) {
+                showNextThemeQuestion();
+            } else {
+                finishMinuteQuiz();
+            }
+        };
+    }
+}
+
+function finishMinuteQuiz() {
+    clearInterval(themeTimer);
+
+    const quizScreen = document.getElementById('quiz');
+    if (quizScreen) quizScreen.style.display = 'none';
+    if (typeof updateBottomNav === 'function') updateBottomNav(false);
+
+    if (typeof stats === 'undefined') stats = { xp: 0, progression: 0, level: 1 };
+    if (isNaN(stats.xp)) stats.xp = 0;
+    if (isNaN(stats.progression)) stats.progression = 0;
+    if (isNaN(stats.level) || !stats.level) stats.level = 1;
+
+    let gain = userScore * 10;
+    stats.xp += gain;
+    stats.progression += gain;
+
+    while (stats.progression >= stats.level * 100) {
+        stats.level++;
+        if (typeof playSFX === 'function') playSFX('levelUp');
+    }
+
+    if (typeof saveUserStats === 'function') saveUserStats();
+
+    const nbQuestionsPosees = currentThemeQuestions.length;
+    let comment = "BIEN JOUÉ ! 👏";
+    let subText = userScore + " / " + nbQuestionsPosees + " correctes";
+    const ratio = userScore / nbQuestionsPosees;
+
+    if (ratio === 1) {
+        comment = "LÉGENDAIRE ! 👑";
+        subText = "Un sans-faute absolu ! (" + userScore + "/" + nbQuestionsPosees + ")";
+    } else if (ratio >= 0.8) {
+        comment = "INCROYABLE ! 🔥";
+        subText = "Superbe performance ! (" + userScore + "/" + nbQuestionsPosees + ")";
+    } else if (ratio >= 0.5) {
+        comment = "BIEN JOUÉ ! 👏";
+        subText = "Bon score ! (" + userScore + "/" + nbQuestionsPosees + ")";
+    } else {
+        comment = "COURAGE ! 💪";
+        subText = "DOMMAGE ! (" + userScore + "/" + nbQuestionsPosees + ")";
+    }
+
+    if (userScore === nbQuestionsPosees && typeof confetti === "function") {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
+
+    const lvlElem = document.getElementById("score-level");
+    const xpElem = document.getElementById("score-xp");
+    const commElem = document.getElementById("score-comment");
+    const textElem = document.getElementById("score-text");
+
+    if (lvlElem) lvlElem.textContent = "Niveau " + stats.level;
+    if (xpElem) xpElem.textContent = "+" + gain + " XP";
+    if (commElem) commElem.textContent = comment;
+    if (textElem) textElem.textContent = subText;
+
+    setTimeout(() => {
+        const bar = document.getElementById("anim-fill");
+        if (bar) bar.style.width = (stats.progression % 100) + "%";
+    }, 100);
+
+    const scoreScreen = document.getElementById("score");
+    if (scoreScreen) {
+        scoreScreen.style.display = "block";
+    } else if (typeof show === "function") {
+        show("score");
+    }
+}
+
+// Alias de sécurité
+function openThemeSelection() {
+    openCategoriesScreen();
+}
+
+function chooseTheme(themeKey) {
+    selectTheme(themeKey);
+}
