@@ -1053,8 +1053,7 @@ function endQuiz() {
         if (typeof saveUserStats === "function") saveUserStats();
     }
     let currentScore = typeof score !== 'undefined' ? score : userScore;
-    let nbQuestionsPosees = currentQuestionIndex; 
-    if (nbQuestionsPosees === 0) nbQuestionsPosees = currentThemeQuestions.length;
+    let nbQuestionsPosees = current > 0 ? current : currentQuestions.length;
 
     if ((currentScore === 5 || currentScore === 8) && typeof confetti === "function") {
         confetti({
@@ -1999,11 +1998,10 @@ var userScore = 0;
 var currentThemeMode = null;
 var maxThemeTime = 45;
 
-// Fonction pour afficher ou masquer la barre du bas (.bottom-nav)
 function updateBottomNav(isInGame) {
     const bottomNav = document.querySelector('.bottom-nav');
     if (bottomNav) {
-        bottomNav.style.display = isInGame ? 'none' : 'flex';
+        bottomNav.style.setProperty('display', isInGame ? 'none' : 'flex', 'important');
     }
 }
 
