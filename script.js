@@ -1523,16 +1523,16 @@ function renderProfile() {
     if (nameEl) nameEl.textContent = currentUsername;
     if (tagEl) tagEl.textContent = "@" + currentUsername.toLowerCase().replace(/\s+/g, '');
 
-    const currentXp = (stats && stats.xp) ? stats.xp : 0;
-    const currentLevel = (stats && stats.level) ? stats.level : 1;
-    const currentProgression = (stats && stats.progression) ? (stats.progression % 100) : (currentXp % 100);
+    const currentProgression = stats.progression || 0;
+const xpNeeded = getXPForLevel(currentLevel);
 
-    if (document.getElementById("xpText")) {
-        document.getElementById("xpText").textContent = `${currentProgression} / 100 XP`;
-    }
-    if (document.getElementById("xpBarFill")) {
-        document.getElementById("xpBarFill").style.width = currentProgression + "%";
-    }
+if (document.getElementById("xpText")) {
+    document.getElementById("xpText").textContent = `${currentProgression} / ${xpNeeded} XP`;
+}
+if (document.getElementById("xpBarFill")) {
+    document.getElementById("xpBarFill").style.width = ((currentProgression / xpNeeded) * 100) + "%";
+}
+
 
     if (document.getElementById("profileCurrentFlame")) {
         document.getElementById("profileCurrentFlame").textContent = stats.streak || 0;
@@ -1637,13 +1637,15 @@ function showFriendProfile(friendName) {
                     document.getElementById("profileLevel").textContent = "Niv. " + (friendStats.level || 1);
                 }
 
-                const currentProgression = (friendStats.progression !== undefined) ? (friendStats.progression % 100) : 0;
-                if (document.getElementById("xpText")) {
-                    document.getElementById("xpText").textContent = currentProgression + " / 100 XP";
-                }
-                if (document.getElementById("xpBarFill")) {
-                    document.getElementById("xpBarFill").style.width = currentProgression + "%";
-                }
+                const xpNeeded = getXPForLevel(friendStats.level || 1);
+const currentProgression = friendStats.progression !== undefined ? friendStats.progression : 0;
+if (document.getElementById("xpText")) {
+    document.getElementById("xpText").textContent = currentProgression + " / " + xpNeeded + " XP";
+}
+if (document.getElementById("xpBarFill")) {
+    document.getElementById("xpBarFill").style.width = ((currentProgression / xpNeeded) * 100) + "%";
+}
+
 
                 if (document.getElementById("avatarImg")) {
                     document.getElementById("avatarImg").src = friendStats.avatar || "https://via.placeholder.com/100?text=" + friendName.charAt(0).toUpperCase();
