@@ -352,11 +352,8 @@ const questionsData = [
 const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torche 🔦", "Brasier 🔥", "Or 🏆", "Diamant 💎"]; // Ajout Or et Diamant
 
 function getXPForLevel(level) {
-    const baseXP = 100;
-    const growthRate = 1.26; // Passer de niveau 20→30 coûte ~10x plus que 10→20
-    return Math.round(baseXP * Math.pow(growthRate, level - 1));
+    return Math.round(100 + 30 * Math.pow(level - 1, 1.15));
 }
-
 
 // ==========================================
 // 📌 VARIABLES GLOBALES ET OBJET STATS INITIAL
@@ -1031,11 +1028,14 @@ function endQuiz() {
     stats.xp += gain;
     stats.progression += gain;
 
-    while (stats.progression >= stats.level * 100) {
-        stats.level++;
-        if (typeof playSFX === 'function') playSFX('levelUp'); // 🏆 Fanfare niveau sup
-    }
+    while (stats.progression >= getXPForLevel(stats.level)) {
+    stats.progression -= getXPForLevel(stats.level);
+    stats.level++;
 
+    if (typeof playSFX === 'function') {
+        playSFX('levelUp');
+    }
+}
     // 4. Gestion spécifique du mode Quotidien
     if (selectedMode === "Quotidien") {
         const now = new Date();
@@ -1190,6 +1190,7 @@ function continuerAffichageScore(gain) {
     let subText = score + " / " + nbQuestionsPosees + " correctes";
 
     const ratio = score / nbQuestionsPosees;
+
     if (ratio === 1) {
         comment = "LÉGENDAIRE ! 👑";
         subText = "Un sans-faute absolu !";
@@ -1210,7 +1211,16 @@ function continuerAffichageScore(gain) {
     const commElem = document.getElementById("score-comment");
     const textElem = document.getElementById("score-text");
 
-    console.log("Éléments trouvés -> lvl:", lvlElem, "xp:", xpElem, "comm:", commElem, "text:", textElem);
+    console.log(
+        "Éléments trouvés -> lvl:",
+        lvlElem,
+        "xp:",
+        xpElem,
+        "comm:",
+        commElem,
+        "text:",
+        textElem
+    );
 
     // Injection directe forcée
     if (lvlElem) lvlElem.textContent = "Niveau " + (stats.level || 1);
@@ -1220,6 +1230,7 @@ function continuerAffichageScore(gain) {
 
     // Affichage forcé de l'écran score
     const scoreScreen = document.getElementById("score");
+
     if (scoreScreen) {
         scoreScreen.style.display = "block";
         console.log("Écran #score affiché de force !");
@@ -1227,12 +1238,17 @@ function continuerAffichageScore(gain) {
         console.error("ERREUR : L'élément HTML avec l'id 'score' est introuvable !");
     }
 
-    // Animation de la barre
+    // Animation de la barre XP
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
+
         if (bar) {
-            const currentLevelXP = (stats.progression || 0) % 100; 
-            bar.style.width = currentLevelXP + "%";
+            const currentLevelXP = stats.progression || 0;
+            const xpNeeded = getXPForLevel(stats.level || 1);
+
+            const percentage = (currentLevelXP / xpNeeded) * 100;
+
+            bar.style.width = Math.min(100, percentage) + "%";
         }
     }, 100);
 
