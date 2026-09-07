@@ -1102,7 +1102,7 @@ function endQuiz() {
     if (commElem) commElem.textContent = comment;
     if (textElem) textElem.textContent = subText;
 
-    / Animation de la barre d'XP
+    // Animation de la barre d'XP
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
         if (bar) {
