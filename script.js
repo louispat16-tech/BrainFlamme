@@ -347,7 +347,16 @@ const questionsData = [
     { question: "Quel condiment asiatique est fabriqué à base de graines de soja fermentées ?", answers: ["La sauce Soja", "La sauce Sriracha", "Le Wasabi", "L'huile de sésame"], correct: 0, info: "C'est l'un des condiments les plus anciens d'Asie." }
 ];
 
+
+
 const titles = ["Étincelle 🕯️", "Braise 🪵", "Brise-Glace ❄️", "Torche 🔦", "Brasier 🔥", "Or 🏆", "Diamant 💎"]; // Ajout Or et Diamant
+
+function getXPForLevel(level) {
+    const baseXP = 100;
+    const growthRate = 1.26; // Passer de niveau 20→30 coûte ~10x plus que 10→20
+    return Math.round(baseXP * Math.pow(growthRate, level - 1));
+}
+
 
 // ==========================================
 // 📌 VARIABLES GLOBALES ET OBJET STATS INITIAL
@@ -1093,7 +1102,7 @@ function endQuiz() {
     if (commElem) commElem.textContent = comment;
     if (textElem) textElem.textContent = subText;
 
-    // Animation de la barre d'XP
+    / Animation de la barre d'XP
     setTimeout(() => {
         const bar = document.getElementById("anim-fill");
         if (bar) {
@@ -1101,6 +1110,7 @@ function endQuiz() {
             bar.style.width = currentLevelXP + "%";
         }
     }, 100);
+    
 
     // 8. Déclenchement du coffre ou affichage forcé du score par-dessus
     let aUnCoffre = false;
@@ -1762,7 +1772,7 @@ function genererEtAfficherRecompense() {
     stats.xp = (stats.xp || 0) + xpGagne;
     stats.progression = (stats.progression || 0) + xpGagne;
     
-    while (stats.progression >= stats.level * 100) {
+    hile (stats.progression >= stats.level * 100) {
         stats.level++;
     playSFX('levelUp'); // 🏆 LEVEL UP GRÂCE AU COFFRE !
     }
@@ -2212,10 +2222,13 @@ function finishMinuteQuiz() {
     stats.xp += gain;
     stats.progression += gain;
 
-    while (stats.progression >= stats.level * 100) {
-        stats.level++;
-        if (typeof playSFX === 'function') playSFX('levelUp');
-    }
+    while (stats.progression >= getXPForLevel(stats.level)) {
+    stats.progression -= getXPForLevel(stats.level);
+    stats.level++;
+    if (typeof playSFX === 'function') playSFX('levelUp');
+}
+
+
 
     if (typeof saveUserStats === 'function') saveUserStats();
 
@@ -2253,9 +2266,10 @@ function finishMinuteQuiz() {
     if (textElem) textElem.textContent = subText;
 
     setTimeout(() => {
-        const bar = document.getElementById("anim-fill");
-        if (bar) bar.style.width = (stats.progression % 100) + "%";
-    }, 100);
+    const bar = document.getElementById("anim-fill");
+    if (bar) bar.style.width = ((stats.progression / getXPForLevel(stats.level)) * 100) + "%";
+}, 100);
+
 
     const scoreScreen = document.getElementById("score");
     if (scoreScreen) {
