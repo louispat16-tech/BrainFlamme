@@ -1774,10 +1774,10 @@ function genererEtAfficherRecompense() {
     stats.xp = (stats.xp || 0) + xpGagne;
     stats.progression = (stats.progression || 0) + xpGagne;
     
-    hile (stats.progression >= stats.level * 100) {
-        stats.level++;
+    while (stats.progression >= stats.level * 100) {
+    stats.level++;
     playSFX('levelUp'); // 🏆 LEVEL UP GRÂCE AU COFFRE !
-    }
+}
 
     if (typeof saveUserStats === "function") saveUserStats();
     if (typeof updateHome === "function") updateHome();
