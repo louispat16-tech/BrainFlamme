@@ -2625,3 +2625,2317 @@ input[type="text"], input[type="password"] {
     background: #334155;
     flex: 1;
 }
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: #0f172a; 
+    color: white; 
+    text-align: center; 
+    margin: 0; 
+    overflow-x: hidden; 
+}
+
+.container { 
+    padding: 40px 20px; 
+    max-width: 800px; 
+    margin: 0 auto; 
+}
+
+#title { 
+    font-size: 50px; 
+    color: #f97316; 
+    margin-bottom: 40px; 
+    animation: titleGlow 1.5s ease-in-out infinite alternate; 
+}
+
+@keyframes titleGlow { 
+    from { text-shadow: 0 0 10px #f97316; } 
+    to { text-shadow: 0 0 30px #ff4500; } 
+}
+
+.home-streak-container { 
+    background: #1e293b; 
+    padding: 30px; 
+    border-radius: 25px; 
+    border: 2px solid #334155; 
+    margin-bottom: 25px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+}
+
+/* PSEUDO : On retire la transparence forcée */
+.special-welcome { 
+    font-size: 24px; 
+    font-weight: 800; 
+    margin: 0 0 15px 0; 
+}
+
+/* Classe pour le dégradé orange par défaut (activée par JS si pas de couleur achetée) */
+.default-style {
+    background: linear-gradient(to right, #f97316, #fbbf24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.xp-section-permanent { 
+    margin: 20px auto; 
+    width: 100%; 
+    max-width: 450px; 
+}
+
+.xp-title { 
+    font-size: 26px; 
+    font-weight: bold; 
+    color: #fbbf24; 
+    margin-bottom: 10px; 
+}
+
+.xp-bar-bg {
+  width: 100%;
+  height: 14px;
+  background: #0f0f17;
+  border-radius: 10px;
+  overflow: hidden; /* 👈 Bloque les coins droits pour qu'ils restent bien arrondis */
+}
+
+#xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f97316, #a855f7);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.main-flame { 
+    font-size: 70px; 
+    font-weight: bold; 
+    margin-top: 20px; 
+    animation: titleGlow 1.5s ease-in-out infinite alternate; 
+}
+
+#streak-number { color: #f97316; }
+
+.play { 
+    padding: 25px 80px; 
+    background: #f97316; 
+    color: white; 
+    border-radius: 15px; 
+    font-weight: bold; 
+    border: none; 
+    font-size: 30px; 
+    cursor: pointer; 
+    margin-top: 20px; 
+    display: inline-block; 
+}
+
+.pulse-btn { animation: pulseBtn 2s infinite; }
+@keyframes pulseBtn { 0%, 100% { transform: scale(1); } 70% { transform: scale(1.05); } }
+
+.mode-btn { 
+    width: 100%; 
+    padding: 25px; 
+    background: #1e293b; 
+    color: white; 
+    border: 3px solid #f97316; 
+    border-radius: 20px; 
+    font-size: 22px; 
+    cursor: pointer; 
+    margin-bottom: 15px; 
+    font-weight: bold; 
+    transition: 0.3s; 
+}
+
+.mode-btn:hover { 
+    background: #f97316; 
+    transform: translateY(-3px); 
+}
+
+.mode-btn:disabled {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #64748b !important;
+    cursor: not-allowed;
+    transform: none !important;
+    opacity: 1;
+}
+
+#dailyMode {
+    transition: all 0.3s ease;
+    min-height: 80px;
+}
+
+.answers-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 12px; 
+    margin: 25px 0; 
+}
+
+.answer { 
+    background: #1e293b; 
+    color: white; 
+    padding: 18px; 
+    border: 2px solid #334155; 
+    border-radius: 12px; 
+    font-size: 17px; 
+    cursor: pointer; 
+    transition: background 0.8s, border 0.8s; 
+}
+
+.correct { background: #166534 !important; border-color: #22c55e !important; }
+.wrong { background: #7f1d1d !important; border-color: #ef4444 !important; }
+
+#timerContainer { 
+    width: 100%; 
+    height: 35px; 
+    background: #1e293b; 
+    border-radius: 20px; 
+    overflow: hidden; 
+    position: relative; 
+    margin-top: 20px; 
+    border: 2px solid #334155; 
+}
+
+#timerBar { height: 100%; width: 100%; transition: width 0.1s linear; }
+
+#timerText { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    top: 0; 
+    left: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    font-size: 18px; 
+    font-weight: bold; 
+    color: white; 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8); 
+    z-index: 10; 
+}
+
+input[type="text"] { 
+    padding: 15px; 
+    border-radius: 12px; 
+    border: 2px solid #334155; 
+    background: #1e293b; 
+    color: white; 
+    font-size: 18px; 
+    width: 80%; 
+    max-width: 250px; 
+    outline: none; 
+}
+
+.screen {
+    padding-bottom: 100px !important;
+}
+
+.final-score-box {
+    background: #1e293b;
+    border: 3px solid #f97316;
+    border-radius: 20px;
+    padding: 25px;
+    margin: 20px auto;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+}
+
+.recap-text {
+    font-size: 22px;
+    font-weight: bold;
+    color: #f8fafc;
+    margin: 10px 0;
+}
+
+/* NAVIGATION BASSE (Version finale nettoyée) */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: none; /* Cachée par défaut, gérée par le JS */
+    justify-content: space-around;
+    align-items: center;
+    background: #1e293b; /* Adapte selon ton thème */
+    border-top: 1px solid #334155;
+    z-index: 1000; /* Pour qu'elle soit toujours au premier plan */
+    padding: 10px 0;
+}
+.nav-item {
+    text-align: center;
+    color: #94a3b8;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.2s;
+}
+
+.nav-item:hover { color: #f97316; }
+
+.nav-item span {
+    font-size: 24px;
+    display: block;
+}
+
+.nav-item p {
+    font-size: 11px;
+    margin: 5px 0 0 0;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.nav-item:active {
+    transform: scale(0.9);
+    color: #f97316;
+}
+
+/* BOUTIQUE */
+.shop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 10px;
+}
+
+.shop-card {
+    background: #1e293b;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: transform 0.2s;
+}
+
+.shop-card:active { transform: scale(0.95); }
+
+.tier-icon { font-size: 40px; margin-bottom: 10px; }
+
+.shop-card h3 { margin: 0 0 5px 0; font-size: 16px; }
+
+.shop-card p { color: #94a3b8; font-size: 12px; margin-bottom: 15px; }
+
+.bronze { border-color: #cd7f32; }
+.silver { border-color: #c0c0c0; }
+.gold { border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+.emerald { border-color: #50c878; box-shadow: 0 0 15px rgba(80, 200, 120, 0.3); }
+
+.buy-btn {
+    background: #334155;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+}
+
+.bronze .buy-btn { background-color: #cd7f32; color: white; }
+.silver .buy-btn { background-color: #c0c0c0; color: #1e293b; }
+.emerald .buy-btn { background-color: #50c878; color: #064e3b; }
+.gold .buy-btn { background-color: #ffd700; color: #1e293b; box-shadow: 0 0 10px rgba(255, 214, 0, 0.4); }
+
+.buy-btn:hover {
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+    transition: 0.2s;
+}
+
+.xp-balance-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid #a855f7;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px auto 30px auto;
+    max-width: 300px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+#shop-xp {
+    color: #a855f7;
+    font-size: 45px;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+.xp-label {
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.xp-amount-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.xp-icon { font-size: 30px; }
+
+/* CONFETTIS */
+.confetti { 
+    position: fixed; 
+    top: -20px; 
+    width: 10px; 
+    height: 10px; 
+    border-radius: 2px; 
+    z-index: 9999; 
+    pointer-events: none;
+    animation: fall 3s linear forwards; 
+}
+
+@keyframes fall { 
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } 
+}
+
+/* ANIMATIONS XP */
+.xp-inhale { animation: inhale 0.7s ease-in-out forwards; }
+@keyframes inhale { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); } 100% { transform: scale(0); opacity: 0; } }
+
+.final-message { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+/* QUESTION BONUS (STYLE DORÉ) */
+.bonus-mode-active {
+    background: radial-gradient(circle, #1e293b 0%, #312e81 100%) !important;
+    border: 4px solid #fbbf24 !important;
+    box-shadow: 0 0 50px rgba(251, 191, 36, 0.4);
+    transition: all 0.5s ease;
+}
+
+.bonus-mode-active #question-text {
+    color: #fbbf24;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+    font-size: 1.5rem;
+}
+
+.bonus-mode-active .answer {
+    border-color: #fbbf24;
+}
+/* Décor VIP pour la Question Bonus */
+#quiz.bonus-mode-active {
+    background: linear-gradient(135deg, #4c1d95 0%, #c026d3 50%, #f59e0b 100%) !important;
+    border: 3px solid #fbbf24 !important;
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+    animation: bonusGlow 2s infinite alternate;
+}
+
+#quiz.bonus-mode-active .question-text {
+    color: #fef08a !important;
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.8);
+    font-weight: 800;
+}
+
+#quiz.bonus-mode-active .answer {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 2px solid #a855f7 !important;
+    color: white !important;
+}
+
+#quiz.bonus-mode-active .answer:hover {
+    background: #a855f7 !important;
+    border-color: #fef08a !important;
+}
+
+@keyframes bonusGlow {
+    0% { box-shadow: 0 0 15px rgba(192, 38, 211, 0.5); }
+    100% { box-shadow: 0 0 35px rgba(251, 191, 36, 0.9); }
+}
+/* --- STYLE SPÉCIAL QUESTION BONUS --- */
+
+/* Fond animé (dégradé qui bouge) */
+#quiz.bonus-mode-active {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab) !important;
+    background-size: 400% 400% !important;
+    animation: gradientBG 5s ease infinite, bonusPulse 2s infinite alternate !important;
+    border: 4px solid #fbbf24 !important;
+}
+
+/* Animation du dégradé */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Animation de pulsation de la bordure */
+@keyframes bonusPulse {
+    0% { box-shadow: 0 0 10px #fbbf24; }
+    100% { box-shadow: 0 0 30px #f59e0b, 0 0 50px rgba(245, 158, 11, 0.3); }
+}
+
+/* Style du texte pendant le bonus */
+#quiz.bonus-mode-active #question {
+    color: #fff !important;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5), 0 0 15px #fef08a;
+    font-weight: 900;
+    transform: scale(1.05);
+}
+
+/* Style des boutons pendant le bonus */
+#quiz.bonus-mode-active .answer {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    color: white !important;
+}
+#timerContainer {
+    width: 100%;
+    background-color: #334155;
+    border-radius: 10px;
+    height: 20px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+#timerBar {
+    height: 100%;
+    background: linear-gradient(90deg, #f97316, #ef4444);
+    width: 100%;
+    transition: width 1s linear;
+    border-radius: 10px;
+}
+
+#timerText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+}
+/* Style appliqué lorsque la question bonus est active */
+#quiz.bonus-mode-active {
+    background: linear-gradient(135deg, #0f172a, #1e1b4b) !important;
+    border: 3px solid #38bdf8 !important;
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.5) !important;
+    
+    /* 💡 Élargissement du conteneur */
+    max-width: 700px !important; /* Ajuste à 800px si tu veux encore plus large */
+    width: 95% !important;
+    padding: 30px !important;
+    margin: 0 auto !important;
+}
+/* Force l'élargissement quand la question bonus est active */
+#quiz.bonus-mode-active {
+    width: 90% !important;
+    max-width: 850px !important; /* Change cette valeur pour élargir/réduire */
+}
+/* ==========================================
+   📱 ADAPTABILITÉ ÉCRANS (RESPONSIVE DESIGN)
+   ========================================== */
+
+/* 📦 CONTENEUR PRINCIPAL DU QUIZ */
+#quiz {
+    width: 90%;                /* 90% de la largeur disponible */
+    max-width: 650px;          /* Largeur maximale sur PC */
+    margin: 20px auto;         /* Centrage parfait au milieu */
+    padding: 25px 20px;        /* Espace interne respirant */
+    box-sizing: border-box;    /* Évite les débordements */
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;       /* Centre tout le contenu */
+    justify-content: center;
+    border-radius: 20px;
+}
+
+/* 🌟 EXTENSION EN MODE BONUS */
+#quiz.bonus-mode-active {
+    max-width: 750px !important; 
+    width: 92% !important;
+}
+
+/* 🔥 TITRE PRINCIPAL */
+h1, .app-title {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* ❓ TEXTE DE LA QUESTION */
+#question {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    text-align: center;
+    line-height: 1.4;
+    margin: 15px 0 25px 0;
+    width: 100%;
+}
+
+/* 🗂️ ZONE DES RÉPONSES */
+#answers {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* 🔘 BOUTONS DE RÉPONSE */
+.answer {
+    width: 100%;
+    min-height: 50px;
+    padding: 12px 20px;
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    border-radius: 12px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.answer:hover {
+    transform: translateY(-2px);
+}
+
+/* 📲 ADAPTATION AUTOMATIQUE MOBILES ET TABLETTES */
+@media (max-width: 600px) {
+    #quiz {
+        width: 95%;
+        padding: 15px 12px;
+        margin: 10px auto;
+    }
+
+    #answers {
+        gap: 10px;
+    }
+
+    .answer {
+        min-height: 46px;
+        padding: 10px 15px;
+    }
+}
+/* Container Général de la Carte Profil */
+.profile-card {
+  max-width: 450px;
+  margin: 20px auto;
+  background: #1e1e2e;
+  color: #ffffff;
+  border-radius: 24px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* En-tête : Avatar & Nom */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.avatar-container {
+  position: relative;
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #ff5722;
+  cursor: pointer;
+}
+
+.avatar-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-overlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 3px 0;
+}
+
+.user-info h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.user-tag {
+  color: #a6adc8;
+  font-size: 0.9rem;
+}
+
+/* Section Flamme Centrale */
+.flame-section {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.flame-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 110px;
+  height: 110px;
+  background: radial-gradient(circle, rgba(255,87,34,0.2) 0%, rgba(0,0,0,0) 70%);
+}
+
+.flame-icon {
+  font-size: 5rem;
+  filter: drop-shadow(0 0 15px #ff5722);
+}
+
+.flame-count {
+  position: absolute;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 2px 2px 8px #000;
+  top: 55%;
+}
+
+.flame-label {
+  margin-top: 5px;
+  font-weight: 600;
+  color: #ffaa00;
+  font-size: 1.1rem;
+}
+
+/* Cartes de Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: #2b2b3d;
+  padding: 12px;
+  border-radius: 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-title {
+  font-size: 0.8rem;
+  color: #a6adc8;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4ade80;
+}
+
+/* Barre d'XP */
+.xp-section {
+  background: #2b2b3d;
+  padding: 15px;
+  border-radius: 14px;
+  margin-bottom: 25px;
+}
+
+.xp-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  color: #cdd6f4;
+}
+
+.xp-bar-bg {
+  width: 100%;
+  height: 12px;
+  background: #11111b;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 10px;
+  transition: width 0.4s ease;
+}
+
+/* Section Amis */
+.social-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.add-friend-box {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.add-friend-box input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #11111b;
+  color: white;
+}
+
+.add-friend-box button {
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+  background: #ff5722;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.friends-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.friends-list li {
+  background: #2b2b3d;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+/* 📱 BARRE DU BAS ADAPTATIVE (4 ICONES) */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background: #181825;
+  border-top: 1px solid #313244;
+  
+  /* Utilise Flexbox pour répartir équitablement les 4 icônes */
+  display: flex !important;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Force chaque bouton à prendre une largeur égale (25% pour 4 boutons) */
+.bottom-nav .nav-btn, 
+.bottom-nav button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #a6adc8;
+  padding: 5px 0;
+  cursor: pointer;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: #a6adc8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  flex: 1;
+  height: 100%;
+  transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.nav-icon {
+  font-size: 1.3rem;
+}
+
+.nav-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Onglet actif (surligné en orange/flamme) */
+.nav-btn.active {
+  color: #ff5722;
+}
+
+.nav-btn:active {
+  transform: scale(0.95);
+}
+
+/* ⚠️ IMPORTANT : On laisse de la place en bas de page pour ne pas masquer le contenu avec la barre */
+body {
+  padding-bottom: 80px;
+}
+
+/* Style de la Carte Profil */
+.profile-card {
+  max-width: 450px;
+  margin: 10px auto;
+  background: #1e1e2e;
+  color: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.profile-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+.avatar-container { position: relative; width: 75px; height: 75px; border-radius: 50%; overflow: hidden; border: 3px solid #ff5722; cursor: pointer; }
+.avatar-container img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-overlay { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.65rem; text-align: center; padding: 2px 0; }
+.user-info h2 { margin: 0; font-size: 1.3rem; }
+.user-tag { color: #a6adc8; font-size: 0.85rem; }
+
+.flame-section { text-align: center; margin: 15px 0; }
+.flame-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 90px; height: 90px; }
+.flame-icon { font-size: 4rem; filter: drop-shadow(0 0 10px #ff5722); }
+.flame-count { position: absolute; font-size: 1.5rem; font-weight: 800; color: #fff; text-shadow: 2px 2px 5px #000; top: 52%; }
+.flame-label { margin-top: 5px; font-weight: bold; color: #ffaa00; font-size: 0.95rem; }
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+.stat-card { background: #2b2b3d; padding: 10px; border-radius: 12px; text-align: center; }
+.stat-title { font-size: 0.75rem; color: #a6adc8; }
+.stat-value { font-size: 1.1rem; font-weight: bold; color: #4ade80; display: block; margin-top: 3px; }
+
+.xp-section { background: #2b2b3d; padding: 12px; border-radius: 12px; margin-bottom: 20px; }
+.xp-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px; }
+.xp-bar-bg { width: 100%; height: 10px; background: #11111b; border-radius: 10px; overflow: hidden; }
+.xp-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); transition: width 0.3s; }
+
+.social-section h3 { font-size: 1rem; margin-bottom: 8px; }
+.add-friend-box { display: flex; gap: 8px; margin-bottom: 10px; }
+.add-friend-box input { flex: 1; padding: 8px 12px; border-radius: 8px; border: none; background: #11111b; color: white; }
+.add-friend-box button { padding: 8px 12px; border-radius: 8px; border: none; background: #ff5722; color: white; font-weight: bold; cursor: pointer; }
+.friends-list { list-style: none; padding: 0; margin: 0; }
+.friends-list li { background: #2b2b3d; padding: 8px 12px; border-radius: 8px; margin-bottom: 5px; font-size: 0.85rem; }
+/* S'assure que chaque écran masque bien les autres */
+.screen {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#profile.screen {
+  margin-bottom: 80px; /* Laisse de l'espace pour la barre du bas */
+}
+/* ==========================================
+   👤 PROFIL DESIGN MODERNE & AÉRÉ
+   ========================================== */
+
+#profile.screen {
+  padding: 10px 15px 90px 15px; /* Espace en bas pour la barre de nav */
+}
+
+/* Carte principale du Profil */
+.profile-card {
+  max-width: 480px;
+  margin: 0 auto;
+  background: linear-gradient(145deg, #1e1e2e, #181825);
+  border: 1px solid #313244;
+  color: #ffffff;
+  border-radius: 28px;
+  padding: 30px 24px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* Espace homogène entre chaque section ! */
+}
+
+/* En-tête : Avatar & Pseudo */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.avatar-container {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #f97316;
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.avatar-container:hover {
+  transform: scale(1.05);
+}
+
+.avatar-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-overlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.user-info h2 {
+  margin: 0 0 5px 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.user-tag {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+/* Grande Flamme Centrale */
+.flame-section {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.flame-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+}
+
+.flame-icon {
+  font-size: 5.5rem;
+  filter: drop-shadow(0 0 20px rgba(249, 115, 22, 0.6));
+  animation: pulseFlame 2s infinite alternate;
+}
+
+@keyframes pulseFlame {
+  0% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.5)); }
+  100% { transform: scale(1.08); filter: drop-shadow(0 0 25px rgba(249, 115, 22, 0.9)); }
+}
+
+.flame-count {
+  position: absolute;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.9);
+  top: 52%;
+}
+
+.flame-label {
+  margin-top: 10px;
+  font-weight: 700;
+  color: #f97316;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Grille des Stats (Record & Niveau) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.stat-card {
+  background: #27273a;
+  border: 1px solid #3b3b54;
+  padding: 16px 12px;
+  border-radius: 18px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+}
+
+.stat-title {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #22c55e;
+  margin-top: 6px;
+  display: block;
+}
+
+/* Barre d'XP */
+.xp-section {
+  background: #27273a;
+  border: 1px solid #3b3b54;
+  padding: 18px;
+  border-radius: 18px;
+}
+
+.xp-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #cbd5e1;
+}
+
+.xp-bar-bg {
+  width: 100%;
+  height: 14px;
+  background: #0f0f17;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 2px;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f97316, #a855f7);
+  border-radius: 8px;
+  transition: width 0.5s ease-out;
+}
+
+/* Section Amis */
+.social-section {
+  background: #27273a;
+  border: 1px solid #3b3b54;
+  padding: 18px;
+  border-radius: 18px;
+}
+
+.social-section h3 {
+  font-size: 1.1rem;
+  margin: 0 0 12px 0;
+  color: #ffffff;
+}
+
+.add-friend-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.add-friend-box input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #3b3b54;
+  background: #0f0f17;
+  color: white;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.add-friend-box input:focus {
+  border-color: #f97316;
+}
+
+.add-friend-box button {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: none;
+  background: #f97316;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-friend-box button:hover {
+  background: #ea580c;
+}
+
+.friends-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.friends-list li {
+  background: #1e1e2e;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 15px;
+}
+/* Animation de flottaison du coffre */
+@keyframes pulseChest {
+    0% { transform: scale(1) translateY(0); }
+    100% { transform: scale(1.1) translateY(-8px); }
+}
+
+/* Animation de secousse intense au clic */
+.shake-chest {
+    animation: shake 0.5s ease-in-out infinite !important;
+}
+
+@keyframes shake {
+    0% { transform: rotate(0deg) scale(1.1); }
+    20% { transform: rotate(-12deg) scale(1.15); }
+    40% { transform: rotate(12deg) scale(1.15); }
+    60% { transform: rotate(-8deg) scale(1.15); }
+    80% { transform: rotate(8deg) scale(1.15); }
+    100% { transform: rotate(0deg) scale(1.1); }
+}
+
+/* Modale de récompense (Révélation dopamine) */
+.reward-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.reward-card {
+    background: #1e293b;
+    border: 3px solid #fbbf24;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+    transform: scale(0.8);
+    animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popUp {
+    100% { transform: scale(1); }
+}
+/* Animation de flottaison du coffre (déjà présente normalement) */
+@keyframes pulseChest {
+    0% { transform: scale(1) translateY(0); }
+    100% { transform: scale(1.1) translateY(-8px); }
+}
+
+/* Style spécifique pour l'émoji du coffre doré (Quotidien) */
+.gold-chest {
+    filter: drop-shadow(0 0 20px #fbbf24) drop-shadow(0 0 5px #fff);
+    color: #fbbf24; /* Force la couleur dorée si l'émoji est monochrome */
+}
+
+/* Style spécifique pour l'émoji du coffre en bois (Chrono) */
+.wood-chest {
+    filter: drop-shadow(0 0 10px #94a3b8);
+    color: #a78bfa; /* Une légère teinte violette pour le bois */
+}
+
+/* Boutons de filtres */
+.filter-btn {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+    background: #f97316;
+    color: white;
+    border-color: #ea580c;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
+}
+
+/* Éléments de la liste du classement */
+.leaderboard-item {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #334155;
+    transition: transform 0.15s ease;
+}
+
+.leaderboard-item.top-1 {
+    border: 2px solid #fbbf24;
+    background: linear-gradient(135deg, #1e293b, rgba(251, 191, 36, 0.15));
+}
+
+.leaderboard-item.top-2 {
+    border: 2px solid #94a3b8;
+    background: linear-gradient(135deg, #1e293b, rgba(148, 163, 184, 0.15));
+}
+
+.leaderboard-item.top-3 {
+    border: 2px solid #b45309;
+    background: linear-gradient(135deg, #1e293b, rgba(180, 83, 9, 0.15));
+}
+
+.rank-badge {
+    font-weight: bold;
+    font-size: 1.1rem;
+    width: 30px;
+    text-align: center;
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+.player-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f97316;
+}
+
+.player-name {
+    font-weight: bold;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.score-tag {
+    font-weight: bold;
+    color: #f97316;
+    font-size: 1rem;
+}
+.player-avatar-initial {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Masquer la barre de navigation du bas lorsqu'une partie est en cours */
+#screen-quiz:not(.hidden) ~ .bottom-nav,
+#screen-chrono:not(.hidden) ~ .bottom-nav,
+#screen-game:not(.hidden) ~ .bottom-nav,
+.game-active .bottom-nav {
+    display: none !important;
+}
+/* Style pour l'input de mot de passe sur l'écran de connexion */
+#passwordInput {
+    width: 100%;
+    max-width: 300px;
+    padding: 12px 15px;
+    margin: 10px 0;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+#passwordInput:focus {
+    border-color: #ff6b6b; /* Utilise la couleur principale de ton thème BrainFlamme */
+}
+/* Conteneur pour aligner l'input et l'icône */
+.password-container {
+    position: relative;
+    width: 100%;
+    max-width: 300px; /* À adapter selon la largeur de ton input pseudo */
+    margin: 0 auto 10px auto; /* Centre le bloc si ton formulaire est centré */
+}
+
+/* Même style que ton input pseudo */
+.password-container input {
+    width: 100%;
+    padding: 12px 40px 12px 15px; /* Espace à droite pour ne pas que le texte passe sous l'œil */
+    font-size: 16px;
+    box-sizing: border-box;
+    /* Reprends ici les bordures, radius et background de ton input de pseudo (#username-input) */
+}
+
+/* Style et position de l'œil */
+.eye-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    user-select: none;
+}
+#password-input {
+    background-color: #1a2234; /* Même fond sombre que ton input pseudo (à adapter selon ta couleur exacte) */
+    border: 1px solid #334155; /* Même bordure subtile */
+    color: #ffffff; /* Texte blanc */
+    border-radius: 8px; /* Si tes inputs ont des coins arrondis */
+    outline: none;
+}
+#password-input::placeholder {
+    color: #64748b; /* Couleur du texte indicatif */
+}
+input[type="text"], input[type="password"] { 
+    padding: 15px; 
+    border-radius: 12px; 
+    border: 2px solid #334155; 
+    background: #1e293b; 
+    color: white; 
+    font-size: 18px; 
+    width: 80%; 
+    max-width: 250px; 
+    outline: none; 
+    box-sizing: border-box; /* Évite que le padding ne dépasse de la largeur */
+}
+/* Espacement entre le champ pseudo et le bloc mot de passe */
+#username-input {
+    margin-bottom: 10px; /* Ajoute un petit espace en bas de l'input pseudo */
+    display: block; /* Force le saut de ligne */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Conteneur du mot de passe (position relative pour l'icône) */
+.password-wrapper {
+    position: relative;
+    width: 80%;
+    max-width: 250px; /* Même largeur que ton input text */
+    margin: 0 auto; /* Centre le bloc */
+    display: block;
+}
+
+/* Le champ mot de passe lui-même (hérite du style de ton input[type="text"]) */
+/* Pense bien à utiliser la règle que je t'ai donnée pour styliser input[type="text"], input[type="password"] ensemble pour qu'ils soient identiques */
+
+.password-wrapper input {
+    width: 100%; /* Remplit tout le conteneur */
+    padding-right: 40px; /* Important : Laisse de la place pour l'icône à droite */
+    box-sizing: border-box; /* Important : Pour que le padding n'élargisse pas le champ */
+}
+
+/* L'icône de l'œil (Positionnée à l'intérieur à droite) */
+.eye-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    /* ➔ Couleur très sombre, presque ton sur ton */
+    color: #334155; /* Utilise la même couleur que tes bordures d'input */
+    font-size: 18px;
+    user-select: none;
+    z-index: 10;
+    /* ➔ Curseur par défaut (flèche) au lieu de la main */
+    cursor: default;
+    /* Ajoute une petite transition pour adoucir le changement de couleur au clic */
+    transition: color 0.3s ease;
+}
+
+/* Quand on passe la souris dessus, on change quand même un peu la couleur pour l'utilisateur */
+.eye-icon:hover {
+    color: #475569; /* Un gris un peu plus clair au survol */
+}
+.themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+    width: 100%;
+    max-width: 500px;
+}
+
+.theme-card {
+    background: #1e293b;
+    border: 2px solid #334155;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.theme-card:hover {
+    background: #334155;
+    border-color: #f97316; /* Couleur orange de BrainFlamme */
+    transform: translateY(-2px);
+}
+
+.theme-options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 30px 0;
+    width: 100%;
+    max-width: 400px;
+}
+
+.option-btn {
+    background: #f97316;
+    color: white;
+    border: none;
+    padding: 18px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.option-btn:hover {
+    background: #ea580c;
+}
+
+.option-btn small {
+    display: block;
+    font-size: 12px;
+    font-weight: normal;
+    opacity: 0.9;
+    margin-top: 5px;
+}
+.themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.theme-card {
+    background: #1e293b;
+    border: 2px solid #334155;
+    color: white;
+    padding: 15px 10px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.theme-card:hover {
+    background: #334155;
+    border-color: #f97316;
+    transform: translateY(-2px);
+}
+
+.theme-options-container {
+    max-width: 400px; 
+    margin: 20px auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px;
+}
+/* S'assure que tous les écrans principaux prennent toute la largeur et se cachent par défaut */
+#main-menu, #theme-options-screen, #quiz, #chest-screen {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Si ton écran de thèmes doit être centré verticalement et horizontalement : */
+#theme-options-screen {
+    display: none; /* Caché par défaut */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+#theme-options-screen {
+    display: none; /* Caché par défaut */
+    width: 100%;
+    /* Si tu veux qu'il se positionne bien au-dessus ou qu'il remplace le flux : */
+    position: relative; 
+    top: 0;
+    left: 0;
+}
+/* Tous les écrans du jeu doivent occuper le même espace propre */
+.screen {
+    display: none;
+    width: 100%;
+}
+
+/* L'écran actif s'affiche correctement */
+.screen.active {
+    display: block;
+}
+/* S'assure que tes écrans prennent toute la largeur et ne se chevauchent pas */
+#main-menu, #theme-options-screen {
+    width: 100%;
+    box-sizing: border-box;
+}
+#theme-options-screen {
+    display: none; /* Caché par défaut */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #0f172a; /* Mets la couleur de fond exacte de ton site */
+    z-index: 10; /* S'assure qu'il passe par-dessus tout le reste */
+}
+/* Conteneur du logo/flamme */
+.flame-logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+/* Style et animation de la vraie flamme */
+.true-flame-animation {
+    width: 70px; /* Ajuste la taille selon tes besoins (ex: 50px pour mobile) */
+    height: auto;
+    animation: flameBurn 1.4s infinite alternate ease-in-out;
+    /* Crée une double lueur lumineuse ultra-réaliste autour de la flamme */
+    filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.8)) 
+            drop-shadow(0 0 25px rgba(255, 69, 0, 0.6));
+    will-change: transform; /* Optimise les performances sur iPhone/Mobile */
+}
+
+/* Animation de combustion (ondulation et respiration) */
+@keyframes flameBurn {
+    0% {
+        transform: translateY(0) scale(1) rotate(0deg);
+        filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.7)) drop-shadow(0 0 20px rgba(255, 69, 0, 0.5));
+    }
+    33% {
+        transform: translateY(-4px) scale(1.04) rotate(-2deg);
+        filter: drop-shadow(0 0 15px rgba(255, 165, 0, 0.9)) drop-shadow(0 0 30px rgba(255, 69, 0, 0.7));
+    }
+    66% {
+        transform: translateY(-2px) scale(0.98) rotate(1.5deg);
+        filter: drop-shadow(0 0 12px rgba(255, 100, 0, 0.8)) drop-shadow(0 0 25px rgba(255, 69, 0, 0.6));
+    }
+    100% {
+        transform: translateY(-6px) scale(1.06) rotate(-1deg);
+        filter: drop-shadow(0 0 18px rgba(255, 200, 0, 1)) drop-shadow(0 0 35px rgba(255, 50, 0, 0.8));
+    }
+}
+
+/* Style de texte assorti pour "Flamme" */
+.flame-text {
+    color: #ff5722;
+    text-shadow: 0 0 10px rgba(255, 87, 34, 0.6);
+}
+
+/* Style de la flamme avec un effet de lueur dynamique */
+.true-flame-animation {
+    width: 35px;
+    height: auto;
+    vertical-align: middle;
+    margin-right: 5px;
+    animation: flameFlicker 1.8s infinite ease-in-out alternate;
+    filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.8)) 
+            drop-shadow(0 0 20px rgba(255, 69, 0, 0.5));
+    will-change: transform, filter;
+}
+
+/* Nouvelle animation organique qui simule le vacillement du feu */
+@keyframes flameFlicker {
+    0% {
+        transform: scale(1) skewX(0deg);
+        filter: drop-shadow(0 0 6px rgba(255, 140, 0, 0.7)) drop-shadow(0 0 15px rgba(255, 69, 0, 0.4));
+    }
+    25% {
+        transform: scale(1.05, 0.95) skewX(-2deg) translateY(-2px);
+        filter: drop-shadow(0 0 12px rgba(255, 180, 0, 0.9)) drop-shadow(0 0 25px rgba(255, 80, 0, 0.6));
+    }
+    50% {
+        transform: scale(0.97, 1.03) skewX(2deg) translateY(-4px);
+        filter: drop-shadow(0 0 15px rgba(255, 200, 0, 1)) drop-shadow(0 0 30px rgba(255, 50, 0, 0.7));
+    }
+    75% {
+        transform: scale(1.03, 0.97) skewX(-1deg) translateY(-1px);
+        filter: drop-shadow(0 0 10px rgba(255, 120, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 90, 0, 0.5));
+    }
+    100% {
+        transform: scale(1) skewX(0deg) translateY(0);
+        filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.7)) drop-shadow(0 0 18px rgba(255, 69, 0, 0.4));
+    }
+}
+.duo-next-btn {
+    display: block;
+    width: 90%;
+    max-width: 350px;
+    margin: 20px auto 10px auto;
+    padding: 14px;
+    background-color: #58cc02;
+    color: #ffffff;
+    border: none;
+    border-bottom: 4px solid #46a302;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #46a302;
+    transition: all 0.1s ease;
+}
+
+.duo-next-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #46a302;
+    border-bottom-width: 0px;
+}
+.duo-next-btn {
+    display: block;
+    width: 90%;
+    max-width: 350px;
+    margin: 20px auto 10px auto;
+    padding: 14px;
+    background-color: #3b82f6; /* Bleu moderne */
+    color: #ffffff;
+    border: none;
+    border-bottom: 4px solid #1d4ed8; 
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #1d4ed8;
+    transition: all 0.1s ease;
+}
+
+.duo-next-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #1d4ed8;
+    border-bottom-width: 0px;
+}
+
+
+
+/* ==========================================================
+   👥 MODE JOUER ENTRE AMIS
+   ========================================================== */
+.friends-mode-btn small {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: .8;
+    font-weight: 500;
+}
+
+.friends-header-card,
+.friend-settings-card,
+.friend-join-card,
+.friend-code-card,
+.friend-lobby-card,
+.friend-results-card {
+    width: min(92%, 620px);
+    margin: 18px auto;
+    box-sizing: border-box;
+    background: #1e293b;
+    border: 2px solid #334155;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.25);
+}
+
+.friends-header-card h2 {
+    margin: 5px 0 8px;
+    color: #f97316;
+    font-size: 30px;
+}
+
+.friends-header-card p {
+    margin: 0;
+    color: #94a3b8;
+}
+
+.friends-back-btn {
+    display: block;
+    background: transparent;
+    color: #cbd5e1;
+    border: 1px solid #475569;
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.friends-choice-grid {
+    width: min(92%, 620px);
+    margin: 20px auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.friends-choice-card {
+    min-height: 180px;
+    border: 2px solid #f97316;
+    border-radius: 20px;
+    background: #1e293b;
+    color: white;
+    cursor: pointer;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    transition: transform .2s, background .2s;
+}
+
+.friends-choice-card:hover {
+    transform: translateY(-3px);
+    background: #273449;
+}
+
+.friends-choice-card span { font-size: 42px; }
+.friends-choice-card strong { font-size: 20px; }
+.friends-choice-card small { color: #94a3b8; }
+
+.friend-radio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0 22px;
+}
+
+.friend-radio-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    min-height: 105px;
+    padding: 15px;
+    border: 2px solid #334155;
+    border-radius: 16px;
+    background: #0f172a;
+    cursor: pointer;
+}
+
+.friend-radio-card:has(input:checked) {
+    border-color: #f97316;
+    box-shadow: 0 0 0 2px rgba(249,115,22,.15);
+}
+
+.friend-radio-card input { accent-color: #f97316; }
+.friend-radio-card span { font-size: 17px; font-weight: 800; }
+.friend-radio-card small { color: #94a3b8; }
+
+.friend-slider-setting {
+    margin: 12px 0 25px;
+    padding: 16px;
+    background: #0f172a;
+    border-radius: 16px;
+    border: 1px solid #334155;
+}
+
+.friend-slider-setting label { display: block; margin-bottom: 12px; font-size: 18px; }
+.friend-slider-setting input[type=range] { width: 100%; accent-color: #f97316; }
+.friend-range-labels { display: flex; justify-content: space-between; color: #94a3b8; font-size: 13px; }
+
+.friend-select,
+.friend-code-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px solid #334155;
+    background: #0f172a;
+    color: white;
+    font-size: 17px;
+    outline: none;
+}
+
+.friend-code-input {
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 7px;
+    font-size: 28px;
+    font-weight: 900;
+    margin: 10px 0;
+}
+
+.friends-primary-btn,
+.friends-secondary-btn,
+.friends-danger-btn {
+    border-radius: 13px;
+    padding: 13px 18px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 8px auto;
+}
+
+.friends-primary-btn {
+    display: block;
+    width: 100%;
+    background: #f97316;
+    color: white;
+    border: none;
+}
+
+.friends-secondary-btn {
+    background: #334155;
+    color: white;
+    border: 1px solid #475569;
+}
+
+.friends-danger-btn {
+    background: transparent;
+    color: #fca5a5;
+    border: 1px solid #7f1d1d;
+}
+
+.friend-message { min-height: 24px; margin: 12px auto; color: #94a3b8; }
+.friend-message.error { color: #fca5a5; }
+.friend-message.success { color: #86efac; }
+.friend-or { display: flex; align-items: center; gap: 12px; color: #64748b; margin: 14px 0; }
+.friend-or::before, .friend-or::after { content: ''; height: 1px; background: #334155; flex: 1; }
+
+.friend-qr-reader {
+    width: min(100%, 360px);
+    min-height: 220px;
+    margin: 0 auto 12px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0f172a;
+}
+
+.friend-code-label { color: #94a3b8; font-size: 12px; letter-spacing: 3px; font-weight: 800; }
+.friend-big-code { font-size: 42px; letter-spacing: 9px; font-weight: 900; color: #f97316; margin: 5px 0 14px; }
+.friend-room-qr { display: flex; justify-content: center; margin: 12px auto; min-height: 190px; }
+.friend-room-qr img { border-radius: 12px; }
+
+.friend-lobby-card h3 { color: #fbbf24; margin-top: 0; }
+.friend-player-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px;
+    margin: 8px 0;
+    border-radius: 13px;
+    background: #0f172a;
+    border: 1px solid #334155;
+}
+.friend-player-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f97316;
+    font-weight: 900;
+}
+.friend-player-name { flex: 1; text-align: left; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
+.friend-player-status { color: #94a3b8; font-size: 12px; }
+.friend-you { color: #22c55e; font-size: 12px; }
+.friend-lobby-status { color: #94a3b8; margin: 16px 0; }
+
+.friend-game-topbar { display: flex; justify-content: space-between; gap: 12px; color: #cbd5e1; font-weight: 800; }
+.friend-game-timer { height: 22px; margin: 14px 0 22px; border-radius: 999px; background: #1e293b; border: 1px solid #334155; overflow: hidden; position: relative; }
+#friendGameTimerBar { height: 100%; width: 100%; background: #f97316; transition: width .2s linear; }
+#friendGameTimerText { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+.friend-answer-status { color: #94a3b8; font-weight: 700; }
+.friend-answered { opacity: .65; }
+.friend-final-xp { display: block; color: #22c55e; font-size: 24px; margin-top: 10px; }
+
+.friend-result-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    margin: 8px 0;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 14px;
+}
+.friend-result-me { border-color: #f97316; }
+.friend-result-rank { width: 42px; font-size: 20px; }
+.friend-result-name { flex: 1; text-align: left; font-weight: 800; }
+
+@media (max-width: 650px) {
+    .friends-choice-grid,
+    .friend-radio-grid { grid-template-columns: 1fr; }
+    .friends-choice-card { min-height: 145px; }
+    .friend-big-code { font-size: 34px; letter-spacing: 6px; }
+    .friend-player-status { display: none; }
+}
+
+/* ==========================================================
+   👥 JEU ENTRE AMIS — progression et classement
+   ========================================================== */
+.friend-progress-panel {
+    width: min(92%, 620px);
+    margin: 10px auto 14px;
+    padding: 11px 13px;
+    box-sizing: border-box;
+    background: rgba(15, 23, 42, .96);
+    border: 1px solid #334155;
+    border-left: 3px solid #f97316;
+    border-radius: 14px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.18);
+    text-align: left;
+}
+.friend-progress-title {
+    color: #fbbf24;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    margin-bottom: 8px;
+}
+.friend-progress-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 30px;
+    padding: 4px 6px;
+    border-radius: 9px;
+}
+.friend-progress-player.is-me {
+    background: rgba(249, 115, 22, .08);
+}
+.friend-progress-name {
+    width: 90px;
+    min-width: 90px;
+    color: #e2e8f0;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.friend-progress-name small {
+    color: #22c55e;
+    font-size: 9px;
+}
+.friend-progress-dots {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+.friend-progress-dot {
+    width: 15px;
+    height: 15px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #1e293b;
+    border: 1px solid #475569;
+    color: transparent;
+    font-size: 9px;
+    font-weight: 900;
+}
+.friend-progress-dot.done {
+    background: #22c55e;
+    border-color: #4ade80;
+    color: white;
+    box-shadow: 0 0 7px rgba(34,197,94,.35);
+}
+.friend-progress-dot.current {
+    border-color: #f97316;
+    box-shadow: 0 0 0 2px rgba(249,115,22,.13);
+}
+.friend-progress-chrono {
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.friend-result-main {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+.friend-result-name {
+    display: block;
+}
+.friend-result-name small {
+    color: #22c55e;
+    font-size: 10px;
+}
+.friend-result-details {
+    display: block;
+    margin-top: 3px;
+    color: #94a3b8;
+    font-size: 11px;
+}
+.friend-result-score {
+    min-width: 74px;
+    text-align: right;
+}
+.friend-result-score strong {
+    display: block;
+    color: #f8fafc;
+    font-size: 16px;
+}
+.friend-result-score span {
+    display: block;
+    margin-top: 3px;
+    color: #22c55e;
+    font-size: 12px;
+    font-weight: 900;
+}
+.friend-result-row:first-child {
+    border-color: #fbbf24;
+    box-shadow: 0 0 16px rgba(251,191,36,.08);
+}
+
+@media (max-width: 650px) {
+    .friend-progress-name {
+        width: 72px;
+        min-width: 72px;
+    }
+    .friend-progress-dot {
+        width: 13px;
+        height: 13px;
+        font-size: 8px;
+    }
+    .friend-progress-player {
+        gap: 7px;
+    }
+    .friend-result-row {
+        gap: 8px;
+        padding: 12px 10px;
+    }
+    .friend-result-score {
+        min-width: 62px;
+    }
+}
+
+/* ==========================================================
+   👥 MODE AMIS — CORRECTIONS FINALES DU QUIZ
+   ========================================================== */
+
+#friendsQuizScreen {
+    width: min(94%, 760px);
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.friend-game-topbar {
+    width: min(100%, 620px);
+    margin: 8px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+#friendAnsweredCount {
+    max-width: 72%;
+    text-align: right;
+    color: #f8fafc;
+    white-space: normal;
+    line-height: 1.35;
+}
+
+/* Chronomètre partagé : la barre représente réellement
+   le temps restant de toute la partie. */
+.friend-game-timer {
+    width: min(100%, 620px);
+    height: 34px;
+    margin: 14px auto 25px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #1e293b;
+    border: 2px solid #334155;
+    box-shadow: inset 0 2px 7px rgba(0,0,0,.28), 0 5px 14px rgba(0,0,0,.18);
+}
+
+#friendGameTimerBar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #f97316, #fb923c);
+    transition: width .1s linear;
+    border-radius: inherit;
+}
+
+#friendGameTimerText {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 1000;
+    letter-spacing: .5px;
+    text-shadow: 0 1px 4px rgba(0,0,0,.8);
+    pointer-events: none;
+}
+
+.friend-game-timer.friend-timer-warning {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239,68,68,.12), 0 5px 18px rgba(239,68,68,.18);
+}
+
+.friend-game-timer.friend-timer-warning #friendGameTimerBar {
+    background: linear-gradient(90deg, #ef4444, #f97316);
+}
+
+/* Zone des réponses : indépendante du CSS du quiz normal. */
+#friendAnswers {
+    width: min(100%, 620px);
+    margin: 24px auto 18px;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    box-sizing: border-box;
+}
+
+#friendAnswers .friend-answer-btn {
+    width: 100%;
+    min-height: 68px;
+    padding: 15px 18px;
+    margin: 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.3;
+    background: linear-gradient(145deg, #1e293b, #172033);
+    color: #f8fafc;
+    border: 2px solid #334155;
+    border-radius: 15px;
+    font-family: inherit;
+    font-size: clamp(14px, 2vw, 17px);
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+#friendAnswers .friend-answer-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    border-color: #f97316;
+    box-shadow: 0 7px 18px rgba(249,115,22,.16);
+    background: linear-gradient(145deg, #273449, #1d293b);
+}
+
+#friendAnswers .friend-answer-btn:active:not(:disabled) {
+    transform: scale(.98);
+}
+
+#friendAnswers .friend-answer-btn:disabled {
+    cursor: default;
+}
+
+#friendAnswers .friend-answer-btn.correct {
+    background: #166534 !important;
+    border-color: #22c55e !important;
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(34,197,94,.2);
+}
+
+#friendAnswers .friend-answer-btn.wrong {
+    background: #7f1d1d !important;
+    border-color: #ef4444 !important;
+    color: #fff !important;
+}
+
+.friend-no-answers {
+    grid-column: 1 / -1;
+    padding: 18px;
+    border-radius: 14px;
+    background: rgba(239,68,68,.08);
+    border: 1px solid rgba(239,68,68,.35);
+    color: #fecaca;
+    font-weight: 700;
+}
+
+.friend-scanner-loading,
+.friend-scanner-error {
+    min-height: 230px;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.friend-scanner-loading strong,
+.friend-scanner-error strong {
+    color: #f8fafc;
+}
+
+.friend-scanner-loading small,
+.friend-scanner-error span {
+    max-width: 300px;
+    line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+    #friendsQuizScreen {
+        width: 94%;
+    }
+
+    .friend-game-topbar {
+        font-size: 12px;
+    }
+
+    #friendAnsweredCount {
+        max-width: 68%;
+    }
+
+    #friendAnswers {
+        grid-template-columns: 1fr;
+        gap: 11px;
+        margin-top: 20px;
+    }
+
+    #friendAnswers .friend-answer-btn {
+        min-height: 56px;
+    }
+
+    .friend-game-timer {
+        height: 32px;
+    }
+}
