@@ -2185,88 +2185,262 @@
 
     }
 
+window.startFriendQRScanner = async function () {
 
-    window.startFriendQRScanner =
-        async function () {
+    const reader = document.getElementById('friendQrReader');
 
-            if (
-                typeof Html5Qrcode ===
-                "undefined"
-            ) {
+    if (!reader) {
+        console.error('[Amis] Zone du scanner introuvable.');
+        return;
+    }
 
-                alert(
-                    "Scanner QR indisponible."
+    // Vérification de la bibliothèque
+    if (typeof Html5Qrcode === 'undefined') {
+        console.error('[Amis] Html5Qrcode n’est pas chargé.');
+        message(
+            'Le scanner QR n’est pas disponible. Recharge la page puis réessaie.',
+            'error'
+        );
+        return;
+    }
+
+    // Vérification du support caméra
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        message(
+            'La caméra n’est pas accessible sur ce navigateur. Utilise le code à 6 caractères.',
+            'error'
+        );
+        return;
+    }
+
+    // Arrêter un éventuel ancien scanner
+    try {
+        stopScanner();
+    } catch (e) {
+        console.warn('[Amis] Impossible d’arrêter l’ancien scanner :', e);
+    }
+
+    reader.innerHTML = `
+        <div style="
+            min-height:250px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex-direction:column;
+            gap:10px;
+            color:#94a3b8;
+            text-align:center;
+            padding:20px;
+            box-sizing:border-box;
+        ">
+            <div style="font-size:36px;">📷</div>
+            <strong style="color:#fff;">Activation de la caméra…</strong>
+            <span>Autorise l’accès à la caméra si ton navigateur te le demande.</span>
+        </div>
+    `;
+
+    try {
+
+        /*
+         * On demande d'abord les caméras disponibles.
+         * C'est plus fiable que d'imposer directement
+         * facingMode: "environment".
+         */
+        const cameras = await Html5Qrcode.getCameras();
+
+        if (!cameras || cameras.length === 0) {
+            throw new Error('Aucune caméra détectée.');
+        }
+
+        /*
+         * On cherche en priorité une caméra arrière.
+         * Sur Android, son nom contient souvent "back",
+         * "rear" ou "environment".
+         */
+        let camera = cameras.find(cam => {
+            const label = String(cam.label || '').toLowerCase();
+
+            return (
+                label.includes('back') ||
+                label.includes('rear') ||
+                label.includes('environment')
+            );
+        });
+
+        // Si aucune caméra arrière n'est identifiable,
+        // on prend simplement la première disponible.
+        if (!camera) {
+            camera = cameras[0];
+        }
+
+        friendRoom.scanner = new Html5Qrcode('friendQrReader');
+
+        await friendRoom.scanner.start(
+            camera.id,
+            {
+                fps: 10,
+
+                qrbox: function (viewfinderWidth, viewfinderHeight) {
+
+                    const size = Math.floor(
+                        Math.min(viewfinderWidth, viewfinderHeight) * 0.68
+                    );
+
+                    return {
+                        width: Math.min(size, 280),
+                        height: Math.min(size, 280)
+                    };
+                },
+
+                aspectRatio: 1.0
+            },
+
+            decodedText => {
+
+                console.log('[Amis] QR détecté :', decodedText);
+
+                const text = String(decodedText).trim();
+
+                /*
+                 * Format généré par BrainFlamme :
+                 *
+                 * brainflamme://join/ABC123
+                 */
+                const match = text.match(
+                    /brainflamme:\/\/join\/([A-Z0-9]{6})/i
                 );
 
-                return;
+                let code;
 
-            }
+                if (match) {
+                    code = match[1].toUpperCase();
+                } else {
+                    /*
+                     * Permet également de lire directement
+                     * un QR contenant simplement ABC123.
+                     */
+                    code = text
+                        .replace(/[^A-Z0-9]/gi, '')
+                        .toUpperCase();
+                }
 
+                if (!/^[A-Z0-9]{6}$/.test(code)) {
 
-            const reader =
-                document.getElementById(
-                    "friendQrReader"
+                    message(
+                        'Ce QR code ne correspond pas à une salle BrainFlamme.',
+                        'error'
+                    );
+
+                    return;
+                }
+
+                console.log('[Amis] Code de salle détecté :', code);
+
+                // Arrêt de la caméra
+                stopScanner();
+
+                const input = document.getElementById(
+                    'friendRoomCodeInput'
                 );
 
+                if (input) {
+                    input.value = code;
+                }
 
-            if (!reader) {
-                return;
-            }
-
-
-            stopQR();
-
-
-            friendRoom.scanner =
-                new Html5Qrcode(
-                    "friendQrReader"
+                // Petite confirmation avant la connexion
+                message(
+                    `Salle ${code} détectée ! 🔥`,
+                    'success'
                 );
 
+                // Rejoindre automatiquement
+                setTimeout(() => {
+                    joinFriendRoom(code);
+                }, 350);
+            },
 
-            await friendRoom.scanner
-                .start(
+            /*
+             * Les erreurs de lecture sont normales :
+             * tant qu'aucun QR n'est devant la caméra,
+             * html5-qrcode en génère régulièrement.
+             */
+            () => {}
+        );
 
-                    {
-                        facingMode:
-                            "environment"
-                    },
+        message(
+            '📷 Caméra active — place le QR code dans le cadre.',
+            'success'
+        );
 
-                    {
-                        fps: 10,
+    } catch (error) {
 
-                        qrbox: {
-                            width: 230,
-                            height: 230
-                        }
+        console.error('[Amis] Erreur scanner QR :', error);
 
-                    },
+        stopScanner();
 
-                    decoded => {
+        let errorMessage =
+            'Impossible d’utiliser la caméra.';
 
-                        const match =
-                            String(decoded)
-                                .match(
-                                    /brainflamme:\/\/join\/([A-Z0-9]{6})/i
-                                );
+        const errorText = String(
+            error && error.message
+                ? error.message
+                : error
+        ).toLowerCase();
 
+        if (
+            errorText.includes('permission') ||
+            errorText.includes('notallowed') ||
+            errorText.includes('denied')
+        ) {
+            errorMessage =
+                '📷 Accès à la caméra refusé. Autorise la caméra dans les paramètres du navigateur puis réessaie.';
+        } else if (
+            errorText.includes('secure') ||
+            errorText.includes('https')
+        ) {
+            errorMessage =
+                '🔒 La caméra nécessite une connexion sécurisée HTTPS.';
+        } else if (
+            errorText.includes('camera') ||
+            errorText.includes('device')
+        ) {
+            errorMessage =
+                '📷 Aucune caméra utilisable n’a été trouvée.';
+        }
 
-                        if (match) {
+        message(
+            `${errorMessage} Tu peux aussi entrer le code à 6 caractères.`,
+            'error'
+        );
 
-                            stopQR();
-
-                            joinFriendRoom(
-                                match[1]
-                            );
-
-                        }
-
-                    },
-
-                    () => {}
-
-                );
-
-        };
+        /*
+         * On laisse la zone du scanner propre plutôt que
+         * de laisser un bloc cassé.
+         */
+        reader.innerHTML = `
+            <div style="
+                min-height:220px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                flex-direction:column;
+                gap:10px;
+                padding:20px;
+                box-sizing:border-box;
+                text-align:center;
+                color:#94a3b8;
+            ">
+                <div style="font-size:42px;">📷</div>
+                <strong style="color:#f8fafc;">
+                    Caméra indisponible
+                </strong>
+                <span>
+                    Autorise l'accès à la caméra ou utilise le code de la salle.
+                </span>
+            </div>
+        `;
+    }
+};
 
 
     function stopQR() {
