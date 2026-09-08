@@ -112,7 +112,233 @@
                 <button id="dailyMode" class="mode-btn">📅 Mode Quotidien</button>
                 <button id="chronoMode" class="mode-btn">⚡ Mode Chrono</button>
                 <button id="categoriesBtn" class="mode-btn" onclick="openCategoriesScreen()">🎯 Catégories</button>
+                <button id="friendsModeBtn" class="mode-btn friends-mode-btn" onclick="openFriendsMode()">
+                    👥 Jouer entre amis
+                    <small>Crée ou rejoins une salle privée</small>
+                </button>
             </div>
+        </div>
+
+        <!-- ==================== MODE JOUER ENTRE AMIS ==================== -->
+
+        <div id="friendsModeScreen" class="screen" style="display:none; text-align:center;">
+            <div class="friends-header-card">
+                <button class="friends-back-btn" onclick="switchTab('modeSelection')">← Retour</button>
+                <h2>👥 Jouer entre amis</h2>
+                <p>De 2 à 4 joueurs · Crée une partie privée ou rejoins celle d’un ami.</p>
+            </div>
+
+            <div class="friends-choice-grid">
+                <button class="friends-choice-card" onclick="openCreateFriendRoom()">
+                    <span>🏠</span>
+                    <strong>Créer une salle</strong>
+                    <small>Choisis les règles et invite tes amis</small>
+                </button>
+
+                <button class="friends-choice-card" onclick="openJoinFriendRoom()">
+                    <span>🚪</span>
+                    <strong>Rejoindre une salle</strong>
+                    <small>Scanne un QR code ou entre le code</small>
+                </button>
+            </div>
+
+            <div id="friendRoomMessage" class="friend-message"></div>
+        </div>
+
+        <div id="createFriendRoomScreen" class="screen" style="display:none; text-align:center;">
+            <div class="friends-header-card">
+                <button class="friends-back-btn" onclick="openFriendsMode()">← Retour</button>
+                <h2>🏠 Créer une salle</h2>
+                <p>De 2 à 4 joueurs · Configure ta partie avant d’inviter tes amis.</p>
+            </div>
+
+            <div class="friend-settings-card">
+                <h3>1. Type de partie</h3>
+
+                <div class="friend-radio-grid">
+                    <label class="friend-radio-card">
+                        <input type="radio" name="friendGameType" value="chrono" checked>
+                        <span>⚡ Chrono</span>
+                        <small>Une partie limitée dans le temps</small>
+                    </label>
+
+                    <label class="friend-radio-card">
+                        <input type="radio" name="friendGameType" value="questions">
+                        <span>❓ Questions</span>
+                        <small>Choisis le nombre de questions</small>
+                    </label>
+                </div>
+
+                <div id="friendChronoSettings" class="friend-slider-setting">
+                    <label for="friendChronoSlider">
+                        Durée : <strong id="friendChronoValue">45 secondes</strong>
+                    </label>
+                    <input id="friendChronoSlider" type="range" min="30" max="60" step="5" value="45">
+                    <div class="friend-range-labels">
+                        <span>30 s</span>
+                        <span>1 min</span>
+                    </div>
+                </div>
+
+                <div id="friendQuestionsSettings" class="friend-slider-setting" style="display:none;">
+                    <label for="friendQuestionsSlider">
+                        Nombre : <strong id="friendQuestionsValue">10 questions</strong>
+                    </label>
+                    <input id="friendQuestionsSlider" type="range" min="5" max="20" step="1" value="10">
+                    <div class="friend-range-labels">
+                        <span>5</span>
+                        <span>20</span>
+                    </div>
+                </div>
+
+                <h3>2. Banque de questions</h3>
+
+                <div class="friend-radio-grid">
+                    <label class="friend-radio-card">
+                        <input type="radio" name="friendQuestionMode" value="mixed" checked>
+                        <span>🌍 Mix de thèmes</span>
+                        <small>Comme les modes Quotidien et Chrono</small>
+                    </label>
+
+                    <label class="friend-radio-card">
+                        <input type="radio" name="friendQuestionMode" value="category">
+                        <span>🎯 Une catégorie</span>
+                        <small>Jouez uniquement sur un thème</small>
+                    </label>
+                </div>
+
+                <div id="friendCategorySettings" style="display:none; margin-top:18px;">
+                    <label for="friendCategorySelect">Catégorie</label>
+                    <select id="friendCategorySelect" class="friend-select">
+                        <option value="">Chargement des catégories…</option>
+                    </select>
+                </div>
+
+                <button id="createFriendRoomBtn"
+                        class="play friends-primary-btn"
+                        onclick="createFriendRoom()">
+                    CRÉER LA SALLE 🔥
+                </button>
+
+                <div id="friendRoomMessageCreate" class="friend-message"></div>
+            </div>
+        </div>
+
+        <div id="joinFriendRoomScreen" class="screen" style="display:none; text-align:center;">
+            <div class="friends-header-card">
+                <button class="friends-back-btn" onclick="openFriendsMode()">← Retour</button>
+                <h2>🚪 Rejoindre une salle</h2>
+                <p>Scanne le QR code de ton ami ou saisis son code.</p>
+            </div>
+
+            <div class="friend-join-card">
+                <div id="friendQrReader" class="friend-qr-reader"></div>
+
+                <button class="friends-secondary-btn" onclick="startFriendQRScanner()">
+                    📷 Scanner un QR code
+                </button>
+
+                <div class="friend-or"><span>OU</span></div>
+
+                <input id="friendRoomCodeInput"
+                       class="friend-code-input"
+                       maxlength="6"
+                       placeholder="ABC123"
+                       autocomplete="off"
+                       autocapitalize="characters">
+
+                <button class="friends-primary-btn" onclick="joinFriendRoom()">
+                    REJOINDRE 🔥
+                </button>
+
+                <div id="friendRoomMessageJoin" class="friend-message"></div>
+            </div>
+        </div>
+
+        <div id="friendRoomLobbyScreen" class="screen" style="display:none; text-align:center;">
+            <div class="friends-header-card">
+                <h2>🔥 Salle BrainFlamme</h2>
+                <p id="friendLobbySettings">Chargement des règles…</p>
+            </div>
+
+            <div class="friend-code-card">
+                <div class="friend-code-label">CODE DE LA SALLE</div>
+                <div id="friendRoomCode" class="friend-big-code">------</div>
+                <div id="friendRoomQR" class="friend-room-qr"></div>
+
+                <button class="friends-secondary-btn" onclick="copyFriendRoomCode()">
+                    📋 Copier le code
+                </button>
+            </div>
+
+            <div class="friend-lobby-card">
+                <h3>👥 Joueurs <small style="color:#94a3b8;font-size:12px;">(2 à 4)</small></h3>
+                <div id="friendPlayersList"></div>
+
+                <p id="friendLobbyStatus" class="friend-lobby-status">
+                    En attente…
+                </p>
+
+                <button id="startFriendGameBtn"
+                        class="friends-primary-btn"
+                        style="display:none;"
+                        onclick="startFriendGame()">
+                    LANCER LA PARTIE 🚀
+                </button>
+
+                <button class="friends-danger-btn" onclick="leaveFriendRoom()">
+                    Quitter la salle
+                </button>
+            </div>
+        </div>
+
+        <div id="friendsQuizScreen" class="screen" style="display:none; text-align:center;">
+            <div id="friendProgressPanel" class="friend-progress-panel" style="display:none;">
+                <div class="friend-progress-title">👥 PROGRESSION DES JOUEURS</div>
+                <div id="friendProgressList"></div>
+            </div>
+
+            <div class="friend-game-topbar">
+                <span id="friendQuestionCounter">Question</span>
+                <span id="friendAnsweredCount">0/0 réponses</span>
+            </div>
+
+            <div id="friendGameTimerContainer" class="friend-game-timer">
+                <div id="friendGameTimerBar"></div>
+                <span id="friendGameTimerText"></span>
+            </div>
+
+            <h2 id="friendQuestionText" class="question-text">
+                Chargement…
+            </h2>
+
+            <div id="friendAnswers" class="answers-grid"></div>
+
+            <p id="friendAnswerStatus" class="friend-answer-status">
+                Choisis ta réponse !
+            </p>
+        </div>
+
+        <div id="friendResultsScreen" class="screen" style="display:none; text-align:center;">
+            <div class="friends-header-card">
+                <h2>🏆 Résultats</h2>
+                <p id="friendFinalComment">Bien joué !</p>
+                <strong id="friendFinalXP" class="friend-final-xp"></strong>
+            </div>
+
+            <div class="friend-results-card">
+                <div id="friendResultsList"></div>
+            </div>
+
+            <button class="play friends-primary-btn"
+                    onclick="resetFriendRoomToModes()">
+                REJOUER ENTRE AMIS
+            </button>
+
+            <button class="friends-secondary-btn"
+                    onclick="switchTab('home-screen')">
+                RETOUR À L’ACCUEIL
+            </button>
         </div>
 
         <div id="quiz" class="screen" style="display:none;">
@@ -333,24 +559,42 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <!-- Librairies nécessaires au mode Jouer entre amis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
     <script src="notifications.js"></script>
     <script src="audio.js"></script>
     <script src="questions.js"></script>
     <script src="script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+    <script src="friends.js"></script>
 
-<!-- Ton fichier script principal -->
-    <script src="script.js"></script>
-
-    <!-- ➔ COLLE LA FONCTION DE SECOURS JUSTE ICI -->
     <script>
+        // switchTab étendu pour inclure les écrans du mode « Jouer entre amis ».
+        // Il remplace uniquement la fonction de navigation existante afin que
+        // les écrans du mode amis soient correctement masqués/affichés.
         function switchTab(screenId, clickedBtn) {
             const allScreens = [
-                'login-screen', 'home-screen', 'shop-screen', 'modeSelection', 
-                'quiz', 'profile', 'score', 'leaderboard-screen',
-                'theme-selection-screen', 'theme-options-screen'
+                'login-screen',
+                'home-screen',
+                'shop-screen',
+                'modeSelection',
+                'friendsModeScreen',
+                'createFriendRoomScreen',
+                'joinFriendRoomScreen',
+                'friendRoomLobbyScreen',
+                'friendsQuizScreen',
+                'friendResultsScreen',
+                'quiz',
+                'profile',
+                'score',
+                'leaderboard-screen',
+                'theme-selection-screen',
+                'theme-options-screen',
+                'chest-screen'
             ];
 
             allScreens.forEach(id => {
@@ -375,19 +619,25 @@
 
             const bottomNav = document.querySelector('.bottom-nav');
             if (bottomNav) {
-                const allowedScreens = ['home-screen', 'shop-screen', 'leaderboard-screen', 'profile'];
-                if (allowedScreens.includes(screenId)) {
-                    bottomNav.style.setProperty('display', 'flex', 'important');
-                } else {
-                    bottomNav.style.setProperty('display', 'none', 'important');
-                }
+                const allowedScreens = [
+                    'home-screen',
+                    'shop-screen',
+                    'leaderboard-screen',
+                    'profile'
+                ];
+
+                bottomNav.style.setProperty(
+                    'display',
+                    allowedScreens.includes(screenId) ? 'flex' : 'none',
+                    'important'
+                );
             }
         }
     </script>
 
-</body> <!-- C'est la fin du fichier -->
-</html>
-
+    <!-- Outil de debug mobile -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
 
 </body>
 </html>
