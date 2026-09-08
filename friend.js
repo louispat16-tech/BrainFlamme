@@ -9,7 +9,7 @@
     const ROOM_ROOT = "sallesAmis";
 
     const MIN_PLAYERS = 2;
-    const MAX_PLAYERS = 4;
+    const MAX_PLAYERS = 4; 
 
     const ROOM_CODE_LENGTH = 6;
 
