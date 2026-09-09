@@ -1984,31 +1984,30 @@ options.forEach(
 
     async function finishRoom() {
 
-        if (
-            !friendRoom.isHost
-        ) {
-            return;
-        }
-
-
-        const db = getDB();
-
-
-        await db
-            .ref(
-                `${ROOM_ROOT}/${friendRoom.id}`
-            )
-            .update({
-
-                status: "finished",
-
-                finishedAt:
-                    Date.now()
-
-            });
-
+    if (
+        !friendRoom.isHost
+    ) {
+        return;
     }
 
+
+    const db = getDB();
+
+
+    await db
+        .ref(
+            `${ROOM_ROOT}/${friendRoom.id}`
+        )
+        .update({
+
+            status: "finished",
+
+            finishedAt:
+                getServerNow()
+
+        });
+
+}
 
     /* =====================================================
        RÉSULTATS
