@@ -1244,7 +1244,57 @@ function watchServerTimeOffset() {
        JEU
     ===================================================== */
 
-    function renderGame(room) {
+    function updateAnsweredText(room) {
+
+    const players =
+        Object.values(
+            room.players || {}
+        );
+
+
+    const type =
+        room.settings?.type;
+
+
+    const parts =
+        players.map(player => {
+
+            const name =
+                player.username ||
+                "Joueur";
+
+
+            const answered =
+                Number(
+                    player.answeredCount || 0
+                );
+
+
+            if (type === "questions") {
+
+                const total =
+                    Number(
+                        room.settings?.questionCount || 0
+                    );
+
+                return `${name} : ${answered}/${total}`;
+
+            }
+
+
+            return `${name} : ${answered}`;
+
+        });
+
+
+    text(
+        "friendAnsweredText",
+        parts.join(" · ")
+    );
+
+}
+   
+   function renderGame(room) {
 
         show(
             "friendsQuizScreen"
