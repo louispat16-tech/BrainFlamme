@@ -1182,7 +1182,7 @@ function watchServerTimeOffset() {
 
 
             const startTime =
-                Date.now();
+    getServerNow();
 
 
             const endTime =
@@ -1435,15 +1435,15 @@ options.forEach(
 
 
         if (
-            room.settings.type ===
-                "chrono" &&
-            Date.now() >=
-                Number(room.endsAt)
-        ) {
+    room.settings.type ===
+        "chrono" &&
+    getServerNow() >=
+        Number(room.endsAt)
+) {
 
-            return;
+    return;
 
-        }
+}
 
 
         const question =
@@ -1774,85 +1774,115 @@ options.forEach(
 
     function startTimer(room) {
 
-        clearInterval(
-            friendRoom.timer
+    const bar =
+        document.getElementById(
+            "friendGameTimerBar"
         );
 
 
-        const bar =
-            document.getElementById(
-                "friendGameTimerBar"
+    const label =
+        document.getElementById(
+            "friendGameTimerText"
+        );
+
+
+    const duration =
+        Number(
+            room.settings.duration
+        ) * 1000;
+
+
+    const endsAt =
+        Number(
+            room.endsAt
+        );
+
+
+    if (
+        !endsAt ||
+        !duration
+    ) {
+        return;
+    }
+
+
+    friendRoom.timerEndsAt =
+        endsAt;
+
+
+    if (
+        friendRoom.timer
+    ) {
+        return;
+    }
+
+
+    const tick = () => {
+
+        const remaining =
+            Math.max(
+                0,
+                friendRoom.timerEndsAt -
+                getServerNow()
             );
 
 
-        const label =
-            document.getElementById(
-                "friendGameTimerText"
-            );
+        label.textContent =
+            `${Math.ceil(
+                remaining / 1000
+            )}s`;
 
 
-        const duration =
-            Number(
-                room.settings.duration
-            ) * 1000;
-
-
-        const tick = () => {
-
-            const remaining =
+        bar.style.width =
+            `${
                 Math.max(
                     0,
-                    Number(room.endsAt) -
-                    Date.now()
-                );
+                    Math.min(
+                        100,
+                        remaining /
+                        duration *
+                        100
+                    )
+                )
+            }%`;
 
 
-            label.textContent =
-                `${Math.ceil(
-                    remaining / 1000
-                )}s`;
+        if (
+            remaining <= 0
+        ) {
+
+            clearInterval(
+                friendRoom.timer
+            );
 
 
-            bar.style.width =
-                `${
-                    remaining /
-                    duration *
-                    100
-                }%`;
+            friendRoom.timer =
+                null;
 
 
             if (
-                remaining <= 0
+                friendRoom.isHost
             ) {
 
-                clearInterval(
-                    friendRoom.timer
-                );
-
-
-                if (
-                    friendRoom.isHost
-                ) {
-
-                    finishRoom();
-
-                }
+                finishRoom();
 
             }
 
-        };
+        }
+
+    };
 
 
-        tick();
+    tick();
 
 
-        friendRoom.timer =
-            setInterval(
-                tick,
-                200
-            );
+    friendRoom.timer =
+        setInterval(
+            tick,
+            100
+        );
 
-    }
+}
 
 
     /* =====================================================
