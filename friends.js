@@ -16,14 +16,21 @@
     const XP_PER_CORRECT = 10;
 
     let friendRoom = {
-        id: null,
-        code: null,
-        isHost: false,
-        listener: null,
-        timer: null,
-        scanner: null,
-        xpAwarded: false
-    };
+    id: null,
+    code: null,
+    isHost: false,
+    listener: null,
+    timer: null,
+    scanner: null,
+    xpAwarded: false,
+
+    // Synchronisation de l'heure avec Firebase
+    serverOffset: 0,
+    serverOffsetRef: null,
+
+    // Heure de fin du chrono
+    timerEndsAt: 0
+};
 
 
     /* =====================================================
@@ -38,6 +45,24 @@
 
         return null;
     }
+
+   function getServerNow() {
+    return Date.now() + Number(friendRoom.serverOffset || 0);
+}
+
+function watchServerTimeOffset() {
+    const db = getDB();
+
+    if (!db || friendRoom.serverOffsetRef) return;
+
+    const ref = db.ref('.info/serverTimeOffset');
+    friendRoom.serverOffsetRef = ref;
+
+    ref.on('value', snapshot => {
+        const value = Number(snapshot.val() || 0);
+        friendRoom.serverOffset = Number.isFinite(value) ? value : 0;
+    });
+}
 
 
     function username() {
@@ -1230,16 +1255,19 @@
 
 
         const me =
-            room.players?.[
-                playerKey(username())
-            ];
+    room.players?.[
+        playerKey(username())
+    ];
 
 
-        if (!me) return;
+if (!me) return;
 
 
-        const config =
-            room.settings;
+updateAnsweredText(room);
+
+
+const config =
+    room.settings;
 
 
         if (
@@ -1329,8 +1357,13 @@
             );
 
 
-        question.options.forEach(
-            (answer, i) => {
+        const options =
+    question.options ||
+    question.answers ||
+    [];
+
+options.forEach(
+    (answer, i) => {
 
                 const button =
                     document.createElement(
@@ -2620,13 +2653,15 @@ window.startFriendQRScanner = async function () {
        INITIALISATION
     ===================================================== */
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        () => {
+   document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-            populateCategories();
+        watchServerTimeOffset();
 
-            updateFriendSettingsUI();
+        populateCategories();
+
+        updateFriendSettingsUI();
 
 
             document
