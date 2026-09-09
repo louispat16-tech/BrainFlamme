@@ -177,6 +177,8 @@ function watchServerTimeOffset() {
 
     window.openFriendsMode = function () {
 
+        watchServerTimeOffset();
+
         show("friendsModeScreen");
 
         stopQR();
@@ -185,6 +187,8 @@ function watchServerTimeOffset() {
 
 
     window.openCreateFriendRoom = function () {
+
+        watchServerTimeOffset();
 
         show("createFriendRoomScreen");
 
@@ -196,6 +200,8 @@ function watchServerTimeOffset() {
 
 
     window.openJoinFriendRoom = function () {
+
+        watchServerTimeOffset();
 
         show("joinFriendRoomScreen");
 
@@ -596,6 +602,8 @@ function watchServerTimeOffset() {
     window.createFriendRoom =
         async function () {
 
+            watchServerTimeOffset();
+
             const db = getDB();
 
             if (!db) {
@@ -764,6 +772,8 @@ function watchServerTimeOffset() {
     window.joinFriendRoom =
         async function (givenCode) {
 
+            watchServerTimeOffset();
+
             const db = getDB();
 
             if (!db) {
@@ -930,7 +940,6 @@ function watchServerTimeOffset() {
     /* =====================================================
        LOBBY
     ===================================================== */
-
     function listenRoom(id) {
 
         const db = getDB();
@@ -997,6 +1006,11 @@ function watchServerTimeOffset() {
                     room.status ===
                     "finished"
                 ) {
+
+                    if (friendRoom.timer) {
+                        clearInterval(friendRoom.timer);
+                        friendRoom.timer = null;
+                    }
 
                     renderResults(room);
 
@@ -1133,6 +1147,8 @@ function watchServerTimeOffset() {
 
     window.startFriendGame =
         async function () {
+
+            watchServerTimeOffset();
 
             if (
                 !friendRoom.isHost ||
@@ -1288,7 +1304,7 @@ function watchServerTimeOffset() {
 
 
     text(
-        "friendAnsweredText",
+        "friendAnsweredCount",
         parts.join(" · ")
     );
 
@@ -1367,7 +1383,16 @@ const config =
             room.questions[index];
 
 
-        if (!question) return;
+        if (!question) {
+            text("friendQuestionCounter", "Terminé ✓");
+            text("friendQuestionText", "Plus de questions disponibles.");
+
+            const emptyContainer = document.getElementById("friendAnswers");
+            if (emptyContainer) {
+                emptyContainer.innerHTML = "";
+            }
+            return;
+        }
 
 
         text(
@@ -1393,6 +1418,9 @@ const config =
                 "friendAnswers"
             );
 
+        if (!container) {
+            return;
+        }
 
         container.innerHTML = "";
 
@@ -1855,7 +1883,6 @@ options.forEach(
         return;
     }
 
-
     friendRoom.timerEndsAt =
         endsAt;
 
@@ -1877,10 +1904,12 @@ options.forEach(
             );
 
 
+        const totalSeconds = Math.ceil(remaining / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = String(totalSeconds % 60).padStart(2, "0");
+
         label.textContent =
-            `${Math.ceil(
-                remaining / 1000
-            )}s`;
+            `${minutes}:${seconds}`;
 
 
         bar.style.width =
@@ -2327,7 +2356,7 @@ window.startFriendQRScanner = async function () {
 
     // Arrêter un éventuel ancien scanner
     try {
-        stopScanner();
+        stopQR();
     } catch (e) {
         console.warn('[Amis] Impossible d’arrêter l’ancien scanner :', e);
     }
@@ -2449,7 +2478,7 @@ window.startFriendQRScanner = async function () {
                 console.log('[Amis] Code de salle détecté :', code);
 
                 // Arrêt de la caméra
-                stopScanner();
+                stopQR();
 
                 const input = document.getElementById(
                     'friendRoomCodeInput'
@@ -2488,7 +2517,7 @@ window.startFriendQRScanner = async function () {
 
         console.error('[Amis] Erreur scanner QR :', error);
 
-        stopScanner();
+        stopQR();
 
         let errorMessage =
             'Impossible d’utiliser la caméra.';
@@ -2691,38 +2720,34 @@ window.startFriendQRScanner = async function () {
 
     function cleanup() {
 
-        clearInterval(
-            friendRoom.timer
-        );
+        if (friendRoom.timer) {
+            clearInterval(friendRoom.timer);
+            friendRoom.timer = null;
+        }
 
         stopQR();
 
-
-        if (
-            friendRoom.listener
-        ) {
-
+        if (friendRoom.listener) {
             friendRoom.listener.off();
-
+            friendRoom.listener = null;
         }
 
+        if (friendRoom.serverOffsetRef) {
+            friendRoom.serverOffsetRef.off();
+            friendRoom.serverOffsetRef = null;
+        }
 
         friendRoom = {
-
             id: null,
-
             code: null,
-
             isHost: false,
-
             listener: null,
-
             timer: null,
-
             scanner: null,
-
-            xpAwarded: false
-
+            xpAwarded: false,
+            serverOffset: 0,
+            serverOffsetRef: null,
+            timerEndsAt: 0
         };
 
     }
