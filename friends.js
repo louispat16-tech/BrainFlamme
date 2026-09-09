@@ -1447,6 +1447,18 @@ options.forEach(
                     document.createElement(
                         "button"
                     );
+       if (alreadyAnswered && config.type === "questions") {
+    const continueBtn = document.createElement("button");
+
+    continueBtn.className = "answer";
+    continueBtn.textContent = "Continuer →";
+
+    continueBtn.onclick = () => {
+        nextFriendQuestion(room);
+    };
+
+    container.appendChild(continueBtn);
+}
 
 
                 button.className =
@@ -1461,13 +1473,9 @@ options.forEach(
                     alreadyAnswered;
 
 
-                button.onclick =
-                    () =>
-                        submitAnswer(
-                            room,
-                            index,
-                            i
-                        );
+                button.onclick = () => {
+    submitAnswer(room, index, i);
+};
 
 
                 container.appendChild(
@@ -1478,6 +1486,36 @@ options.forEach(
         );
 
     }
+   function nextFriendQuestion(room) {
+    const key = playerKey(username());
+    const playerRef = getDB().ref(
+        `${ROOM_ROOT}/${friendRoom.id}/players/${key}`
+    );
+
+    playerRef.once("value").then(snapshot => {
+        const player = snapshot.val();
+
+        if (!player) return;
+
+        const index = Number(player.currentIndex || 0);
+
+        if (
+            room.settings.type === "questions" &&
+            index >= Number(room.settings.questionCount)
+        ) {
+            checkEveryoneFinished(room);
+            return;
+        }
+
+        renderGame({
+            ...room,
+            players: {
+                ...room.players,
+                [key]: player
+            }
+        });
+    });
+}
 
 
     /* =====================================================
@@ -1652,22 +1690,23 @@ options.forEach(
 
 
         paintAnswer(
-            selected,
-            Number(question.correct),
-            correct
-        );
+    selected,
+    Number(question.correct),
+    correct
+);
 
+if (
+    correct &&
+    typeof playSFX === "function"
+) {
+    playSFX("correct");
+}
 
-        if (
-            correct &&
-            typeof playSFX === "function"
-        ) {
-
-            playSFX("correct");
-
-        }
-
-    }
+if (room.settings.type === "chrono") {
+    setTimeout(() => {
+        nextFriendQuestion(room);
+    }, 700);
+}
 
 
     function paintAnswer(
