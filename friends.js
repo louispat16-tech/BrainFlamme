@@ -1521,8 +1521,7 @@ options.forEach(
     /* =====================================================
        RÉPONSE
     ===================================================== */
-
-    async function submitAnswer(
+async function submitAnswer(
         room,
         index,
         selected
