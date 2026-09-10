@@ -2885,5 +2885,3 @@ window.startFriendQRScanner = async function () {
 
         }
     );
-
-})();
