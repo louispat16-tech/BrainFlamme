@@ -6,6 +6,8 @@
 
     "use strict";
 
+   console.log("🔥 FRIENDS.JS CHARGÉ");
+
     const ROOM_ROOT = "sallesAmis";
 
     const MIN_PLAYERS = 2;
