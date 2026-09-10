@@ -1725,6 +1725,7 @@ if (room.settings.type === "chrono") {
         nextFriendQuestion(room);
     }, 700);
 }
+}
 
 
     function paintAnswer(
