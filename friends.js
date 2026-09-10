@@ -1440,83 +1440,102 @@ const config =
     question.answers ||
     [];
 
-options.forEach(
-    (answer, i) => {
+options.forEach((answer, i) => {
 
-                const button =
-                    document.createElement(
-                        "button"
-                    );
-       if (alreadyAnswered && config.type === "questions") {
-    const continueBtn = document.createElement("button");
+    const button = document.createElement("button");
 
-    continueBtn.className = "answer";
-    continueBtn.textContent = "Continuer →";
+    button.className = "answer";
+    button.textContent = answer;
+    button.disabled = alreadyAnswered;
 
-    continueBtn.onclick = () => {
-        nextFriendQuestion(room);
+    button.onclick = () => {
+        submitAnswer(room, index, i);
     };
 
-    container.appendChild(continueBtn);
+    container.appendChild(button);
+});
+
+if (alreadyAnswered) {
+
+    const savedAnswer = room.answers?.[answerKey];
+
+    if (savedAnswer) {
+        paintAnswer(
+            Number(savedAnswer.selectedIndex),
+            Number(question.correct),
+            savedAnswer.correct === true
+        );
+    }
+
+    if (config.type === "questions") {
+
+        const continueBtn =
+            document.createElement("button");
+
+        continueBtn.className = "answer";
+        continueBtn.textContent =
+            index + 1 >= Number(config.questionCount)
+                ? "Terminer ✓"
+                : "Continuer →";
+
+        continueBtn.onclick = () => {
+            continueFriendQuestion(room, index);
+        };
+
+        container.appendChild(continueBtn);
+    }
 }
 
+   async function continueFriendQuestion(room, index) {
 
-                button.className =
-                    "answer";
+    const db = getDB();
 
-
-                button.textContent =
-                    answer;
-
-
-                button.disabled =
-                    alreadyAnswered;
-
-
-                button.onclick = () => {
-    submitAnswer(room, index, i);
-};
-
-
-                container.appendChild(
-                    button
-                );
-
-            }
-        );
-
+    if (!db || !friendRoom.id) {
+        return;
     }
-   function nextFriendQuestion(room) {
+
     const key = playerKey(username());
-    const playerRef = getDB().ref(
+
+    // En chrono, on ne passe pas à la suivante
+    // si le temps est terminé.
+    if (
+        room.settings.type === "chrono" &&
+        getServerNow() >= Number(room.endsAt || 0)
+    ) {
+        return;
+    }
+
+    const playerRef = db.ref(
         `${ROOM_ROOT}/${friendRoom.id}/players/${key}`
     );
 
-    playerRef.once("value").then(snapshot => {
-        const player = snapshot.val();
+    await playerRef.transaction(current => {
 
-        if (!player) return;
-
-        const index = Number(player.currentIndex || 0);
-
-        if (
-            room.settings.type === "questions" &&
-            index >= Number(room.settings.questionCount)
-        ) {
-            checkEveryoneFinished(room);
-            return;
+        if (!current) {
+            return current;
         }
 
-        renderGame({
-            ...room,
-            players: {
-                ...room.players,
-                [key]: player
-            }
-        });
+        // Protection contre les doubles clics
+        if (Number(current.currentIndex || 0) !== index) {
+            return current;
+        }
+
+        const nextIndex = index + 1;
+
+        const total =
+            Number(room.settings.questionCount || 0);
+
+        return {
+            ...current,
+
+            currentIndex: nextIndex,
+
+            finished:
+                room.settings.type === "questions" &&
+                nextIndex >= total
+        };
     });
 }
-
 
     /* =====================================================
        RÉPONSE
