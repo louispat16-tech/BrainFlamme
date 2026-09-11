@@ -1730,53 +1730,30 @@ if (room.settings.type === "chrono") {
 }
 
 
-    function paintAnswer(
-        selected,
-        correct,
-        isCorrect
-    ) {
+   function paintAnswer(
+    selected,
+    correct,
+    isCorrect
+) {
+    const buttons = document.querySelectorAll(
+        "#friendAnswers .answer"
+    );
 
-        const buttons =
-            document.querySelectorAll(
-                "#friendAnswers .answer"
+    buttons.forEach((button, index) => {
+
+        button.disabled = true;
+
+        if (index === selected) {
+            button.classList.add(
+                isCorrect ? "correct" : "wrong"
             );
+        }
 
-
-        buttons.forEach(
-            (button, index) => {
-
-                button.disabled =
-                    true;
-
-
-                if (
-                    index === selected
-                ) {
-
-                    button.classList.add(
-                        isCorrect
-                            ? "correct"
-                            : "wrong"
-                    );
-
-                }
-
-
-                if (
-                    !isCorrect &&
-                    index === correct
-                ) {
-
-                    button.classList.add(
-                        "correct"
-                    );
-
-                }
-
-            }
-        );
-
-    }
+        if (!isCorrect && index === correct) {
+            button.classList.add("correct");
+        }
+    });
+}
 
 
     /* =====================================================
