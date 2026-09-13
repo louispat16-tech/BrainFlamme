@@ -2862,3 +2862,4 @@ window.startFriendQRScanner = async function () {
 
         }
     );
+})();
