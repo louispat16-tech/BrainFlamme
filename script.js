@@ -1488,7 +1488,14 @@ function switchTab(screenId, clickedBtn) {
         'score', 
         'leaderboard-screen',
         'theme-selection-screen',
-        'theme-options-screen'
+        'theme-options-screen',
+        'chest-screen',
+        'friendsModeScreen',
+        'createFriendRoomScreen',
+        'joinFriendRoomScreen',
+        'friendRoomLobbyScreen',
+        'friendsQuizScreen',
+        'friendResultsScreen'
     ];
 
     allScreens.forEach(id => {
