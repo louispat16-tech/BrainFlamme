@@ -1540,7 +1540,7 @@ function renderProfile() {
     if (tagEl) tagEl.textContent = "@" + currentUsername.toLowerCase().replace(/\s+/g, '');
 
     const currentProgression = stats.progression || 0;
-const xpNeeded = getXPForLevel(currentLevel);
+const xpNeeded = getXPForLevel(stats.level || 1);
 
 if (document.getElementById("xpText")) {
     document.getElementById("xpText").textContent = `${currentProgression} / ${xpNeeded} XP`;
@@ -1557,7 +1557,7 @@ if (document.getElementById("xpBarFill")) {
         document.getElementById("profileMaxFlame").textContent = "🔥 " + (stats.maxStreak || stats.streak || 0);
     }
     if (document.getElementById("profileLevel")) {
-        document.getElementById("profileLevel").textContent = "Niv. " + currentLevel;
+        document.getElementById("profileLevel").textContent = "Niv. " + (stats.level || 1);
     }
 
     if (stats.avatar && document.getElementById("avatarImg")) {
@@ -1990,16 +1990,17 @@ function loadRealLeaderboard() {
     });
 }
 
-function saveUserProfileToFirebase(username, streak, xp, level, avatar) { 
+function saveUserProfileToFirebase(username, streak, xp, level, avatar) {
     if (typeof database === "undefined" || !database) return;
 
     const userId = (typeof auth !== "undefined" && auth && auth.currentUser) 
         ? auth.currentUser.uid 
         : (localStorage.getItem('brainflamme_uid') || ("user_" + Date.now()));
 
+    // Récupère le vrai pseudo saisi (priorité au localStorage si username n'est pas passé)
     const actualName = username || localStorage.getItem('username') || localStorage.getItem('brainflamme_user');
 
-    if (!actualName) return; 
+    if (!actualName) return; // Ne sauvegarde pas si pas de nom
 
     database.ref('joueurs/' + userId).update({
         username: actualName,
