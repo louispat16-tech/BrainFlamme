@@ -88,7 +88,7 @@
             document.getElementById(id);
 
         if (element) {
-            element.style.display = "";
+            element.style.display = "block";
         }
     }
 
@@ -267,7 +267,7 @@
     function populateCategories() {
         const select =
             document.getElementById(
-                "friendCategory"
+                "friendCategorySelect"
             );
 
         if (!select) {
@@ -322,7 +322,7 @@
 
         const category =
             document.getElementById(
-                "friendCategory"
+                "friendCategorySelect"
             )?.value ||
             "Toutes";
 
@@ -824,7 +824,7 @@
 
     function renderWaiting(room) {
         show(
-            "friendsWaitingScreen"
+            "friendRoomLobbyScreen"
         );
 
         text(
@@ -860,7 +860,7 @@
 
         const startButton =
             document.getElementById(
-                "friendStartButton"
+                "startFriendGameBtn"
             );
 
         if (startButton) {
@@ -875,7 +875,7 @@
 
         const hostText =
             document.getElementById(
-                "friendHostText"
+                "friendLobbyStatus"
             );
 
         if (hostText) {
@@ -1004,7 +1004,7 @@
     ===================================================== */
 
     function renderGame(room) {
-        show("friendsGameScreen");
+        show("friendsQuizScreen");
 
         const me =
             room.players?.[
@@ -1608,7 +1608,7 @@
     function renderResults(room) {
 
         show(
-            "friendsResultsScreen"
+            "friendResultsScreen"
         );
 
         const players =
@@ -1830,7 +1830,7 @@
 
         const container =
             document.getElementById(
-                "friendQRCode"
+                "friendRoomQR"
             );
 
         if (!container) {
@@ -2056,7 +2056,7 @@
 
         const category =
             document.getElementById(
-                "friendCategory"
+                "friendCategorySelect"
             );
 
         if (category) {
@@ -2075,7 +2075,7 @@
         function () {
 
             show(
-                "friendsCreateScreen"
+                "createFriendRoomScreen"
             );
 
             populateCategories();
@@ -2094,7 +2094,7 @@
         function () {
 
             show(
-                "friendsJoinScreen"
+                "joinFriendRoomScreen"
             );
 
             const input =
