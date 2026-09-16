@@ -118,7 +118,7 @@
 
         <div id="friendsModeScreen" class="screen" style="display:none; text-align:center;">
             <div class="friends-header-card">
-                <button class="friends-back-btn" onclick="switchTab('modeSelection')">← Retour</button>
+                <button class="friends-back-btn" onclick="switchTab('modeSelection')" aria-label="Retour">←</button>
                 <h2>👥 Jouer entre amis</h2>
                 <p>Crée une partie privée ou rejoins celle d’un ami.</p>
             </div>
@@ -139,7 +139,7 @@
 
         <div id="createFriendRoomScreen" class="screen" style="display:none; text-align:center;">
             <div class="friends-header-card">
-                <button class="friends-back-btn" onclick="openFriendsMode()">← Retour</button>
+                <button class="friends-back-btn" onclick="openFriendsMode()" aria-label="Retour">←</button>
                 <h2>🏠 Créer une salle</h2>
                 <p>De 2 à 4 joueurs · Configure ta partie avant d’inviter tes amis.</p>
             </div>
@@ -199,13 +199,13 @@
 
         <div id="joinFriendRoomScreen" class="screen" style="display:none; text-align:center;">
             <div class="friends-header-card">
-                <button class="friends-back-btn" onclick="openFriendsMode()">← Retour</button>
+                <button class="friends-back-btn" onclick="openFriendsMode()" aria-label="Retour">←</button>
                 <h2>🚪 Rejoindre une salle</h2>
                 <p>Scanne le QR code de ton ami ou saisis son code.</p>
             </div>
 
             <div class="friend-join-card">
-                <div id="friendQrReader" class="friend-qr-reader"></div>
+                <div id="friendQrReader" class="friend-qr-reader" style="display:none;"></div>
                 <button class="friends-secondary-btn" onclick="startFriendQRScanner()">📷 Scanner un QR code</button>
                 <div class="friend-or"><span>OU</span></div>
                 <input id="friendRoomCodeInput" class="friend-code-input" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters">
@@ -440,7 +440,7 @@
                 <button class="theme-card" onclick="selectTheme('Gastronomie')">🍳 Gastronomie</button>
                 <button class="theme-card" onclick="selectTheme('Sport')">⚽ Sport</button>
                 <button class="theme-card" onclick="selectTheme('Cinéma & Séries')">🎬 Cinéma & Séries</button>
-                <button class="theme-card" onclick="selectTheme('Sciences & Tech')">🔬 Sciences & Nature</button>
+                <button class="theme-card" onclick="selectTheme('Sciences et Nature')">🔬 Sciences & Nature</button>
                 <button class="theme-card" onclick="selectTheme('Musique')">🎵 Musique</button>
                 <button class="theme-card" onclick="selectTheme('Jeux Vidéo')">🎮 Jeux Vidéo</button>
             </div>
@@ -482,17 +482,19 @@
     </nav>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-<script src="notifications.js"></script>
-<script src="audio.js"></script>
-<script src="questions.js"></script>
-<script src="friends.js?v=3"></script>
-<script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="notifications.js"></script>
+    <script src="audio.js"></script>
+    <script src="questions.js"></script>
+    <script src="friends.js?v=2"></script>
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
 
 </body>
 </html>
