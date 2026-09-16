@@ -62,10 +62,37 @@
     }
 
     function playerKey(name) {
-        return String(name || "Joueur")
-            .trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9_-]/g, "_");
+        // Chaque appareil/navigateur garde un identifiant unique et stable,
+        // pour que deux joueurs avec le même pseudo (ex: "Joueur" par défaut)
+        // ne soient jamais confondus en une seule et même entrée de salle.
+        try {
+            let id = localStorage.getItem(
+                "brainflamme_friend_player_id"
+            );
+
+            if (!id) {
+                id =
+                    typeof crypto !== "undefined" &&
+                    crypto.randomUUID
+                        ? crypto.randomUUID()
+                        : Date.now().toString(36) +
+                          Math.random()
+                              .toString(36)
+                              .slice(2, 10);
+
+                localStorage.setItem(
+                    "brainflamme_friend_player_id",
+                    id
+                );
+            }
+
+            return id;
+        } catch {
+            return String(name || "Joueur")
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9_-]/g, "_");
+        }
     }
 
     function safe(value) {
@@ -1021,12 +1048,12 @@
                 : room.questions.length;
 
         text(
-            "friendQuestionNumber",
+            "friendQuestionCounter",
             `Question ${Math.min(index + 1, total)} / ${total}`
         );
 
         text(
-            "friendQuestion",
+            "friendQuestionText",
             question.question || ""
         );
 
@@ -1772,7 +1799,7 @@
                     60;
 
                 text(
-                    "friendTimer",
+                    "friendGameTimerText",
                     `${String(
                         minutes
                     ).padStart(2, "0")}:${String(
@@ -1855,6 +1882,90 @@
     }
 
 
+    window.startFriendQRScanner = function () {
+
+        const container =
+            document.getElementById(
+                "friendQrReader"
+            );
+
+        if (!container) {
+            return;
+        }
+
+        if (
+            typeof Html5Qrcode ===
+            "undefined"
+        ) {
+            alert(
+                "Le scanner QR n'a pas pu se charger. Vérifie ta connexion internet."
+            );
+            return;
+        }
+
+        if (friendRoom.scanner) {
+            return;
+        }
+
+        container.innerHTML = "";
+        container.style.display = "block";
+
+            new Html5Qrcode(
+                "friendQrReader"
+            );
+
+        friendRoom.scanner =
+            scanner;
+
+        scanner
+            .start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 220 },
+                decodedText => {
+                    const match =
+                        String(decodedText || "")
+                            .trim()
+                            .toUpperCase()
+                            .match(/[A-Z0-9]{6}/);
+
+                    const code =
+                        match ? match[0] : "";
+
+                    if (!code) {
+                        return;
+                    }
+
+                    stopQR();
+
+                    const input =
+                        document.getElementById(
+                            "friendRoomCodeInput"
+                        );
+
+                    if (input) {
+                        input.value = code;
+                    }
+
+                    joinFriendRoom();
+                },
+                () => {}
+            )
+            .catch(error => {
+                console.error(
+                    "Erreur caméra :",
+                    error
+                );
+
+                alert(
+                    "Impossible d'accéder à la caméra. Vérifie que l'accès y est autorisé pour ce site."
+                );
+
+                friendRoom.scanner =
+                    null;
+            });
+    };
+
+
     function stopQR() {
 
         if (
@@ -1871,6 +1982,16 @@
 
             friendRoom.scanner =
                 null;
+        }
+
+        const container =
+            document.getElementById(
+                "friendQrReader"
+            );
+
+        if (container) {
+            container.style.display =
+                "none";
         }
 
     }
