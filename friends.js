@@ -280,17 +280,16 @@
             return;
         }
 
+        select.innerHTML = "";
+
+        const themeNames =
+            (typeof allThemesQuestions !== "undefined" && allThemesQuestions)
+                ? Object.keys(allThemesQuestions)
+                : [];
+
         const categories = [
             "Toutes",
-            "Mathématiques",
-            "Physique-Chimie",
-            "Français",
-            "Histoire",
-            "Géographie",
-            "SVT",
-            "Anglais",
-            "Espagnol",
-            "Autre"
+            ...themeNames
         ];
 
         categories.forEach(
@@ -362,32 +361,28 @@
 
     function getQuestionPool() {
         if (
-            typeof QUESTIONS !==
+            typeof questionsData !==
             "undefined" &&
-            Array.isArray(QUESTIONS)
+            Array.isArray(questionsData)
         ) {
-            return QUESTIONS;
-        }
-
-        if (
-            typeof questions !==
-            "undefined" &&
-            Array.isArray(questions)
-        ) {
-            return questions;
-        }
-
-        if (
-            typeof window.QUESTIONS !==
-            "undefined" &&
-            Array.isArray(
-                window.QUESTIONS
-            )
-        ) {
-            return window.QUESTIONS;
+            return questionsData;
         }
 
         return [];
+    }
+
+    function getAllThemesPool() {
+        if (
+            typeof allThemesQuestions ===
+            "undefined" ||
+            !allThemesQuestions
+        ) {
+            return [];
+        }
+
+        return Object.values(
+            allThemesQuestions
+        ).flat();
     }
 
     function normalizeQuestion(question) {
@@ -424,48 +419,40 @@
     function getFriendQuestions(
         settings
     ) {
-        let pool =
-            getQuestionPool()
-                .map(
-                    normalizeQuestion
-                )
-                .filter(
-                    question =>
-                        question &&
-                        question.question &&
-                        question.options.length
-                );
-
-        if (
+        const useCategory =
             settings.category &&
             settings.category !==
-                "Toutes"
-        ) {
-            const filtered =
-                pool.filter(
-                    question => {
-                        const category =
-                            question.category ||
-                            question.subject ||
-                            question.matiere;
+                "Toutes" &&
+            typeof allThemesQuestions !==
+                "undefined" &&
+            Array.isArray(
+                allThemesQuestions[
+                    settings.category
+                ]
+            );
 
-                        return (
-                            !category ||
-                            String(category)
-                                .toLowerCase() ===
-                            String(
-                                settings.category
-                            ).toLowerCase()
-                        );
-                    }
-                );
+        const rawPool = useCategory
+            ? allThemesQuestions[
+                  settings.category
+              ]
+            : [
+                  ...getQuestionPool(),
+                  ...getAllThemesPool()
+              ];
 
-            if (filtered.length) {
-                pool = filtered;
-            }
-        }
+        let pool = rawPool
+            .map(
+                normalizeQuestion
+            )
+            .filter(
+                question =>
+                    question &&
+                    question.question &&
+                    question.options.length
+            );
 
         for (
+
             let i = pool.length - 1;
             i > 0;
             i--
