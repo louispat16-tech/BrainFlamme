@@ -42,22 +42,17 @@
 
     function username() {
         try {
-            const user =
-                JSON.parse(
-                    localStorage.getItem("currentUser") ||
-                    "null"
-                );
-
             return (
-                user?.username ||
-                localStorage.getItem("username") ||
+                localStorage.getItem(
+                    "brainflamme_user"
+                ) ||
+                localStorage.getItem(
+                    "username"
+                ) ||
                 "Joueur"
             );
         } catch {
-            return (
-                localStorage.getItem("username") ||
-                "Joueur"
-            );
+            return "Joueur";
         }
     }
 
@@ -288,6 +283,32 @@
         ) {
             questionValue.textContent =
                 questionSlider.value;
+        }
+
+        const questionModeValue =
+            getSelectedValue(
+                "friendQuestionMode",
+                "mixed"
+            );
+
+        const categorySettings =
+            document.getElementById(
+                "friendCategorySettings"
+            );
+
+        if (categorySettings) {
+            categorySettings.style.display =
+                questionModeValue ===
+                "category"
+                    ? ""
+                    : "none";
+        }
+
+        if (
+            questionModeValue ===
+            "category"
+        ) {
+            populateCategories();
         }
     }
 
@@ -607,6 +628,8 @@
                         correctCount: 0,
                         score: 0,
                         currentIndex: 0,
+                        questionStartedAt:
+                            getServerNow(),
                         finished: false
                     }
                 },
@@ -741,6 +764,8 @@
                     correctCount: 0,
                     score: 0,
                     currentIndex: 0,
+                    questionStartedAt:
+                        getServerNow(),
                     finished: false
                 });
 
@@ -883,6 +908,22 @@
                     ? ""
                     : "none";
 
+            const enoughPlayers =
+                players.length >= 2;
+
+            startButton.disabled =
+                !enoughPlayers;
+
+            startButton.style.opacity =
+                enoughPlayers
+                    ? "1"
+                    : "0.5";
+
+            startButton.textContent =
+                enoughPlayers
+                    ? "LANCER LA PARTIE 🚀"
+                    : "EN ATTENTE D'UN AMI…";
+
             startButton.onclick =
                 startFriendGame;
         }
@@ -895,7 +936,9 @@
         if (hostText) {
             hostText.textContent =
                 friendRoom.isHost
-                    ? "Tu es l'hôte"
+                    ? players.length >= 2
+                        ? "Tu es l'hôte"
+                        : "Tu es l'hôte — en attente d'au moins un ami…"
                     : `En attente de ${room.host}…`;
         }
     }
@@ -930,6 +973,18 @@
                 snapshot.val();
 
             if (!room) {
+                return;
+            }
+
+            const playerCount =
+                Object.keys(
+                    room.players || {}
+                ).length;
+
+            if (playerCount < 2) {
+                alert(
+                    "Il faut au moins 2 joueurs dans la salle pour lancer la partie."
+                );
                 return;
             }
 
@@ -1019,6 +1074,51 @@
 
     function renderGame(room) {
         show("friendsQuizScreen");
+
+        const nav =
+            document.querySelector(
+                ".bottom-nav"
+            );
+
+        if (nav) {
+            nav.style.setProperty(
+                "display",
+                "none",
+                "important"
+            );
+        }
+
+        const isChrono =
+            room.settings?.type ===
+            "chrono";
+
+        const timerContainer =
+            document.getElementById(
+                "friendGameTimerContainer"
+            );
+
+        if (timerContainer) {
+            timerContainer.style.display =
+                isChrono
+                    ? ""
+                    : "none";
+        }
+
+        const centerTimerEl =
+            document.getElementById(
+                "friendGameCenterTimer"
+            );
+
+        if (centerTimerEl) {
+            centerTimerEl.style.display =
+                isChrono
+                    ? ""
+                    : "none";
+        }
+
+        if (isChrono) {
+            startFriendTimer(room);
+        }
 
         const me =
             room.players?.[
@@ -1153,19 +1253,19 @@
                     continueButton
                 );
             }
+
+            if (
+                room.settings?.type ===
+                "chrono"
+            ) {
+                scheduleChronoAdvance(
+                    room,
+                    index
+                );
+            }
         }
 
         updateAnsweredText(room);
-
-        if (
-            room.settings?.type ===
-            "chrono"
-        ) {
-            scheduleChronoAdvance(
-                room,
-                index
-            );
-        }
     }
 
     /* =====================================================
@@ -1223,6 +1323,16 @@
                 `${ROOM_ROOT}/${friendRoom.id}/answers/${answerKey}`
             );
 
+        const timeMs =
+            Math.max(
+                0,
+                getServerNow() -
+                Number(
+                    player.questionStartedAt ||
+                    getServerNow()
+                )
+            );
+
         const result =
             await answerRef.transaction(
                 current =>
@@ -1243,6 +1353,9 @@
                             Number(
                                 question.correct
                             ),
+
+                        timeMs:
+                            timeMs,
 
                         timestamp:
                             firebase
@@ -1456,6 +1569,9 @@
                     currentIndex:
                         nextIndex,
 
+                    questionStartedAt:
+                        getServerNow(),
+
                     finished:
                         room.settings.type ===
                             "questions" &&
@@ -1508,7 +1624,7 @@
                         index
                     );
                 },
-                700
+                1400
             );
     }
 
@@ -1619,19 +1735,72 @@
        RÉSULTATS
     ===================================================== */
 
+    function computeAverageTime(
+        room,
+        key
+    ) {
+        const entries =
+            Object.entries(
+                room.answers || {}
+            );
+
+        let total = 0;
+        let count = 0;
+
+        entries.forEach(
+            ([answerKey, answer]) => {
+                const lastUnderscore =
+                    answerKey.lastIndexOf(
+                        "_"
+                    );
+
+                const ownerKey =
+                    answerKey.slice(
+                        0,
+                        lastUnderscore
+                    );
+
+                if (
+                    ownerKey === key &&
+                    typeof answer?.timeMs ===
+                        "number"
+                ) {
+                    total +=
+                        answer.timeMs;
+                    count++;
+                }
+            }
+        );
+
+        return count
+            ? total / count / 1000
+            : null;
+    }
+
     function renderResults(room) {
 
         show(
             "friendResultsScreen"
         );
 
+        const nav =
+            document.querySelector(
+                ".bottom-nav"
+            );
+
+        if (nav) {
+            nav.style.removeProperty(
+                "display"
+            );
+        }
+
         const players =
-            Object.values(
+            Object.entries(
                 room.players || {}
             );
 
         players.sort(
-            (a, b) =>
+            ([, a], [, b]) =>
                 Number(
                     b.score || 0
                 ) -
@@ -1650,7 +1819,7 @@
             list.innerHTML =
                 players
                     .map(
-                        (player, index) => {
+                        ([key, player], index) => {
 
                             const medal =
                                 index === 0
@@ -1660,6 +1829,17 @@
                                     : index === 2
                                     ? "🥉"
                                     : "";
+
+                            const avgTime =
+                                computeAverageTime(
+                                    room,
+                                    key
+                                );
+
+                            const avgTimeLabel =
+                                avgTime === null
+                                    ? ""
+                                    : `<span class="friend-result-time">⏱ ${avgTime.toFixed(1)}s/question</span>`;
 
                             return `
                                 <div class="friend-result">
@@ -1672,6 +1852,7 @@
                                             player.username ||
                                             "Joueur"
                                         )}
+                                        ${avgTimeLabel}
                                     </span>
 
                                     <span class="friend-result-score">
@@ -1686,9 +1867,12 @@
                     .join("");
         }
 
+        const meKey =
+            playerKey(username());
+
         const me =
             room.players?.[
-                playerKey(username())
+                meKey
             ];
 
         if (me) {
@@ -1745,6 +1929,41 @@
         room
     ) {
 
+        const endsAt =
+            Number(
+                room.endsAt || 0
+            );
+
+        if (
+            room.settings?.type !==
+                "chrono" ||
+            !endsAt
+        ) {
+            if (
+                friendRoom.timer
+            ) {
+                clearInterval(
+                    friendRoom.timer
+                );
+
+                friendRoom.timer =
+                    null;
+            }
+
+            friendRoom.timerEndsAt =
+                null;
+
+            return;
+        }
+
+        if (
+            friendRoom.timer &&
+            friendRoom.timerEndsAt ===
+                endsAt
+        ) {
+            return;
+        }
+
         if (
             friendRoom.timer
         ) {
@@ -1756,21 +1975,29 @@
                 null;
         }
 
-        if (
-            room.settings?.type !==
-            "chrono"
-        ) {
-            return;
-        }
+        friendRoom.timerEndsAt =
+            endsAt;
 
-        const endsAt =
+        const totalDuration =
             Number(
-                room.endsAt || 0
+                room.duration ||
+                Number(
+                    room.settings
+                        .duration || 0
+                ) *
+                    60 *
+                    1000
+            ) || 1;
+
+        const bar =
+            document.getElementById(
+                "friendGameTimerBar"
             );
 
-        if (!endsAt) {
-            return;
-        }
+        const centerTimer =
+            document.getElementById(
+                "friendGameCenterTimer"
+            );
 
         const update =
             () => {
@@ -1807,6 +2034,50 @@
                     ).padStart(2, "0")}`
                 );
 
+                const percentage =
+                    Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            (remaining /
+                                totalDuration) *
+                                100
+                        )
+                    );
+
+                if (bar) {
+                    bar.style.width =
+                        percentage +
+                        "%";
+                }
+
+                const isUrgent =
+                    remaining <=
+                        10000 &&
+                        remaining > 0;
+
+                const container =
+                    document.getElementById(
+                        "friendGameTimerContainer"
+                    );
+
+                if (container) {
+                    container.classList.toggle(
+                        "friend-timer-warning",
+                        isUrgent
+                    );
+                }
+
+                if (centerTimer) {
+                    centerTimer.textContent =
+                        `${seconds}s`;
+
+                    centerTimer.classList.toggle(
+                        "friend-timer-warning",
+                        isUrgent
+                    );
+                }
+
                 if (
                     remaining <= 0
                 ) {
@@ -1816,6 +2087,9 @@
                     );
 
                     friendRoom.timer =
+                        null;
+
+                    friendRoom.timerEndsAt =
                         null;
 
                     if (
@@ -2056,6 +2330,17 @@
 
         friendRoom.timerEndsAt =
             0;
+
+        const nav =
+            document.querySelector(
+                ".bottom-nav"
+            );
+
+        if (nav) {
+            nav.style.removeProperty(
+                "display"
+            );
+        }
     }
 
 
@@ -2128,6 +2413,20 @@
             );
 
         typeInputs.forEach(
+            input => {
+                input.addEventListener(
+                    "change",
+                    updateFriendSettingsUI
+                );
+            }
+        );
+
+        const questionModeInputs =
+            document.querySelectorAll(
+                'input[name="friendQuestionMode"]'
+            );
+
+        questionModeInputs.forEach(
             input => {
                 input.addEventListener(
                     "change",
